@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Klárku ❤️</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* DISCORD THEME COLORS - REFINED */
+            --bg-color: #36393f;
+            --card-bg: #2f3136;
+            --text-main: #dcddde;
+            --text-header: #ffffff;
+            --accent: #5865F2; /* Blurple */
+            --accent-hover: #4752c4;
+            --success: #3ba55c;
+            --error: #ed4245;
+            --warning: #faa61a;
+            --embed-bg: #2f3136;
+            --embed-border: #202225;
+            --button-grey: #4f545c;
+            --button-grey-hover: #686d73;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Whitney', 'gg sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #202225; }
+        ::-webkit-scrollbar-thumb { background: #202225; border-radius: 5px; border: 2px solid #36393f; }
+        ::-webkit-scrollbar-thumb:hover { background: #40444b; }
+
+        .cmd-body::-webkit-scrollbar, .console-log::-webkit-scrollbar { width: 10px; }
+        .cmd-body::-webkit-scrollbar-track, .console-log::-webkit-scrollbar-track { background: #111; }
+        .cmd-body::-webkit-scrollbar-thumb, .console-log::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; border: none; }
+
+        .cmd-body, .console-log { scroll-behavior: smooth; }
+
+        /* --- PARTICLES BACKGROUND --- */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 15px;
+            z-index: 1; /* Above particles */
+        }
+
+        /* --- Screens --- */
+        .screen {
+            display: none;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            color: var(--text-header);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtext {
+            color: #b9bbbe;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        /* --- Buttons with Ripple --- */
+        .btn {
+            background-color: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            margin: 5px;
+            font-family: inherit;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(20, 20); opacity: 0; }
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-outline:hover { background-color: rgba(88, 101, 242, 0.1); }
+        .btn-full { width: 100%; margin: 10px 0; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; height: 28px; }
+        
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #2d7d46; }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: #72767d;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 5px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-icon:hover { color: #fff; transform: scale(1.1); }
+        
+        /* Active Bookmark Icon */
+        .btn-icon.active { 
+            color: var(--success); 
+            animation: bounceIn 0.3s;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- Login Screen --- */
+        .location-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .location-btn {
+            background: #2f3136;
+            border: 1px solid #202225;
+            color: var(--text-main);
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 15px;
+        }
+        .location-btn:hover { background: #36393f; border-color: var(--accent); }
+        .location-btn i { font-size: 20px; color: var(--accent); width: 24px; text-align: center; }
+        .login-msg { margin-top: 15px; font-weight: 500; min-height: 24px; padding: 8px; border-radius: 4px; font-size: 0.9em; }
+
+        /* --- CAPTCHA STYLE --- */
+        .captcha-container {
+            background: #fff;
+            color: #000;
+            padding: 15px;
+            border-radius: 4px;
+            max-width: 380px;
+            margin: 0 auto;
+            text-align: left;
+            box-shadow: 0 0 4px rgba(0,0,0,0.2);
+        }
+        .captcha-header {
+            background: #5865F2;
+            color: #fff;
+            padding: 15px;
+            margin: -15px -15px 10px -15px;
+            border-radius: 4px 4px 0 0;
+        }
+        .captcha-header h3 { margin: 0; font-size: 1.1em; font-weight: bold; color: #fff; }
+        .captcha-header p { margin: 5px 0 0 0; font-size: 0.9em; }
+        
+        .captcha-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .captcha-item {
+            position: relative;
+            cursor: pointer;
+            aspect-ratio: 1;
+            background: #eee;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            line-height: 1;
+        }
+        
+        .captcha-item:hover {
+            opacity: 0.8;
+        }
+
+        .captcha-item.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #5865F2;
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .captcha-item.selected {
+            border: 4px solid #5865F2;
+        }
+
+        /* --- Fact/Myth Quiz (Discord Embed Style) --- */
+        .quiz-card {
+            background: #2f3136;
+            border-left: 4px solid var(--accent);
+            padding: 16px;
+            border-radius: 4px;
+            text-align: left;
+            margin-bottom: 20px;
+            background-color: #2f3136;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .quiz-author { 
+            font-size: 0.85em; 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            margin-bottom: 8px; 
+            font-weight: 600;
+        }
+        
+        .bot-tag {
+            background-color: #5865F2;
+            color: white;
+            font-size: 0.65em;
+            padding: 1px 4px;
+            border-radius: 3px;
+            vertical-align: middle;
+            margin-left: 4px;
+            font-weight: 500;
+        }
+
+        .quiz-statement { 
+            font-size: 1.1em; 
+            font-weight: 400; 
+            color: #dcddde; 
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .options-container { 
+            display: flex; 
+            gap: 10px;
+            margin-bottom: 15px; 
+        }
+        
+        .btn-discord-interaction {
+            background-color: #4f545c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-discord-interaction:hover { background-color: #686d73; }
+        .btn-discord-interaction.success { background-color: var(--success); }
+        .btn-discord-interaction.fail { background-color: var(--error); }
+
+        .result-container { 
+            display: none; 
+            background: #202225;
+            padding: 12px; 
+            border-radius: 4px; 
+            margin-top: 15px; 
+            text-align: left; 
+            animation: fadeIn 0.3s; 
+            border-left: 3px solid #b9bbbe;
+        }
+        
+        .progress-bar-container { width: 100%; height: 4px; background: #202225; border-radius: 2px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease; }
+
+        /* --- DISCORD FILE ATTACHMENT (CONFESSION TRIGGER) --- */
+        .discord-file-attachment {
+            background-color: #2f3136;
+            border-radius: 5px;
+            border: 1px solid #202225;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .discord-file-attachment:hover {
+            background-color: #36393f;
+            border-color: var(--accent);
+        }
+        .file-icon-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+        .file-icon { font-size: 30px; color: var(--accent); }
+        .file-badge {
+            position: absolute; top: -2px; right: -2px;
+            width: 12px; height: 12px;
+            background: var(--error);
+            border-radius: 50%;
+            border: 2px solid #2f3136;
+        }
+        .file-info { flex: 1; text-align: left; }
+        .file-name { color: var(--accent); font-weight: 500; font-size: 0.9em; }
+        .file-meta { color: #b9bbbe; font-size: 0.75em; }
+        .file-download-icon { color: #b9bbbe; font-size: 1.2em; margin-right: 5px; }
+
+        /* --- LIBRARY LIST STYLES (COMPACT PLAYLIST) --- */
+        .library-section {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .lib-header {
+            font-size: 0.85em;
+            font-weight: 700;
+            color: #96989d;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding-left: 5px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lib-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .lib-card {
+            background: transparent;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 36px;
+            padding-right: 5px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .lib-card:hover {
+            background-color: rgba(79, 84, 92, 0.4);
+        }
+
+        /* HIGHLIGHT FOR BOOKMARKED ITEMS */
+        .lib-card.bookmarked {
+            background-color: rgba(59, 165, 92, 0.15); /* Jemně zelená */
+            border-left: 3px solid var(--success);
+        }
+        .lib-card.bookmarked:hover {
+            transform: translateX(8px) scale(1.01);
+            box-shadow: 0 4px 12px rgba(59, 165, 92, 0.2);
+        }
+        
+        .lib-card.bookmarked .lib-title {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .lib-card:hover .lib-title { color: #fff; }
+
+        .lib-icon {
+            width: 36px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: #8e9297;
+            flex-shrink: 0;
+        }
+
+        .lib-content {
+            padding: 0 5px;
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .lib-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .lib-title {
+            font-weight: 500;
+            color: #dcddde;
+            font-size: 0.95em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lib-actions {
+            flex-shrink: 0;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .lib-card:hover .lib-actions { opacity: 1; }
+        .lib-card.bookmarked .lib-actions { opacity: 1; } /* Keep actions visible for bookmarked */
+        
+        /* Icons colors */
+        .cat-movies .lib-icon { color: #faa61a; }
+        .cat-series .lib-icon { color: #5865F2; }
+        .cat-games .lib-icon { color: #3ba55c; }
+
+        /* --- Modals --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+        
+        /* CMD MODAL SPECIFIC */
+        .cmd-modal-content {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 6px;
+            width: 90%;
+            max-width: 650px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            font-family: 'Consolas', 'Lucida Console', monospace;
+            position: relative;
+            animation: popUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .cmd-header {
+            background: #fff;
+            color: #000;
+            padding: 5px 10px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        .cmd-body {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            color: #ccc;
+            font-size: 14px;
+            text-align: left;
+        }
+        .cmd-line { margin-bottom: 2px; }
+        .cmd-cursor { display: inline-block; width: 8px; height: 14px; background: #ccc; animation: blink 1s infinite; vertical-align: bottom; }
+
+        /* REGULAR MODAL CONTENT */
+        .modal-content { background: #36393f; padding: 25px; border-radius: 5px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+
+        .close-modal-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #b9bbbe; font-size: 24px; cursor: pointer; transition: color 0.2s; }
+        .close-modal-btn:hover { color: #ffffff; }
+
+        /* Certificate */
+        .certificate { border: 2px dashed var(--accent); padding: 25px; margin-top: 20px; background: rgba(88, 101, 242, 0.05); position: relative; border-radius: 8px; }
+        .cert-icon { font-size: 40px; color: var(--warning); margin-bottom: 10px; }
+
+        /* Back Button */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: transparent;
+            border: none;
+            color: #72767d;
+            font-size: 1.2em;
+            cursor: pointer;
+            z-index: 10;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: #fff; }
+
+        /* Manual Details */
+        details { background: transparent; border: 1px solid #202225; border-radius: 4px; margin-bottom: 10px; }
+        summary { padding: 10px; font-size: 0.9em; cursor: pointer; color: #b9bbbe; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .code-block { font-size: 0.85em; padding: 8px; background: #202225; border-radius: 4px; margin-top: 5px; font-family: monospace; }
+
+        /* Search Bar */
+        .search-container { margin: 20px 0; position: relative; }
+        .search-input { width: 100%; padding: 10px 15px; background: #202225; border: 1px solid #4f545c; border-radius: 4px; color: #fff; font-size: 0.9em; }
+        .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #72767d; cursor: pointer; display: none; }
+
+        /* Responsivita */
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .screen { padding: 25px 15px; }
+            .lib-actions { opacity: 1; }
+            h1 { font-size: 1.5em; }
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- SOUNDS -->
+<audio id="bg-music" loop preload="auto">
+    <source src="https://assets.mixkit.co/music/preview/mixkit-christmas-fireplace-289.mp3" type="audio/mpeg">
+</audio>
+<audio id="sound-correct" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+</audio>
+<audio id="sound-notification" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" type="audio/mpeg">
+</audio>
+
+<!-- PARTICLES -->
+<div id="particles"></div>
+
+<div class="container">
+
+    <!-- SCREEN 1: LOGIN -->
+    <div id="screen-login" class="screen active">
+        <div style="font-size: 55px; margin-bottom: 20px; cursor: pointer; user-select: none;" id="owl-header">
+            🦉 ❤️ 🐙
+        </div>
+        <h1>Vstupní Brána</h1>
+        <p class="subtext">Ověření totožnosti: Jsi to ty, Klárko?</p>
+
+        <div class="location-grid">
+            <button class="location-btn" onclick="checkLocation('kunovice')">
+                <i class="fas fa-home"></i> <span>Domovská základna (Kunovice)</span>
+            </button>
+            <button class="location-btn" onclick="checkLocation('podoli')">
+                <i class="fas fa-map-marker-alt"></i> <span>Podolí (Error 404: Fake News)</span>
+            </button>
+            <button class="location-btn" onclick="checkLocation('brno')">
+                <i class="fas fa-university"></i> <span>Budoucí spawn point (VUT FIT)</span>
+            </button>
+        </div>
+        <p id="login-msg" class="login-msg"></p>
+    </div>
+
+    <!-- SCREEN 2: CAPTCHA -->
+    <div id="screen-captcha" class="screen">
+        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+        <div class="captcha-container">
+            <div class="captcha-header">
+                <h3 style="margin:0; font-size:1em;">Vyber všechny čtverce s:</h3>
+                <h1 style="font-size:1.5em; margin:5px 0;">VRTULNÍK</h1>
+            </div>
+            <div class="captcha-grid">
+                <div class="captcha-item" onclick="selectCaptcha(this, 'heli')">🚁</div>
+                <div class="captcha-item" onclick="selectCaptcha(this, 'star')">🌟</div>
+                <div class="captcha-item" onclick="selectCaptcha(this, 'heli')">🚁</div>
+                <div class="captcha-item" onclick="selectCaptcha(this, 'heli')">🚁</div>
+                <div class="captcha-item" onclick="selectCaptcha(this, 'star')">⭐</div>
+                <div class="captcha-item" onclick="selectCaptcha(this, 'plane')">✈️</div>
+            </div>
+            <div style="display:flex; justify-content:flex-end;">
+                <button class="btn btn-success" style="margin:0; padding:6px 16px; font-size:12px;" onclick="verifyCaptcha()">OVĚŘIT</button>
+            </div>
+        </div>
+        <p id="captcha-msg" style="color: var(--error); margin-top: 15px; font-weight: bold; min-height: 24px;"></p>
+    </div>
+
+    <!-- SCREEN 3: FACT CHECKER QUIZ -->
+    <div id="screen-quiz" class="screen">
+        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+        <h2>Kontrola Kompatibility Paměti</h2>
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar-fill"></div>
+        </div>
+        
+        <p class="subtext">Ověřuji, zda máš oprávnění "Fact Checker".</p>
+
+        <!-- Quiz Embed -->
+        <div class="quiz-card">
+            <div class="quiz-author">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM1ODY1RjIiLz4KPHBhdGggZD0iTTEyIDE3VjdNMTcgMTJNMTIgMTdNNyAxMk0xMiA3IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                <span>Já (Tvůj Nerd)</span>
+                <span class="bot-tag">BOT</span>
+                <span id="quiz-timestamp" style="color: #72767d; font-weight: 400; font-size: 0.9em; margin-left: auto;">Dnes v 14:00</span>
+            </div>
+            <div id="quiz-statement" class="quiz-statement">
+                Načítání výroku...
+            </div>
+        </div>
+
+        <div id="quiz-buttons" class="options-container">
+            <button class="btn-discord-interaction success" onclick="handleAnswer(true)">
+                <i class="fas fa-check"></i> FAKT
+            </button>
+            <button class="btn-discord-interaction fail" onclick="handleAnswer(false)">
+                <i class="fas fa-times"></i> MÝTUS
+            </button>
+        </div>
+
+        <div id="quiz-result" class="result-container">
+            <h3 id="result-title" style="margin-bottom: 8px; font-size:1em; color: #fff;"></h3>
+            <p id="result-text" style="color: #dcddde; font-size:0.9em; line-height: 1.4;"></p>
+            <button id="next-btn" class="btn btn-full btn-outline" style="margin-top: 15px; border-color: #4f545c; color: #dcddde;">Další výrok <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: CERTIFICATE -->
+    <div id="screen-cert" class="screen">
+        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+        <h2>Prověrka Dokončena</h2>
+        <div class="certificate">
+            <div class="cert-icon"><i class="fas fa-user-check"></i></div>
+            <h3 style="margin-bottom: 5px;">OFICIÁLNÍ CERTIFIKÁT</h3>
+            <p style="color: #b9bbbe; font-size: 0.9em;">Uděleno uživateli:</p>
+            <h2 style="color: var(--accent); margin: 10px 0;">Klárka</h2>
+            <p style="margin-top: 15px;">Za prokázání absolutní znalosti mých trapných omylů a inside joků.</p>
+            <div style="margin-top: 20px; font-size: 0.8em; color: #72767d; border-top: 1px solid #4f545c; padding-top: 10px;">
+                Role: <strong>Vrchní Fact-Checker</strong> | Oprávnění: <strong>Admin Srdce</strong>
+            </div>
+        </div>
+        <button class="btn btn-full btn-success" style="margin-top: 25px;" onclick="switchScreen('screen-cert', 'screen-dashboard')">
+            Vstoupit do knihovny <i class="fas fa-sign-in-alt"></i>
+        </button>
+    </div>
+
+    <!-- SCREEN 5: DASHBOARD (MAIN) -->
+    <div id="screen-dashboard" class="screen" style="padding: 20px; max-width: 600px; text-align: left;">
+        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+        
+        <!-- HEADER (Discord Style) -->
+        <h1 style="font-size: 1.5em; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+            <i class="fab fa-discord" style="color: var(--accent);"></i> Vítej v kanálu #dárky
+        </h1>
+        <p class="subtext" style="margin-bottom: 15px;">Jsi ověřena. Můžeš procházet obsah.</p>
+        <hr style="border: none; height: 1px; background: #202225; margin: 15px 0;">
+
+        <!-- 1. PŘÍRUČKA (Roll-down) -->
+        <div style="margin-bottom: 25px;">
+            <details open>
+                <summary><i class="fas fa-graduation-cap" style="color: var(--accent);"></i> Pinned: Jak stahovat (Tutorial)</summary>
+                <div class="code-block" style="color: #dcddde;">
+                    1. Klikni na ikonu stahování u filmu.<br>
+                    2. Povol otevření qBittorrent.<br>
+                    3. Stahování začne (seeduju to já z mého PC).<br>
+                    * Tip: HDMI kabel -> TV. Popcorn je zakázán.
+                </div>
+            </details>
+        </div>
+
+        <!-- 2. FILE ATTACHMENT (CONFESSION TRIGGER) -->
+        <div class="discord-file-attachment" onclick="showConfession()">
+            <div class="file-icon-wrapper">
+                <i class="fas fa-file-code file-icon"></i>
+                <div class="file-badge"></div>
+            </div>
+            <div class="file-info">
+                <div class="file-name">relationship_upgrade.exe</div>
+                <div class="file-meta">1.2 MB • Executable</div>
+            </div>
+            <i class="fas fa-download file-download-icon"></i>
+        </div>
+
+        <!-- 3. STATISTIKY -->
+        <div style="background: #2f3136; padding: 15px; border-radius: 5px; margin: 25px 0; text-align: left;">
+            <h3 style="margin-top: 0; font-size: 0.9em; color: #b9bbbe; text-transform: uppercase;">📊 Server Stats</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; margin-top: 10px;">
+                <div style="flex: 1; min-width: 100px;">
+                    <div style="font-size: 0.75em; color: #72767d;">Discord Calls</div>
+                    <div style="font-size: 1.1em; color: var(--accent); font-weight: 600;">271K hodin</div>
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <div style="font-size: 0.75em; color: #72767d;">Co-op Games</div>
+                    <div style="font-size: 1.1em; color: var(--success); font-weight: 600;">Hodně</div>
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <div style="font-size: 0.75em; color: #72767d;">Inside Jokes</div>
+                    <div style="font-size: 1.1em; color: var(--warning); font-weight: 600;">6 000 000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="search-container">
+            <input type="text" id="library-search" class="search-input" placeholder="🔍 Hledat filmy, seriály, hry...">
+            <div id="search-clear" class="search-clear"><i class="fas fa-times"></i></div>
+        </div>
+
+        <!-- 4. LIBRARY (Channel List Style) -->
+        <div class="library-section cat-movies">
+            <div class="lib-header"><i class="fas fa-chevron-down" style="font-size: 0.8em;"></i> FILMY</div>
+            <div id="grid-movies" class="lib-grid"></div>
+        </div>
+
+        <div class="library-section cat-series">
+            <div class="lib-header"><i class="fas fa-chevron-down" style="font-size: 0.8em;"></i> SERIÁLY</div>
+            <div id="grid-series" class="lib-grid"></div>
+        </div>
+
+        <div class="library-section cat-games">
+            <div class="lib-header"><i class="fas fa-chevron-down" style="font-size: 0.8em;"></i> HRY</div>
+            <div id="grid-games" class="lib-grid"></div>
+        </div>
+
+        <!-- EXPORT BUTTON -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="exportWatchlist()" class="btn btn-outline" style="font-size: 0.85em;">
+                <i class="fas fa-share-alt"></i> Exportovat Watchlist
+            </button>
+            <button onclick="clearWatchlist()" class="btn btn-outline" style="font-size: 0.85em; border-color: var(--error); color: var(--error);">
+                <i class="fas fa-trash"></i> Vyčistit
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL: MAGNET LINK -->
+<div id="modal-magnet" class="modal-overlay">
+    <div class="modal-content" style="max-width: 400px;">
+        <button class="close-modal-btn" onclick="document.getElementById('modal-magnet').style.display='none'">×</button>
+        <div style="font-size: 40px; margin-bottom: 15px; color: var(--accent);">🧲</div>
+        <h3>Otevírám bránu...</h3>
+        <p style="color: #b9bbbe; margin-bottom: 20px; font-size: 0.9em; line-height: 1.5;"></p>
+        <button id="confirm-magnet-btn" class="btn btn-full btn-success" onclick="">
+            Potvrdit akci
+        </button>
+    </div>
+</div>
+
+<!-- MODAL: CMD CONFESSION -->
+<div id="modal-confession" class="modal-overlay">
+    <div class="cmd-modal-content">
+        <div class="cmd-header">
+            <span>Administrator: C:\WINDOWS\system32\cmd.exe</span>
+            <span style="display:flex; gap:5px;">
+                <div style="width:10px; height:10px; background:#ccc; border-radius:50%;"></div>
+                <div style="width:10px; height:10px; background:#ccc; border-radius:50%;"></div>
+                <div style="width:10px; height:10px; background:#ed4245; border-radius:50%; cursor:pointer;" onclick="closeConfession()"></div>
+            </span>
+        </div>
+        <div class="cmd-body" id="cmd-body"></div>
+    </div>
+</div>
+
+<!-- MODAL: REAL CONFESSION UI (Hidden initially) -->
+<div id="modal-final-msg" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+        <h1 style="color: var(--accent); margin-bottom: 15px;">Důležitá zpráva</h1>
+        <p style="font-size: 1.1em; line-height: 1.6; color: #dcddde; margin-bottom: 25px;">
+            Klárko, po téhle analýze je to jasné.<br><br>
+            Nabízím ti 24/7 tech support, nekonečné fun facty a někoho, kdo tě odveze (se zapnutými světly).<br><br>
+            <strong>Chci upgradovat náš vztah na verzi 2.0.<br>Půjdeš se mnou na rande?</strong>
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn btn-success" onclick="responseYes()">Ano, beru upgrade! ❤️</button>
+            <button class="btn btn-outline" onclick="responseNo()">Zůstaňme v Co-op módu (Friendzone)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- STATE MANAGEMENT ---
+    let userProgress = JSON.parse(localStorage.getItem('klarkaProgress')) || {
+        quizScore: 0,
+        confessionResponse: null,
+        watchlist: []
+    };
+
+    function saveProgress() {
+        localStorage.setItem('klarkaProgress', JSON.stringify(userProgress));
+    }
+
+    // Initialize watchlist from storage
+    let watchlist = new Set(userProgress.watchlist);
+
+    // --- SOUND EFFECTS ---
+    const bgMusic = document.getElementById('bg-music');
+    if(bgMusic) bgMusic.volume = 0.1;
+
+    document.body.addEventListener('click', () => {
+        if (bgMusic && bgMusic.paused) {
+            bgMusic.play().catch(e => console.log("Autoplay blocked"));
+        }
+    }, { once: true });
+
+    function playSound(id) {
+        const audio = document.getElementById(id);
+        if (audio) {
+            audio.currentTime = 0;
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+            }
+        }
+    }
+
+    // --- PARTICLES ---
+    function createParticles() {
+        const container = document.getElementById('particles');
+        const particleCount = 25;
+        // Lazy creation
+        for (let i = 0; i < particleCount; i++) {
+            setTimeout(() => {
+                const p = document.createElement('div');
+                const size = Math.random() * 4 + 2;
+                const duration = Math.random() * 10 + 10;
+                
+                p.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${Math.random() > 0.5 ? 'rgba(88, 101, 242, 0.2)' : 'rgba(235, 69, 158, 0.2)'};
+                    border-radius: 50%;
+                    top: ${Math.random() * 100}vh;
+                    left: ${Math.random() * 100}vw;
+                    animation: float ${duration}s linear infinite;
+                    opacity: 0;
+                `;
+                container.appendChild(p);
+            }, i * 100);
+        }
+        
+        // Dynamic Keyframes
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes float {
+                0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+                20% { opacity: 0.8; }
+                80% { opacity: 0.8; }
+                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    createParticles();
+
+    // --- EASTER EGG ---
+    let owlClickCount = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+        const header = document.querySelector('#owl-header');
+        if (header) {
+            header.addEventListener('click', function() {
+                owlClickCount++;
+                if (owlClickCount === 5) {
+                    alert("🦉 Fun fact: Sovy mají krční obratle, které jim umožňují otočit hlavu až o 270°! Stejně jako ty, když se díváš na moje 'geniální' tahy v Tetrisu.");
+                    owlClickCount = 0;
+                }
+            });
+        }
+    });
+
+    // --- KEYBOARD NAVIGATION ---
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+        }
+        if (e.key === 'Backspace' && !e.target.matches('input, textarea')) {
+            // Prevent navigating back in browser history if possible, mostly for UX
+            // e.preventDefault(); // Commented out to not break browser expectation too much
+            goBack();
+        }
+    });
+
+    // --- NAVIGATION ---
+    function goBack() {
+        const screens = ['screen-login', 'screen-captcha', 'screen-quiz', 'screen-cert', 'screen-dashboard'];
+        const current = screens.find(id => document.getElementById(id).classList.contains('active'));
+        
+        if (current === 'screen-captcha') switchScreen(current, 'screen-login');
+        if (current === 'screen-quiz') switchScreen(current, 'screen-captcha');
+        if (current === 'screen-cert') switchScreen(current, 'screen-quiz');
+        if (current === 'screen-dashboard') switchScreen(current, 'screen-cert');
+    }
+
+    // --- CAPTCHA LOGIC ---
+    function selectCaptcha(el, type) {
+        el.classList.toggle('selected');
+        // Store selected type data-attribute to check later
+        el.setAttribute('data-type', type);
+    }
+
+    function verifyCaptcha() {
+        const selectedItems = document.querySelectorAll('.captcha-item.selected');
+        const msg = document.getElementById('captcha-msg');
+        
+        let stars = 0;
+        let others = 0;
+        
+        selectedItems.forEach(item => {
+            const type = item.getAttribute('data-type');
+            if (type === 'star') stars++;
+            else others++;
+        });
+
+        if (stars >= 1 && others === 0) {
+            msg.style.color = 'var(--success)';
+            msg.innerText = "Správně! Vrtulníky (Sirius) identifikovány.";
+            userProgress.captchaCompleted = true;
+            saveProgress();
+            setTimeout(() => {
+                switchScreen('screen-captcha', 'screen-quiz');
+                loadQuestion();
+            }, 1000);
+        } else if (others > 0) {
+            msg.style.color = 'var(--error)';
+            msg.innerText = "Chyba: To je skutečný vrtulník. Já myslel ten 'můj' (Sirius).";
+        } else {
+            msg.style.color = 'var(--warning)';
+            msg.innerText = "Musíš označit aspoň jeden 'vrtulník'.";
+        }
+    }
+
+    // --- DATABASE: FACT OR MYTH (UPDATED) ---
+    const questions = [
+        {
+            statement: "Jsem certifikovaný skaut, který bezpečně pozná všechny hvězdy na obloze.",
+            isFact: false,
+            explanation: "MÝTUS! ❌ Poznám jen 'vrtulníky'. Sirius si to bude pamatovat navždy."
+        },
+        {
+            statement: "Když se učíme matematiku, jsem to já, kdo vysvětluje integrály tobě.",
+            isFact: false,
+            explanation: "MÝTUS! ❌ Jsem ztracený případ. Díky za tvou nekonečnou trpělivost."
+        },
+        {
+            statement: "Nejlepší investice tvého života byla Casio kalkulačka.",
+            isFact: true,
+            explanation: "FAKT! ✅ Proto máš teď i tu plyšovou verzi."
+        },
+        {
+            statement: "Tvé zranění nohy vzniklo při extrémním sportu zvaném 'sezení u počítače'.",
+            isFact: true,
+            explanation: "FAKT! ✅ A sprcha tomu dala korunu. Nebezpečný život geeka."
+        },
+        {
+            statement: "Podolí je samostatná, hrdá metropole, která nemá s Kunovicemi nic společného.",
+            isFact: false,
+            explanation: "MÝTUS! ❌ Je to jen předměstí, smiř se s tím. 😉"
+        },
+        {
+            statement: "Můj orientační smysl v Geoguessru je na úrovni profesionálního kartografa.",
+            isFact: false,
+            explanation: "MÝTUS! ❌ Všechno je pro mě Brazílie nebo Rusko."
+        },
+        {
+            statement: "Když řídíš, vypadáš podle mě jako bys jela 'opilá a bez světel'.",
+            isFact: true,
+            explanation: "FAKT! ✅ Ale je to jen vtip! (Většinou). Vždycky dojedeme."
+        },
+        {
+            statement: "Pes, kterého jsme potkali na výletě, byl vycvičený záchranář.",
+            isFact: false,
+            explanation: "MÝTUS! ❌ Byl to vycvičený zloděj špekáčků."
+        },
+        {
+            statement: "Chobotnice je tvé spirituální zvíře.",
+            isFact: true,
+            explanation: "FAKT! ✅ Nebo sova. Obojí sedí perfektně na tvůj multitasking a ponocování."
+        },
+        {
+            statement: "Popcorn je nástroj ďábla určený k ničení zubů.",
+            isFact: true,
+            explanation: "FAKT! ✅ Gumídci jsou superior snack."
+        },
+        {
+            statement: "Nero hrál na lyru, když hořel Řím.",
+            isFact: false,
+            explanation: "MÝTUS! ❌ Díky za lekci dějepisu, paní učitelko. Už si to pamatuju."
+        }
+    ];
+
+    // --- LINKS MAPPING (Mock) ---
+    const downloadLinks = {
+        "Tetris Effect": "magnet:?xt=urn:btih:EXAMPLE_TETRIS",
+    };
+
+    // --- LIBRARY DATA ---
+    const libraryData = {
+        movies: [
+            "21 Jump Street", "22 Jump Street", "Angry Birds ve filmu", "Asterix a Obelix (Kolekce)", 
+            "Deadpool", "Donnie Darko", "Fight Club", "Guardians of the Galaxy", "Kill Bill: Vol. 1", 
+            "Klaus", "Le Mans 66", "Logan", "Mad Max: Fury Road", "Prisoners", "Pulp Fiction", 
+            "Rango", "Ready Player One", "Scary Movie 1-5", "Shrek (Kompletní)", "The Dark Knight", 
+            "The Gentlemen", "The Hangover Trilogy", "LOTR Trilogie (Rozšířená)", "Shawshank Redemption", 
+            "The Thing", "Whiplash", "Alien", "Borat", "Dědictví", "Drž hubu!", "Seven (Se7en)", 
+            "The Matrix", "The Social Network", "Úžasňákovi", "Za plotem", "Dokument o Neronovi"
+        ],
+        series: [
+            "Breaking Bad (1-5)", "Mr. Robot (Kompletní)", "True Detective (S01)", "Arcane", "Gumičci"
+        ],
+        games: [
+            "Balatro", "Brotato", "Dead Cells", "Kingdom: Two Crowns", "Mafia II: DE", 
+            "Papa's Freezeria Deluxe", "Stackflow", "Tetris Effect", "Enter the Gungeon", 
+            "Hades", "Hades II", "Jump King"
+        ]
+    };
+
+    // --- SEARCH LOGIC ---
+    let searchTimeout;
+    document.getElementById('library-search').addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        const searchTerm = e.target.value.toLowerCase();
+        const clearBtn = document.getElementById('search-clear');
+        clearBtn.style.display = searchTerm ? 'block' : 'none';
+        
+        searchTimeout = setTimeout(() => {
+            if (!searchTerm) {
+                renderLibrary();
+                return;
+            }
+            // Filter all categories
+            const filteredMovies = libraryData.movies.filter(m => m.toLowerCase().includes(searchTerm));
+            const filteredSeries = libraryData.series.filter(s => s.toLowerCase().includes(searchTerm));
+            const filteredGames = libraryData.games.filter(g => g.toLowerCase().includes(searchTerm));
+            
+            renderCategory(filteredMovies, 'grid-movies', 'fa-film');
+            renderCategory(filteredSeries, 'grid-series', 'fa-tv');
+            renderCategory(filteredGames, 'grid-games', 'fa-gamepad');
+        }, 300); // Debounce
+    });
+
+    document.getElementById('search-clear').addEventListener('click', function() {
+        document.getElementById('library-search').value = '';
+        this.style.display = 'none';
+        renderLibrary();
+    });
+
+    // --- WATCHLIST LOGIC ---
+    function toggleWatchlist(title) {
+        if (watchlist.has(title)) {
+            watchlist.delete(title);
+        } else {
+            watchlist.add(title);
+        }
+        userProgress.watchlist = Array.from(watchlist);
+        saveProgress();
+        renderLibrary(); 
+    }
+
+    function exportWatchlist() {
+        if (watchlist.size === 0) {
+            alert("Watchlist je prázdný! Označ nějaké filmy/seriály.");
+            return;
+        }
+        const list = Array.from(watchlist).join('\n• ');
+        const text = `🧾 Náš společný watchlist (${new Date().toLocaleDateString('cs-CZ')}):\n\n• ${list}\n\n📅 Těším se na společné sledování!\n- Tvůj (snad brzy) kluk ❤️`;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Watchlist zkopírován do schránky! Můžeš ho poslat třeba na Discord.");
+        });
+    }
+
+    function clearWatchlist() {
+        if (confirm("Opravdu chceš vyčistit celý watchlist?")) {
+            watchlist.clear();
+            userProgress.watchlist = [];
+            saveProgress();
+            renderLibrary();
+        }
+    }
+
+    // --- RENDER LIBRARY (COMPACT + SORTED) ---
+    function renderCategory(items, containerId, defaultIcon) {
+        const container = document.getElementById(containerId);
+        
+        // Sort items: Bookmarked first, then normal
+        const sortedItems = [...items].sort((a, b) => {
+            const aSaved = watchlist.has(a);
+            const bSaved = watchlist.has(b);
+            return bSaved - aSaved; // true (1) comes before false (0)
+        });
+
+        container.innerHTML = sortedItems.map(title => {
+            const isSaved = watchlist.has(title);
+            return `
+            <div class="lib-card ${isSaved ? 'bookmarked' : ''}">
+                <div class="lib-icon"><i class="fas ${defaultIcon}"></i></div>
+                <div class="lib-content">
+                    <div class="lib-info">
+                        <div class="lib-title">${title}</div>
+                    </div>
+                    <div class="lib-actions">
+                        <button onclick="toggleWatchlist('${title}')" class="btn-icon ${isSaved ? 'active' : ''}" title="${isSaved ? 'Odebrat' : 'Přidat do Watchlistu'}">
+                            <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
+                        </button>
+                        <button onclick="openMagnetModal('${title}')" class="btn-icon" title="Stáhnout">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `}).join('');
+    }
+
+    function renderLibrary() {
+        renderCategory(libraryData.movies, 'grid-movies', 'fa-film');
+        renderCategory(libraryData.series, 'grid-series', 'fa-tv');
+        renderCategory(libraryData.games, 'grid-games', 'fa-gamepad');
+    }
+
+    let currentQuestionIndex = 0;
+    
+    // --- LOGIN ---
+    function checkLocation(loc) {
+        const msg = document.getElementById('login-msg');
+        if (loc === 'kunovice') {
+            msg.style.color = 'var(--success)';
+            msg.innerHTML = "Lokace ověřena. Vítej doma. <i class='fas fa-check'></i>";
+            setTimeout(() => {
+                switchScreen('screen-login', 'screen-captcha');
+            }, 1000);
+        } else if (loc === 'podoli') {
+            msg.style.color = 'var(--warning)';
+            msg.innerHTML = "Chyba 404: Podolí nenalezeno (Fake News).";
+            setTimeout(() => {
+                switchScreen('screen-login', 'screen-captcha');
+            }, 1500);
+        } else {
+            msg.style.color = 'var(--error)';
+            msg.innerHTML = "Špatná lokace. Zkus to znovu.";
+            shakeElement(document.getElementById('screen-login'));
+        }
+    }
+
+    // --- QUIZ ---
+    function loadQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            finishQuiz();
+            return;
+        }
+        const qData = questions[currentQuestionIndex];
+        
+        // Dynamic Time
+        const now = new Date();
+        const timeString = `Dnes v ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+        document.getElementById('quiz-timestamp').innerText = timeString;
+
+        document.getElementById('quiz-statement').innerText = qData.statement;
+        document.getElementById('quiz-result').style.display = 'none';
+        document.getElementById('quiz-buttons').style.display = 'flex';
+        const percent = (currentQuestionIndex / questions.length) * 100;
+        document.querySelector('.progress-bar-fill').style.width = `${percent}%`;
+    }
+
+    function handleAnswer(userGuessedFact) {
+        const qData = questions[currentQuestionIndex];
+        const resultBox = document.getElementById('quiz-result');
+        const title = document.getElementById('result-title');
+        const text = document.getElementById('result-text');
+        
+        document.getElementById('quiz-buttons').style.display = 'none';
+        resultBox.style.display = 'block';
+
+        if (userGuessedFact === qData.isFact) {
+            playSound('sound-correct');
+            title.innerHTML = `<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Správně!</span>`;
+        } else {
+            title.innerHTML = `<span style="color:var(--error)"><i class="fas fa-times-circle"></i> Ups!</span>`;
+            shakeElement(resultBox);
+        }
+        text.innerText = qData.explanation;
+
+        document.getElementById('next-btn').onclick = () => {
+             currentQuestionIndex++;
+             loadQuestion();
+        };
+    }
+
+    function finishQuiz() {
+        document.querySelector('.progress-bar-fill').style.width = '100%';
+        userProgress.quizScore = 100; // Simplified
+        saveProgress();
+        switchScreen('screen-quiz', 'screen-cert');
+    }
+
+    function shakeElement(el) {
+        el.classList.remove('shake');
+        void el.offsetWidth;
+        el.classList.add('shake');
+    }
+
+    // --- MODALS ---
+    function openMagnetModal(title) {
+        const link = downloadLinks[title] || "https://drive.google.com/"; // Fallback
+        const modal = document.getElementById('modal-magnet');
+        const btn = document.getElementById('confirm-magnet-btn');
+        const p = modal.querySelector('p');
+        
+        const isGame = libraryData.games.includes(title);
+        p.innerText = isGame ? 
+            "Spouštím instalaci hry. Ujisti se, že máš dost místa na disku!" :
+            "Otevírám video soubor. Připrav popcorn (nebo radši gumídky).";
+
+        btn.onclick = function() {
+            window.open(link, '_blank');
+            modal.style.display = 'none';
+        };
+        modal.style.display = 'flex';
+    }
+
+    // --- CONFESSION STATE ---
+    let isConsoleWaiting = false;
+
+    function showConfession() {
+        playSound('sound-notification');
+        const modal = document.getElementById('modal-confession');
+        modal.style.display = 'flex';
+        
+        // Reset and rebuild modal content
+        const modalContent = modal.querySelector('.cmd-modal-content');
+        // Clear body
+        const cmdBody = document.getElementById('cmd-body');
+        cmdBody.innerHTML = '';
+
+        const lines = [
+            "C:\\Users\\Klarka> relationship_upgrade.exe",
+            "Initializing system components...",
+            "Loading shared memory: 'Polešovice_Fire.log' ... [OK]",
+            "Loading shared memory: 'Tetris_Scores.db' ... [OK]",
+            "Loading shared memory: 'Math_Doucovani.dll' ... [OK]",
+            "Analysing compatibility...",
+            "> Humor: 100% (Dark/Weird)",
+            "> Values: SYNCED",
+            "> ADHD/Autism Support: ENABLED",
+            "Calculating future projection...",
+            "> Destination: VUT FIT",
+            "> Status: PROMISING",
+            "Executing final payload...",
+            "Decrypting message..."
+        ];
+
+        let i = 0;
+        
+        function typeLine() {
+            if (i < lines.length) {
+                const p = document.createElement('div');
+                p.className = 'cmd-line';
+                p.innerText = lines[i];
+                cmdBody.appendChild(p);
+                cmdBody.scrollTop = cmdBody.scrollHeight;
+                i++;
+                setTimeout(typeLine, 800); 
+            } else {
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.getElementById('modal-final-msg').style.display = 'flex';
+                }, 1500);
+            }
+        }
+        typeLine();
+    }
+
+    function responseYes() {
+        userProgress.confessionResponse = 'yes';
+        saveProgress();
+        const content = document.querySelector('#modal-final-msg .modal-content');
+        content.innerHTML = `
+            <h1 style="color: #ff0080; font-size: 2.5em;">🎉 ANO! 🎉</h1>
+            <p style="margin: 20px 0; font-size: 1.1em;">Oficiálně jsme upgradovali!</p>
+            <div style="font-size: 60px; margin: 20px;">🦉❤️🐙</div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255,0,128,0.1); border-radius: 8px;">
+                <p style="margin-bottom: 10px; font-size: 0.9em;">Chceš si uložit tento moment?</p>
+                <button onclick="createMemory()" class="btn btn-outline" style="border-color: #ff0080; color: #ff0080; font-size: 0.85em;">
+                    <i class="fas fa-heart-circle-plus"></i> Uložit jako vzpomínku
+                </button>
+            </div>
+
+            <button class="btn btn-success" style="margin-top: 15px;" onclick="unlockSecretChannel()">Jít stahovat filmy</button>
+        `;
+    }
+
+    function createMemory() {
+        const memory = {
+            date: new Date().toISOString(),
+            event: "První ano ❤️",
+            location: "Digitální dárek",
+            notes: "Upgrade na Relationship 2.0 úspěšný!"
+        };
+        const memoryString = JSON.stringify(memory, null, 2);
+        navigator.clipboard.writeText(memoryString).then(() => {
+            alert("Vzpomínka zkopírována! Můžeš ji uložit kamkoliv.");
+        });
+    }
+
+    function unlockSecretChannel() {
+        closeFinal();
+        const dashboard = document.getElementById('screen-dashboard');
+        // Check if secret channel exists
+        if (!document.getElementById('secret-channel')) {
+            const secretHTML = `
+            <div id="secret-channel" style="margin-top: 30px; border-left: 4px solid #eb459e; padding-left: 15px; animation: fadeIn 1s;">
+                <h3 style="color: #eb459e; font-size: 0.9em;"><i class="fas fa-lock-open"></i> #tajny-kanal (ODEMČENO)</h3>
+                <p style="font-size: 0.85em; color: #b9bbbe; margin: 5px 0;">
+                    Přístup pouze pro Relationship 2.0 uživatele.
+                </p>
+                <button onclick="alert('Tajný kanál by obsahoval:\\n• Naše budoucí plány\\n• Společné fotky\\n• Dlouhé osobní zprávy\\n• ...a další překvapení! ❤️')" class="btn btn-outline" style="border-color: #eb459e; color: #eb459e; margin-top: 10px; font-size: 0.8em;">
+                    <i class="fas fa-arrow-right"></i> Vstoupit
+                </button>
+            </div>
+            `;
+            dashboard.insertAdjacentHTML('beforeend', secretHTML);
+            // Scroll to bottom
+            dashboard.scrollTop = dashboard.scrollHeight;
+        }
+    }
+
+    function responseNo() {
+        userProgress.confessionResponse = 'no';
+        saveProgress();
+        const content = document.querySelector('#modal-final-msg .modal-content');
+        content.innerHTML = `
+            <h2>Respektuju to! 🛡️</h2>
+            <p>Jsem rád, že tě mám. Co-op pokračuje.</p>
+            <button class="btn btn-outline" onclick="closeFinal()">Zpět</button>
+        `;
+    }
+
+    function closeConfession() { document.getElementById('modal-confession').style.display = 'none'; }
+    function closeFinal() { document.getElementById('modal-final-msg').style.display = 'none'; }
+    
+    function switchScreen(from, to) {
+        document.getElementById(from).classList.remove('active');
+        document.getElementById(to).classList.add('active');
+        window.scrollTo(0,0);
+        if (to === 'screen-dashboard') {
+            // Loading state simulation
+            const gridIds = ['grid-movies', 'grid-series', 'grid-games'];
+            gridIds.forEach(id => {
+                document.getElementById(id).innerHTML = `
+                    <div style="display:flex; justify-content:center; padding:20px; color:#72767d;">
+                        <i class="fas fa-spinner fa-spin"></i> Načítání...
+                    </div>
+                `;
+            });
+            setTimeout(() => renderLibrary(), 300);
+        }
+    }
+
+</script>
+
+</body>
+</html>
