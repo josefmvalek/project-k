@@ -3,1433 +3,1280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Klárku ❤️</title>
+    <title>Kiscord</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Consolas:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            /* DISCORD THEME COLORS - REFINED */
-            --bg-color: #36393f;
-            --card-bg: #2f3136;
-            --text-main: #dcddde;
+            /* Default Discord-like colors */
+            --bg-tertiary: #202225;
+            --bg-secondary: #2f3136;
+            --bg-primary: #36393f;
+            --text-normal: #dcddde;
             --text-header: #ffffff;
-            --accent: #5865F2; /* Blurple */
-            --accent-hover: #4752c4;
-            --success: #3ba55c;
-            --error: #ed4245;
-            --warning: #faa61a;
-            --embed-bg: #2f3136;
-            --embed-border: #202225;
-            --button-grey: #4f545c;
-            --button-grey-hover: #686d73;
-        }
-
-        * {
-            box-sizing: border-box;
+            --interactive-normal: #b9bbbe;
+            --interactive-hover: #dcddde;
+            --interactive-active: #ffffff;
+            --blurple: #5865F2;
+            --blurple-hover: #4752c4;
+            --green: #3ba55c;
+            --red: #ed4245;
+            --yellow: #faa61a;
+            --pink: #eb459e;
+            --font-main: 'Inter', sans-serif;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Whitney', 'gg sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            font-family: var(--font-main);
+            background-color: var(--bg-primary);
+            color: var(--text-normal);
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #202225; }
-        ::-webkit-scrollbar-thumb { background: #202225; border-radius: 5px; border: 2px solid #36393f; }
-        ::-webkit-scrollbar-thumb:hover { background: #40444b; }
-
-        .cmd-body::-webkit-scrollbar, .console-log::-webkit-scrollbar { width: 10px; }
-        .cmd-body::-webkit-scrollbar-track, .console-log::-webkit-scrollbar-track { background: #111; }
-        .cmd-body::-webkit-scrollbar-thumb, .console-log::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; border: none; }
-
-        .cmd-body, .console-log { scroll-behavior: smooth; }
-
-        /* --- PARTICLES BACKGROUND --- */
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.6;
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: var(--bg-tertiary); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+            background-color: #1a1b1e; 
+            border-radius: 4px;
         }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #2c2f33; }
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            padding: 15px;
-            z-index: 1; /* Above particles */
-        }
-
-        /* --- Screens --- */
-        .screen {
-            display: none;
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            animation: fadeIn 0.4s ease-out;
-            position: relative;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
+        /* Animations */
+        @keyframes fade-in {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
 
-        h1, h2, h3 {
-            color: var(--text-header);
-            margin-bottom: 10px;
-            font-weight: 700;
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(235, 69, 158, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(235, 69, 158, 0.6); }
         }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
 
-        .subtext {
-            color: #b9bbbe;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-            line-height: 1.4;
-        }
+        .library-item:hover { background: rgba(79, 84, 92, 0.3); }
+        .modal-backdrop { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(3px); transition: opacity 0.3s ease; }
 
-        /* --- Buttons with Ripple --- */
-        .btn {
-            background-color: var(--accent);
-            color: #ffffff;
-            border: none;
-            padding: 10px 24px;
-            font-size: 14px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-            margin: 5px;
-            font-family: inherit;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
+        /* Command Prompt Look */
+        .cmd-window {
+            font-family: 'Consolas', monospace;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
-        }
-
-        .btn:focus:not(:active)::after {
-            animation: ripple 1s ease-out;
-        }
-
-        @keyframes ripple {
-            0% { transform: scale(0, 0); opacity: 0.5; }
-            100% { transform: scale(20, 20); opacity: 0; }
-        }
-
-        .btn:hover { background-color: var(--accent-hover); }
-        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-outline:hover { background-color: rgba(88, 101, 242, 0.1); }
-        .btn-full { width: 100%; margin: 10px 0; }
-        .btn-sm { padding: 4px 12px; font-size: 12px; height: 28px; }
-        
-        .btn-success { background-color: var(--success); }
-        .btn-success:hover { background-color: #2d7d46; }
-
-        .btn-icon {
-            background: transparent;
-            border: none;
-            color: #72767d;
-            cursor: pointer;
-            font-size: 1.1em;
-            padding: 5px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-icon:hover { color: #fff; transform: scale(1.1); }
-        
-        /* Active Bookmark Icon */
-        .btn-icon.active { 
-            color: var(--success); 
-            animation: bounceIn 0.3s;
-        }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- Login Screen --- */
-        .location-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .location-btn {
-            background: #2f3136;
-            border: 1px solid #202225;
-            color: var(--text-main);
-            padding: 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 15px;
-        }
-        .location-btn:hover { background: #36393f; border-color: var(--accent); }
-        .location-btn i { font-size: 20px; color: var(--accent); width: 24px; text-align: center; }
-        .login-msg { margin-top: 15px; font-weight: 500; min-height: 24px; padding: 8px; border-radius: 4px; font-size: 0.9em; }
-
-        /* --- CAPTCHA STYLE --- */
-        .captcha-container {
-            background: #fff;
-            color: #000;
-            padding: 15px;
-            border-radius: 4px;
-            max-width: 380px;
-            margin: 0 auto;
-            text-align: left;
-            box-shadow: 0 0 4px rgba(0,0,0,0.2);
-        }
-        .captcha-header {
-            background: #5865F2;
-            color: #fff;
-            padding: 15px;
-            margin: -15px -15px 10px -15px;
-            border-radius: 4px 4px 0 0;
-        }
-        .captcha-header h3 { margin: 0; font-size: 1.1em; font-weight: bold; color: #fff; }
-        .captcha-header p { margin: 5px 0 0 0; font-size: 0.9em; }
-        
-        .captcha-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-            margin-bottom: 10px;
-        }
-        
-        .captcha-item {
-            position: relative;
-            cursor: pointer;
-            aspect-ratio: 1;
-            background: #eee;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 4rem;
-            line-height: 1;
-        }
-        
-        .captcha-item:hover {
-            opacity: 0.8;
-        }
-
-        .captcha-item.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: #5865F2;
-            color: #fff;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            border: 2px solid #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        .captcha-item.selected {
-            border: 4px solid #5865F2;
-        }
-
-        /* --- Fact/Myth Quiz (Discord Embed Style) --- */
-        .quiz-card {
-            background: #2f3136;
-            border-left: 4px solid var(--accent);
-            padding: 16px;
-            border-radius: 4px;
-            text-align: left;
-            margin-bottom: 20px;
-            background-color: #2f3136;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .quiz-author { 
-            font-size: 0.85em; 
-            color: #fff; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            margin-bottom: 8px; 
-            font-weight: 600;
-        }
-        
-        .bot-tag {
-            background-color: #5865F2;
-            color: white;
-            font-size: 0.65em;
-            padding: 1px 4px;
-            border-radius: 3px;
-            vertical-align: middle;
-            margin-left: 4px;
-            font-weight: 500;
-        }
-
-        .quiz-statement { 
-            font-size: 1.1em; 
-            font-weight: 400; 
-            color: #dcddde; 
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
-
-        .options-container { 
-            display: flex; 
-            gap: 10px;
-            margin-bottom: 15px; 
-        }
-        
-        .btn-discord-interaction {
-            background-color: #4f545c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            flex: 1;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-discord-interaction:hover { background-color: #686d73; }
-        .btn-discord-interaction.success { background-color: var(--success); }
-        .btn-discord-interaction.fail { background-color: var(--error); }
-
-        .result-container { 
-            display: none; 
-            background: #202225;
-            padding: 12px; 
-            border-radius: 4px; 
-            margin-top: 15px; 
-            text-align: left; 
-            animation: fadeIn 0.3s; 
-            border-left: 3px solid #b9bbbe;
-        }
-        
-        .progress-bar-container { width: 100%; height: 4px; background: #202225; border-radius: 2px; margin-bottom: 25px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease; }
-
-        /* --- DISCORD FILE ATTACHMENT (CONFESSION TRIGGER) --- */
-        .discord-file-attachment {
-            background-color: #2f3136;
-            border-radius: 5px;
-            border: 1px solid #202225;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            max-width: 400px;
-            margin: 20px auto;
-        }
-        .discord-file-attachment:hover {
-            background-color: #36393f;
-            border-color: var(--accent);
-        }
-        .file-icon-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-        .file-icon { font-size: 30px; color: var(--accent); }
-        .file-badge {
-            position: absolute; top: -2px; right: -2px;
-            width: 12px; height: 12px;
-            background: var(--error);
-            border-radius: 50%;
-            border: 2px solid #2f3136;
-        }
-        .file-info { flex: 1; text-align: left; }
-        .file-name { color: var(--accent); font-weight: 500; font-size: 0.9em; }
-        .file-meta { color: #b9bbbe; font-size: 0.75em; }
-        .file-download-icon { color: #b9bbbe; font-size: 1.2em; margin-right: 5px; }
-
-        /* --- LIBRARY LIST STYLES (COMPACT PLAYLIST) --- */
-        .library-section {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        
-        .lib-header {
-            font-size: 0.85em;
-            font-weight: 700;
-            color: #96989d;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            padding-left: 5px;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .lib-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .lib-card {
-            background: transparent;
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            height: 36px;
-            padding-right: 5px;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-
-        .lib-card:hover {
-            background-color: rgba(79, 84, 92, 0.4);
-        }
-
-        /* HIGHLIGHT FOR BOOKMARKED ITEMS */
-        .lib-card.bookmarked {
-            background-color: rgba(59, 165, 92, 0.15); /* Jemně zelená */
-            border-left: 3px solid var(--success);
-        }
-        .lib-card.bookmarked:hover {
-            transform: translateX(8px) scale(1.01);
-            box-shadow: 0 4px 12px rgba(59, 165, 92, 0.2);
-        }
-        
-        .lib-card.bookmarked .lib-title {
-            color: var(--success);
-            font-weight: 600;
-        }
-
-        .lib-card:hover .lib-title { color: #fff; }
-
-        .lib-icon {
-            width: 36px;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            color: #8e9297;
-            flex-shrink: 0;
-        }
-
-        .lib-content {
-            padding: 0 5px;
-            flex-grow: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .lib-info {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 10px;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .lib-title {
-            font-weight: 500;
-            color: #dcddde;
-            font-size: 0.95em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .lib-actions {
-            flex-shrink: 0;
-            display: flex;
-            gap: 5px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .lib-card:hover .lib-actions { opacity: 1; }
-        .lib-card.bookmarked .lib-actions { opacity: 1; } /* Keep actions visible for bookmarked */
-        
-        /* Icons colors */
-        .cat-movies .lib-icon { color: #faa61a; }
-        .cat-series .lib-icon { color: #5865F2; }
-        .cat-games .lib-icon { color: #3ba55c; }
-
-        /* --- Modals --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
-        
-        /* CMD MODAL SPECIFIC */
-        .cmd-modal-content {
-            background: #000;
-            border: 1px solid #333;
-            border-radius: 6px;
-            width: 90%;
-            max-width: 650px;
-            height: 400px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            font-family: 'Consolas', 'Lucida Console', monospace;
-            position: relative;
-            animation: popUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
         .cmd-header {
-            background: #fff;
+            background: #ffffff;
             color: #000;
-            padding: 5px 10px;
+            padding: 2px 10px;
             font-size: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #ccc;
         }
         .cmd-body {
-            flex: 1;
-            padding: 10px;
+            background-color: #0c0c0c;
+            color: #cccccc;
+            padding: 5px;
+            height: 400px;
             overflow-y: auto;
-            color: #ccc;
             font-size: 14px;
-            text-align: left;
+            line-height: 1.5;
         }
-        .cmd-line { margin-bottom: 2px; }
-        .cmd-cursor { display: inline-block; width: 8px; height: 14px; background: #ccc; animation: blink 1s infinite; vertical-align: bottom; }
+        .cmd-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: #cccccc;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        /* REGULAR MODAL CONTENT */
-        .modal-content { background: #36393f; padding: 25px; border-radius: 5px; max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+        /* Typing cursor for confession */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: var(--pink);
+            margin-left: 2px;
+        }
 
-        .close-modal-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #b9bbbe; font-size: 24px; cursor: pointer; transition: color 0.2s; }
-        .close-modal-btn:hover { color: #ffffff; }
-
-        /* Certificate */
-        .certificate { border: 2px dashed var(--accent); padding: 25px; margin-top: 20px; background: rgba(88, 101, 242, 0.05); position: relative; border-radius: 8px; }
-        .cert-icon { font-size: 40px; color: var(--warning); margin-bottom: 10px; }
-
-        /* Back Button */
-        .back-btn {
+        /* Dynamic Progress Bar */
+        .progress-bar-dynamic {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blurple), var(--pink));
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(235, 69, 158, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-bar-dynamic::after {
+            content: '';
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: transparent;
-            border: none;
-            color: #72767d;
-            font-size: 1.2em;
-            cursor: pointer;
-            z-index: 10;
-            transition: color 0.2s;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
         }
-        .back-btn:hover { color: #fff; }
-
-        /* Manual Details */
-        details { background: transparent; border: 1px solid #202225; border-radius: 4px; margin-bottom: 10px; }
-        summary { padding: 10px; font-size: 0.9em; cursor: pointer; color: #b9bbbe; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .code-block { font-size: 0.85em; padding: 8px; background: #202225; border-radius: 4px; margin-top: 5px; font-family: monospace; }
-
-        /* Search Bar */
-        .search-container { margin: 20px 0; position: relative; }
-        .search-input { width: 100%; padding: 10px 15px; background: #202225; border: 1px solid #4f545c; border-radius: 4px; color: #fff; font-size: 0.9em; }
-        .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #72767d; cursor: pointer; display: none; }
-
-        /* Responsivita */
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            .screen { padding: 25px 15px; }
-            .lib-actions { opacity: 1; }
-            h1 { font-size: 1.5em; }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
         }
-
     </style>
 </head>
-<body>
+<body class="h-screen w-screen flex flex-col md:flex-row text-sm select-none transition-colors duration-300">
 
-<!-- SOUNDS -->
-<audio id="bg-music" loop preload="auto">
-    <source src="https://assets.mixkit.co/music/preview/mixkit-christmas-fireplace-289.mp3" type="audio/mpeg">
-</audio>
-<audio id="sound-correct" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
-</audio>
-<audio id="sound-notification" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3" type="audio/mpeg">
-</audio>
+    <!-- AUDIO PLAYER PLACEHOLDERS -->
+    <!-- <audio id="audio-final-countdown" src="The_Final_Countdown.mp3" preload="auto"></audio>
+    <audio id="audio-divka" src="Dívka_s_perlami_ve_vlasech.mp3" preload="auto"></audio> -->
 
-<!-- PARTICLES -->
-<div id="particles"></div>
-
-<div class="container">
-
-    <!-- SCREEN 1: LOGIN -->
-    <div id="screen-login" class="screen active">
-        <div style="font-size: 55px; margin-bottom: 20px; cursor: pointer; user-select: none;" id="owl-header">
-            🦉 ❤️ 🐙
-        </div>
-        <h1>Vstupní Brána</h1>
-        <p class="subtext">Ověření totožnosti: Jsi to ty, Klárko?</p>
-
-        <div class="location-grid">
-            <button class="location-btn" onclick="checkLocation('kunovice')">
-                <i class="fas fa-home"></i> <span>Domovská základna (Kunovice)</span>
-            </button>
-            <button class="location-btn" onclick="checkLocation('podoli')">
-                <i class="fas fa-map-marker-alt"></i> <span>Podolí (Error 404: Fake News)</span>
-            </button>
-            <button class="location-btn" onclick="checkLocation('brno')">
-                <i class="fas fa-university"></i> <span>Budoucí spawn point (VUT FIT)</span>
-            </button>
-        </div>
-        <p id="login-msg" class="login-msg"></p>
-    </div>
-
-    <!-- SCREEN 2: CAPTCHA -->
-    <div id="screen-captcha" class="screen">
-        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
-        <div class="captcha-container">
-            <div class="captcha-header">
-                <h3 style="margin:0; font-size:1em;">Vyber všechny čtverce s:</h3>
-                <h1 style="font-size:1.5em; margin:5px 0;">VRTULNÍK</h1>
-            </div>
-            <div class="captcha-grid">
-                <div class="captcha-item" onclick="selectCaptcha(this, 'heli')">🚁</div>
-                <div class="captcha-item" onclick="selectCaptcha(this, 'star')">🌟</div>
-                <div class="captcha-item" onclick="selectCaptcha(this, 'heli')">🚁</div>
-                <div class="captcha-item" onclick="selectCaptcha(this, 'heli')">🚁</div>
-                <div class="captcha-item" onclick="selectCaptcha(this, 'star')">⭐</div>
-                <div class="captcha-item" onclick="selectCaptcha(this, 'plane')">✈️</div>
-            </div>
-            <div style="display:flex; justify-content:flex-end;">
-                <button class="btn btn-success" style="margin:0; padding:6px 16px; font-size:12px;" onclick="verifyCaptcha()">OVĚŘIT</button>
-            </div>
-        </div>
-        <p id="captcha-msg" style="color: var(--error); margin-top: 15px; font-weight: bold; min-height: 24px;"></p>
-    </div>
-
-    <!-- SCREEN 3: FACT CHECKER QUIZ -->
-    <div id="screen-quiz" class="screen">
-        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
-        <h2>Kontrola Kompatibility Paměti</h2>
-        <div class="progress-bar-container">
-            <div id="progress-bar" class="progress-bar-fill"></div>
-        </div>
-        
-        <p class="subtext">Ověřuji, zda máš oprávnění "Fact Checker".</p>
-
-        <!-- Quiz Embed -->
-        <div class="quiz-card">
-            <div class="quiz-author">
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM1ODY1RjIiLz4KPHBhdGggZD0iTTEyIDE3VjdNMTcgMTJNMTIgMTdNNyAxMk0xMiA3IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
-                <span>Já (Tvůj Nerd)</span>
-                <span class="bot-tag">BOT</span>
-                <span id="quiz-timestamp" style="color: #72767d; font-weight: 400; font-size: 0.9em; margin-left: auto;">Dnes v 14:00</span>
-            </div>
-            <div id="quiz-statement" class="quiz-statement">
-                Načítání výroku...
-            </div>
-        </div>
-
-        <div id="quiz-buttons" class="options-container">
-            <button class="btn-discord-interaction success" onclick="handleAnswer(true)">
-                <i class="fas fa-check"></i> FAKT
-            </button>
-            <button class="btn-discord-interaction fail" onclick="handleAnswer(false)">
-                <i class="fas fa-times"></i> MÝTUS
-            </button>
-        </div>
-
-        <div id="quiz-result" class="result-container">
-            <h3 id="result-title" style="margin-bottom: 8px; font-size:1em; color: #fff;"></h3>
-            <p id="result-text" style="color: #dcddde; font-size:0.9em; line-height: 1.4;"></p>
-            <button id="next-btn" class="btn btn-full btn-outline" style="margin-top: 15px; border-color: #4f545c; color: #dcddde;">Další výrok <i class="fas fa-arrow-right"></i></button>
-        </div>
-    </div>
-
-    <!-- SCREEN 4: CERTIFICATE -->
-    <div id="screen-cert" class="screen">
-        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
-        <h2>Prověrka Dokončena</h2>
-        <div class="certificate">
-            <div class="cert-icon"><i class="fas fa-user-check"></i></div>
-            <h3 style="margin-bottom: 5px;">OFICIÁLNÍ CERTIFIKÁT</h3>
-            <p style="color: #b9bbbe; font-size: 0.9em;">Uděleno uživateli:</p>
-            <h2 style="color: var(--accent); margin: 10px 0;">Klárka</h2>
-            <p style="margin-top: 15px;">Za prokázání absolutní znalosti mých trapných omylů a inside joků.</p>
-            <div style="margin-top: 20px; font-size: 0.8em; color: #72767d; border-top: 1px solid #4f545c; padding-top: 10px;">
-                Role: <strong>Vrchní Fact-Checker</strong> | Oprávnění: <strong>Admin Srdce</strong>
-            </div>
-        </div>
-        <button class="btn btn-full btn-success" style="margin-top: 25px;" onclick="switchScreen('screen-cert', 'screen-dashboard')">
-            Vstoupit do knihovny <i class="fas fa-sign-in-alt"></i>
-        </button>
-    </div>
-
-    <!-- SCREEN 5: DASHBOARD (MAIN) -->
-    <div id="screen-dashboard" class="screen" style="padding: 20px; max-width: 600px; text-align: left;">
-        <button onclick="goBack()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
-        
-        <!-- HEADER (Discord Style) -->
-        <h1 style="font-size: 1.5em; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-            <i class="fab fa-discord" style="color: var(--accent);"></i> Vítej v kanálu #dárky
-        </h1>
-        <p class="subtext" style="margin-bottom: 15px;">Jsi ověřena. Můžeš procházet obsah.</p>
-        <hr style="border: none; height: 1px; background: #202225; margin: 15px 0;">
-
-        <!-- 1. PŘÍRUČKA (Roll-down) -->
-        <div style="margin-bottom: 25px;">
-            <details open>
-                <summary><i class="fas fa-graduation-cap" style="color: var(--accent);"></i> Pinned: Jak stahovat (Tutorial)</summary>
-                <div class="code-block" style="color: #dcddde;">
-                    1. Klikni na ikonu stahování u filmu.<br>
-                    2. Povol otevření qBittorrent.<br>
-                    3. Stahování začne (seeduju to já z mého PC).<br>
-                    * Tip: HDMI kabel -> TV. Popcorn je zakázán.
-                </div>
-            </details>
-        </div>
-
-        <!-- 2. FILE ATTACHMENT (CONFESSION TRIGGER) -->
-        <div class="discord-file-attachment" onclick="showConfession()">
-            <div class="file-icon-wrapper">
-                <i class="fas fa-file-code file-icon"></i>
-                <div class="file-badge"></div>
-            </div>
-            <div class="file-info">
-                <div class="file-name">relationship_upgrade.exe</div>
-                <div class="file-meta">1.2 MB • Executable</div>
-            </div>
-            <i class="fas fa-download file-download-icon"></i>
-        </div>
-
-        <!-- 3. STATISTIKY -->
-        <div style="background: #2f3136; padding: 15px; border-radius: 5px; margin: 25px 0; text-align: left;">
-            <h3 style="margin-top: 0; font-size: 0.9em; color: #b9bbbe; text-transform: uppercase;">📊 Server Stats</h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; margin-top: 10px;">
-                <div style="flex: 1; min-width: 100px;">
-                    <div style="font-size: 0.75em; color: #72767d;">Discord Calls</div>
-                    <div style="font-size: 1.1em; color: var(--accent); font-weight: 600;">271K hodin</div>
-                </div>
-                <div style="flex: 1; min-width: 100px;">
-                    <div style="font-size: 0.75em; color: #72767d;">Co-op Games</div>
-                    <div style="font-size: 1.1em; color: var(--success); font-weight: 600;">Hodně</div>
-                </div>
-                <div style="flex: 1; min-width: 100px;">
-                    <div style="font-size: 0.75em; color: #72767d;">Inside Jokes</div>
-                    <div style="font-size: 1.1em; color: var(--warning); font-weight: 600;">6 000 000</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SEARCH BAR -->
-        <div class="search-container">
-            <input type="text" id="library-search" class="search-input" placeholder="🔍 Hledat filmy, seriály, hry...">
-            <div id="search-clear" class="search-clear"><i class="fas fa-times"></i></div>
-        </div>
-
-        <!-- 4. LIBRARY (Channel List Style) -->
-        <div class="library-section cat-movies">
-            <div class="lib-header"><i class="fas fa-chevron-down" style="font-size: 0.8em;"></i> FILMY</div>
-            <div id="grid-movies" class="lib-grid"></div>
-        </div>
-
-        <div class="library-section cat-series">
-            <div class="lib-header"><i class="fas fa-chevron-down" style="font-size: 0.8em;"></i> SERIÁLY</div>
-            <div id="grid-series" class="lib-grid"></div>
-        </div>
-
-        <div class="library-section cat-games">
-            <div class="lib-header"><i class="fas fa-chevron-down" style="font-size: 0.8em;"></i> HRY</div>
-            <div id="grid-games" class="lib-grid"></div>
-        </div>
-
-        <!-- EXPORT BUTTON -->
-        <div style="text-align: center; margin-top: 20px;">
-            <button onclick="exportWatchlist()" class="btn btn-outline" style="font-size: 0.85em;">
-                <i class="fas fa-share-alt"></i> Exportovat Watchlist
-            </button>
-            <button onclick="clearWatchlist()" class="btn btn-outline" style="font-size: 0.85em; border-color: var(--error); color: var(--error);">
-                <i class="fas fa-trash"></i> Vyčistit
-            </button>
-        </div>
-
-    </div>
-
-</div>
-
-<!-- MODAL: MAGNET LINK -->
-<div id="modal-magnet" class="modal-overlay">
-    <div class="modal-content" style="max-width: 400px;">
-        <button class="close-modal-btn" onclick="document.getElementById('modal-magnet').style.display='none'">×</button>
-        <div style="font-size: 40px; margin-bottom: 15px; color: var(--accent);">🧲</div>
-        <h3>Otevírám bránu...</h3>
-        <p style="color: #b9bbbe; margin-bottom: 20px; font-size: 0.9em; line-height: 1.5;"></p>
-        <button id="confirm-magnet-btn" class="btn btn-full btn-success" onclick="">
-            Potvrdit akci
-        </button>
-    </div>
-</div>
-
-<!-- MODAL: CMD CONFESSION -->
-<div id="modal-confession" class="modal-overlay">
-    <div class="cmd-modal-content">
-        <div class="cmd-header">
-            <span>Administrator: C:\WINDOWS\system32\cmd.exe</span>
-            <span style="display:flex; gap:5px;">
-                <div style="width:10px; height:10px; background:#ccc; border-radius:50%;"></div>
-                <div style="width:10px; height:10px; background:#ccc; border-radius:50%;"></div>
-                <div style="width:10px; height:10px; background:#ed4245; border-radius:50%; cursor:pointer;" onclick="closeConfession()"></div>
-            </span>
-        </div>
-        <div class="cmd-body" id="cmd-body"></div>
-    </div>
-</div>
-
-<!-- MODAL: REAL CONFESSION UI (Hidden initially) -->
-<div id="modal-final-msg" class="modal-overlay">
-    <div class="modal-content" style="max-width: 500px;">
-        <h1 style="color: var(--accent); margin-bottom: 15px;">Důležitá zpráva</h1>
-        <p style="font-size: 1.1em; line-height: 1.6; color: #dcddde; margin-bottom: 25px;">
-            Klárko, po téhle analýze je to jasné.<br><br>
-            Nabízím ti 24/7 tech support, nekonečné fun facty a někoho, kdo tě odveze (se zapnutými světly).<br><br>
-            <strong>Chci upgradovat náš vztah na verzi 2.0.<br>Půjdeš se mnou na rande?</strong>
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn btn-success" onclick="responseYes()">Ano, beru upgrade! ❤️</button>
-            <button class="btn btn-outline" onclick="responseNo()">Zůstaňme v Co-op módu (Friendzone)</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- STATE MANAGEMENT ---
-    let userProgress = JSON.parse(localStorage.getItem('klarkaProgress')) || {
-        quizScore: 0,
-        confessionResponse: null,
-        watchlist: []
-    };
-
-    function saveProgress() {
-        localStorage.setItem('klarkaProgress', JSON.stringify(userProgress));
-    }
-
-    // Initialize watchlist from storage
-    let watchlist = new Set(userProgress.watchlist);
-
-    // --- SOUND EFFECTS ---
-    const bgMusic = document.getElementById('bg-music');
-    if(bgMusic) bgMusic.volume = 0.1;
-
-    document.body.addEventListener('click', () => {
-        if (bgMusic && bgMusic.paused) {
-            bgMusic.play().catch(e => console.log("Autoplay blocked"));
-        }
-    }, { once: true });
-
-    function playSound(id) {
-        const audio = document.getElementById(id);
-        if (audio) {
-            audio.currentTime = 0;
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(() => {});
-            }
-        }
-    }
-
-    // --- PARTICLES ---
-    function createParticles() {
-        const container = document.getElementById('particles');
-        const particleCount = 25;
-        // Lazy creation
-        for (let i = 0; i < particleCount; i++) {
-            setTimeout(() => {
-                const p = document.createElement('div');
-                const size = Math.random() * 4 + 2;
-                const duration = Math.random() * 10 + 10;
-                
-                p.style.cssText = `
-                    position: absolute;
-                    width: ${size}px;
-                    height: ${size}px;
-                    background: ${Math.random() > 0.5 ? 'rgba(88, 101, 242, 0.2)' : 'rgba(235, 69, 158, 0.2)'};
-                    border-radius: 50%;
-                    top: ${Math.random() * 100}vh;
-                    left: ${Math.random() * 100}vw;
-                    animation: float ${duration}s linear infinite;
-                    opacity: 0;
-                `;
-                container.appendChild(p);
-            }, i * 100);
-        }
-        
-        // Dynamic Keyframes
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes float {
-                0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-                20% { opacity: 0.8; }
-                80% { opacity: 0.8; }
-                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    createParticles();
-
-    // --- EASTER EGG ---
-    let owlClickCount = 0;
-    document.addEventListener('DOMContentLoaded', function() {
-        const header = document.querySelector('#owl-header');
-        if (header) {
-            header.addEventListener('click', function() {
-                owlClickCount++;
-                if (owlClickCount === 5) {
-                    alert("🦉 Fun fact: Sovy mají krční obratle, které jim umožňují otočit hlavu až o 270°! Stejně jako ty, když se díváš na moje 'geniální' tahy v Tetrisu.");
-                    owlClickCount = 0;
-                }
-            });
-        }
-    });
-
-    // --- KEYBOARD NAVIGATION ---
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-        }
-        if (e.key === 'Backspace' && !e.target.matches('input, textarea')) {
-            // Prevent navigating back in browser history if possible, mostly for UX
-            // e.preventDefault(); // Commented out to not break browser expectation too much
-            goBack();
-        }
-    });
-
-    // --- NAVIGATION ---
-    function goBack() {
-        const screens = ['screen-login', 'screen-captcha', 'screen-quiz', 'screen-cert', 'screen-dashboard'];
-        const current = screens.find(id => document.getElementById(id).classList.contains('active'));
-        
-        if (current === 'screen-captcha') switchScreen(current, 'screen-login');
-        if (current === 'screen-quiz') switchScreen(current, 'screen-captcha');
-        if (current === 'screen-cert') switchScreen(current, 'screen-quiz');
-        if (current === 'screen-dashboard') switchScreen(current, 'screen-cert');
-    }
-
-    // --- CAPTCHA LOGIC ---
-    function selectCaptcha(el, type) {
-        el.classList.toggle('selected');
-        // Store selected type data-attribute to check later
-        el.setAttribute('data-type', type);
-    }
-
-    function verifyCaptcha() {
-        const selectedItems = document.querySelectorAll('.captcha-item.selected');
-        const msg = document.getElementById('captcha-msg');
-        
-        let stars = 0;
-        let others = 0;
-        
-        selectedItems.forEach(item => {
-            const type = item.getAttribute('data-type');
-            if (type === 'star') stars++;
-            else others++;
-        });
-
-        if (stars >= 1 && others === 0) {
-            msg.style.color = 'var(--success)';
-            msg.innerText = "Správně! Vrtulníky (Sirius) identifikovány.";
-            userProgress.captchaCompleted = true;
-            saveProgress();
-            setTimeout(() => {
-                switchScreen('screen-captcha', 'screen-quiz');
-                loadQuestion();
-            }, 1000);
-        } else if (others > 0) {
-            msg.style.color = 'var(--error)';
-            msg.innerText = "Chyba: To je skutečný vrtulník. Já myslel ten 'můj' (Sirius).";
-        } else {
-            msg.style.color = 'var(--warning)';
-            msg.innerText = "Musíš označit aspoň jeden 'vrtulník'.";
-        }
-    }
-
-    // --- DATABASE: FACT OR MYTH (UPDATED) ---
-    const questions = [
-        {
-            statement: "Jsem certifikovaný skaut, který bezpečně pozná všechny hvězdy na obloze.",
-            isFact: false,
-            explanation: "MÝTUS! ❌ Poznám jen 'vrtulníky'. Sirius si to bude pamatovat navždy."
-        },
-        {
-            statement: "Když se učíme matematiku, jsem to já, kdo vysvětluje integrály tobě.",
-            isFact: false,
-            explanation: "MÝTUS! ❌ Jsem ztracený případ. Díky za tvou nekonečnou trpělivost."
-        },
-        {
-            statement: "Nejlepší investice tvého života byla Casio kalkulačka.",
-            isFact: true,
-            explanation: "FAKT! ✅ Proto máš teď i tu plyšovou verzi."
-        },
-        {
-            statement: "Tvé zranění nohy vzniklo při extrémním sportu zvaném 'sezení u počítače'.",
-            isFact: true,
-            explanation: "FAKT! ✅ A sprcha tomu dala korunu. Nebezpečný život geeka."
-        },
-        {
-            statement: "Podolí je samostatná, hrdá metropole, která nemá s Kunovicemi nic společného.",
-            isFact: false,
-            explanation: "MÝTUS! ❌ Je to jen předměstí, smiř se s tím. 😉"
-        },
-        {
-            statement: "Můj orientační smysl v Geoguessru je na úrovni profesionálního kartografa.",
-            isFact: false,
-            explanation: "MÝTUS! ❌ Všechno je pro mě Brazílie nebo Rusko."
-        },
-        {
-            statement: "Když řídíš, vypadáš podle mě jako bys jela 'opilá a bez světel'.",
-            isFact: true,
-            explanation: "FAKT! ✅ Ale je to jen vtip! (Většinou). Vždycky dojedeme."
-        },
-        {
-            statement: "Pes, kterého jsme potkali na výletě, byl vycvičený záchranář.",
-            isFact: false,
-            explanation: "MÝTUS! ❌ Byl to vycvičený zloděj špekáčků."
-        },
-        {
-            statement: "Chobotnice je tvé spirituální zvíře.",
-            isFact: true,
-            explanation: "FAKT! ✅ Nebo sova. Obojí sedí perfektně na tvůj multitasking a ponocování."
-        },
-        {
-            statement: "Popcorn je nástroj ďábla určený k ničení zubů.",
-            isFact: true,
-            explanation: "FAKT! ✅ Gumídci jsou superior snack."
-        },
-        {
-            statement: "Nero hrál na lyru, když hořel Řím.",
-            isFact: false,
-            explanation: "MÝTUS! ❌ Díky za lekci dějepisu, paní učitelko. Už si to pamatuju."
-        }
-    ];
-
-    // --- LINKS MAPPING (Mock) ---
-    const downloadLinks = {
-        "Tetris Effect": "magnet:?xt=urn:btih:EXAMPLE_TETRIS",
-    };
-
-    // --- LIBRARY DATA ---
-    const libraryData = {
-        movies: [
-            "21 Jump Street", "22 Jump Street", "Angry Birds ve filmu", "Asterix a Obelix (Kolekce)", 
-            "Deadpool", "Donnie Darko", "Fight Club", "Guardians of the Galaxy", "Kill Bill: Vol. 1", 
-            "Klaus", "Le Mans 66", "Logan", "Mad Max: Fury Road", "Prisoners", "Pulp Fiction", 
-            "Rango", "Ready Player One", "Scary Movie 1-5", "Shrek (Kompletní)", "The Dark Knight", 
-            "The Gentlemen", "The Hangover Trilogy", "LOTR Trilogie (Rozšířená)", "Shawshank Redemption", 
-            "The Thing", "Whiplash", "Alien", "Borat", "Dědictví", "Drž hubu!", "Seven (Se7en)", 
-            "The Matrix", "The Social Network", "Úžasňákovi", "Za plotem", "Dokument o Neronovi"
-        ],
-        series: [
-            "Breaking Bad (1-5)", "Mr. Robot (Kompletní)", "True Detective (S01)", "Arcane", "Gumičci"
-        ],
-        games: [
-            "Balatro", "Brotato", "Dead Cells", "Kingdom: Two Crowns", "Mafia II: DE", 
-            "Papa's Freezeria Deluxe", "Stackflow", "Tetris Effect", "Enter the Gungeon", 
-            "Hades", "Hades II", "Jump King"
-        ]
-    };
-
-    // --- SEARCH LOGIC ---
-    let searchTimeout;
-    document.getElementById('library-search').addEventListener('input', function(e) {
-        clearTimeout(searchTimeout);
-        const searchTerm = e.target.value.toLowerCase();
-        const clearBtn = document.getElementById('search-clear');
-        clearBtn.style.display = searchTerm ? 'block' : 'none';
-        
-        searchTimeout = setTimeout(() => {
-            if (!searchTerm) {
-                renderLibrary();
-                return;
-            }
-            // Filter all categories
-            const filteredMovies = libraryData.movies.filter(m => m.toLowerCase().includes(searchTerm));
-            const filteredSeries = libraryData.series.filter(s => s.toLowerCase().includes(searchTerm));
-            const filteredGames = libraryData.games.filter(g => g.toLowerCase().includes(searchTerm));
-            
-            renderCategory(filteredMovies, 'grid-movies', 'fa-film');
-            renderCategory(filteredSeries, 'grid-series', 'fa-tv');
-            renderCategory(filteredGames, 'grid-games', 'fa-gamepad');
-        }, 300); // Debounce
-    });
-
-    document.getElementById('search-clear').addEventListener('click', function() {
-        document.getElementById('library-search').value = '';
-        this.style.display = 'none';
-        renderLibrary();
-    });
-
-    // --- WATCHLIST LOGIC ---
-    function toggleWatchlist(title) {
-        if (watchlist.has(title)) {
-            watchlist.delete(title);
-        } else {
-            watchlist.add(title);
-        }
-        userProgress.watchlist = Array.from(watchlist);
-        saveProgress();
-        renderLibrary(); 
-    }
-
-    function exportWatchlist() {
-        if (watchlist.size === 0) {
-            alert("Watchlist je prázdný! Označ nějaké filmy/seriály.");
-            return;
-        }
-        const list = Array.from(watchlist).join('\n• ');
-        const text = `🧾 Náš společný watchlist (${new Date().toLocaleDateString('cs-CZ')}):\n\n• ${list}\n\n📅 Těším se na společné sledování!\n- Tvůj (snad brzy) kluk ❤️`;
-        
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Watchlist zkopírován do schránky! Můžeš ho poslat třeba na Discord.");
-        });
-    }
-
-    function clearWatchlist() {
-        if (confirm("Opravdu chceš vyčistit celý watchlist?")) {
-            watchlist.clear();
-            userProgress.watchlist = [];
-            saveProgress();
-            renderLibrary();
-        }
-    }
-
-    // --- RENDER LIBRARY (COMPACT + SORTED) ---
-    function renderCategory(items, containerId, defaultIcon) {
-        const container = document.getElementById(containerId);
-        
-        // Sort items: Bookmarked first, then normal
-        const sortedItems = [...items].sort((a, b) => {
-            const aSaved = watchlist.has(a);
-            const bSaved = watchlist.has(b);
-            return bSaved - aSaved; // true (1) comes before false (0)
-        });
-
-        container.innerHTML = sortedItems.map(title => {
-            const isSaved = watchlist.has(title);
-            return `
-            <div class="lib-card ${isSaved ? 'bookmarked' : ''}">
-                <div class="lib-icon"><i class="fas ${defaultIcon}"></i></div>
-                <div class="lib-content">
-                    <div class="lib-info">
-                        <div class="lib-title">${title}</div>
-                    </div>
-                    <div class="lib-actions">
-                        <button onclick="toggleWatchlist('${title}')" class="btn-icon ${isSaved ? 'active' : ''}" title="${isSaved ? 'Odebrat' : 'Přidat do Watchlistu'}">
-                            <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
-                        </button>
-                        <button onclick="openMagnetModal('${title}')" class="btn-icon" title="Stáhnout">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `}).join('');
-    }
-
-    function renderLibrary() {
-        renderCategory(libraryData.movies, 'grid-movies', 'fa-film');
-        renderCategory(libraryData.series, 'grid-series', 'fa-tv');
-        renderCategory(libraryData.games, 'grid-games', 'fa-gamepad');
-    }
-
-    let currentQuestionIndex = 0;
+    <!-- ========== INITIAL SCREENS ========== -->
     
-    // --- LOGIN ---
-    function checkLocation(loc) {
-        const msg = document.getElementById('login-msg');
-        if (loc === 'kunovice') {
-            msg.style.color = 'var(--success)';
-            msg.innerHTML = "Lokace ověřena. Vítej doma. <i class='fas fa-check'></i>";
-            setTimeout(() => {
-                switchScreen('screen-login', 'screen-captcha');
-            }, 1000);
-        } else if (loc === 'podoli') {
-            msg.style.color = 'var(--warning)';
-            msg.innerHTML = "Chyba 404: Podolí nenalezeno (Fake News).";
-            setTimeout(() => {
-                switchScreen('screen-login', 'screen-captcha');
-            }, 1500);
-        } else {
-            msg.style.color = 'var(--error)';
-            msg.innerHTML = "Špatná lokace. Zkus to znovu.";
-            shakeElement(document.getElementById('screen-login'));
-        }
-    }
+    <!-- Screen 1: Login -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#36393f] flex-col">
+        <div class="bg-[#2f3136] p-10 rounded-xl shadow-2xl w-full max-w-md text-center transform transition-all" id="login-box">
+            <div class="mb-6">
+                <div class="text-6xl mb-2">🦉❤️🐙</div>
+                <div class="text-xs text-gray-400">Kiscord Auth System v1.0</div>
+            </div>
+            <h1 class="text-2xl font-bold text-white mb-2">Server Autentifikace</h1>
+            <p class="text-gray-400 mb-8">Pro vstup je vyžadováno ověření reálné polohy.</p>
+            
+            <button id="verify-btn" onclick="verifyLocation()" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-4 rounded-lg transition-all flex items-center justify-center gap-3 text-lg group shadow-lg">
+                <i class="fas fa-satellite-dish group-hover:rotate-12 transition"></i>
+                <span id="verify-text">Ověřit polohu</span>
+            </button>
 
-    // --- QUIZ ---
-    function loadQuestion() {
-        if (currentQuestionIndex >= questions.length) {
-            finishQuiz();
-            return;
-        }
-        const qData = questions[currentQuestionIndex];
+            <div id="verify-status" class="mt-6 text-left hidden space-y-2 font-mono text-xs bg-[#202225] p-3 rounded">
+                <div class="flex items-center gap-2 text-gray-400">
+                    <i class="fas fa-circle-notch fa-spin"></i> Skenování satelitů...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 2: Fact Checker Quiz -->
+    <div id="quiz-screen" class="fixed inset-0 z-40 hidden bg-[#36393f] flex-col items-center justify-center p-4">
+        <div class="bg-[#2f3136] rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-[#202225] flex flex-col h-[700px]">
+            <!-- Header -->
+            <div class="p-6 bg-[#202225] border-b border-[#2f3136] flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-[#5865F2] flex items-center justify-center text-white text-xl shadow-lg">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Security Fact-Check</h2>
+                    <p class="text-gray-400 text-sm">Verification Protocol</p>
+                </div>
+            </div>
+
+            <!-- Quiz Content -->
+            <div class="flex-1 p-8 flex flex-col justify-start pt-20 relative bg-[#36393f] overflow-y-auto">
+                <div id="quiz-container" class="w-full">
+                    <!-- Questions injected here -->
+                </div>
+
+                <!-- Fun Fact Area -->
+                <div class="mt-auto pt-8 pb-2" id="fun-fact-container" style="display:none;">
+                    <div class="border-t border-[#4f545c] pt-4 text-center opacity-70 hover:opacity-100 transition">
+                         <div class="flex justify-center items-center gap-2 mb-1">
+                            <span class="text-lg">💡</span>
+                            <h4 class="font-bold text-[#b9bbbe] text-xs uppercase tracking-widest">Bonus Fun Fact</h4>
+                        </div>
+                        <p class="text-gray-400 text-sm italic" id="fun-fact-text">Načítání zajímavosti...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Progress -->
+            <div class="p-4 bg-[#2f3136] border-t border-[#202225]">
+                <div class="flex justify-between text-xs text-gray-400 mb-2 font-bold tracking-wider">
+                    <span>PROGRESS</span>
+                    <span id="quiz-step-text">1/10</span>
+                </div>
+                <div class="h-3 bg-[#202225] rounded-full overflow-hidden border border-[#202225]">
+                    <div id="quiz-progress" class="progress-bar-dynamic" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 3: Certificate -->
+    <div id="certificate-screen" class="fixed inset-0 z-40 hidden bg-[#36393f] flex-col items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-[#2f3136] to-[#202225] border-2 border-[#5865F2] rounded-xl shadow-2xl w-full max-w-xl overflow-hidden p-1">
+            <div class="bg-[#2f3136] rounded-lg p-8 text-center">
+                <div class="text-5xl mb-4">🏆</div>
+                <div class="text-xs uppercase tracking-widest text-[#5865F2] font-bold mb-2">Oficiální Certifikát</div>
+                <h2 class="text-2xl font-bold text-white mb-2">VRCHNÍ FACT-CHECKER</h2>
+                <div class="text-gray-400 mb-6">Uděleno uživateli</div>
+                
+                <div class="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+                    Klárka
+                </div>
+                
+                <div class="text-gray-300 mb-8">
+                    Za prokázání znalosti mých chyb, omylů a všech inside jokes.<br>
+                    <span class="text-sm text-gray-400">(A za tolerování mého mírného autismu)</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-[#202225] p-3 rounded">
+                        <div class="text-xs text-gray-400">Skóre</div>
+                        <div class="text-xl font-bold text-white" id="quiz-score">0%</div>
+                    </div>
+                    <div class="bg-[#202225] p-3 rounded">
+                        <div class="text-xs text-gray-400">Datum</div>
+                        <div class="text-xl font-bold text-white" id="cert-date"></div>
+                    </div>
+                </div>
+                
+                <button onclick="showMainApp()" class="bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3 px-8 rounded-lg transition">
+                    <i class="fas fa-door-open mr-2"></i>Vstoupit do Kiscordu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP ========== -->
+    <div id="app-interface" class="flex w-full h-full hidden opacity-0 transition-opacity duration-1000">
         
-        // Dynamic Time
-        const now = new Date();
-        const timeString = `Dnes v ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-        document.getElementById('quiz-timestamp').innerText = timeString;
+        <!-- SERVER LIST -->
+        <div class="bg-[var(--bg-tertiary)] w-[72px] flex flex-col items-center py-3 gap-2 flex-shrink-0 border-r border-[var(--bg-tertiary)]">
+            <!-- Home Icon -->
+            <div class="w-12 h-12 bg-[var(--bg-primary)] rounded-full hover:rounded-2xl hover:bg-[var(--blurple)] transition-all cursor-pointer flex items-center justify-center text-[var(--text-normal)] hover:text-white mb-2">
+                <i class="fab fa-discord text-xl"></i>
+            </div>
+            <div class="w-8 h-[2px] bg-[var(--bg-primary)] rounded mb-2"></div>
+            
+            <!-- Our Server Icon -->
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl cursor-pointer flex items-center justify-center overflow-hidden">
+                <div class="w-12 h-12 rounded-2xl cursor-pointer flex items-center justify-center overflow-hidden shadow-lg group transition-all duration-200">
+                    <img src="Czippel2_vanoce.png" 
+                        alt="K&T Server" 
+                        class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
 
-        document.getElementById('quiz-statement').innerText = qData.statement;
-        document.getElementById('quiz-result').style.display = 'none';
-        document.getElementById('quiz-buttons').style.display = 'flex';
-        const percent = (currentQuestionIndex / questions.length) * 100;
-        document.querySelector('.progress-bar-fill').style.width = `${percent}%`;
-    }
+        <!-- CHANNEL LIST -->
+        <div class="bg-[var(--bg-secondary)] w-60 flex flex-col flex-shrink-0 border-r border-[var(--bg-tertiary)]">
+            <!-- Server Header -->
+            <div class="h-12 border-b border-[var(--bg-tertiary)] flex items-center justify-between px-4 font-bold text-[var(--text-header)] hover:bg-[#34373c] cursor-pointer transition">
+                <span class="truncate">🎁 Vánoční Dárek 2025</span>
+                <i class="fas fa-chevron-down text-xs"></i>
+            </div>
 
-    function handleAnswer(userGuessedFact) {
-        const qData = questions[currentQuestionIndex];
-        const resultBox = document.getElementById('quiz-result');
-        const title = document.getElementById('result-title');
-        const text = document.getElementById('result-text');
+            <!-- Scrollable Channels -->
+            <div class="flex-1 overflow-y-auto py-3 custom-scrollbar">
+                <!-- Channels are managed by JS -->
+                <div id="channels-container"></div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="h-[52px] bg-[var(--bg-tertiary)] flex items-center px-2 w-full">
+    <div class="relative w-8 h-8 mr-2 cursor-pointer group">
+        <img src="klarka_profilovka.webp" 
+             alt="Klárka" 
+             class="w-8 h-8 rounded-full object-cover">
         
-        document.getElementById('quiz-buttons').style.display = 'none';
-        resultBox.style.display = 'block';
+        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[var(--green)] rounded-full border-2 border-[#292b2f]"></div>
+    </div>
 
-        if (userGuessedFact === qData.isFact) {
-            playSound('sound-correct');
-            title.innerHTML = `<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Správně!</span>`;
-        } else {
-            title.innerHTML = `<span style="color:var(--error)"><i class="fas fa-times-circle"></i> Ups!</span>`;
-            shakeElement(resultBox);
-        }
-        text.innerText = qData.explanation;
+    <div class="flex-1 overflow-hidden">
+        <div class="text-[var(--text-header)] text-xs font-bold truncate">Klárka</div>
+        <div class="text-[var(--interactive-normal)] text-[10px] truncate">#1337 • <span id="user-status">Online</span></div>
+    </div>
+</div>
+        </div>
 
-        document.getElementById('next-btn').onclick = () => {
-             currentQuestionIndex++;
-             loadQuestion();
+        <!-- MAIN CONTENT AREA -->
+        <div class="bg-[var(--bg-primary)] flex-1 flex flex-col min-w-0 relative">
+            <!-- Top Bar -->
+            <div class="h-12 border-b border-[var(--bg-tertiary)] flex items-center px-4 shadow-sm">
+                <i id="channel-icon" class="fas fa-hashtag text-gray-500 text-xl mr-2"></i>
+                <span id="channel-name" class="font-bold text-[var(--text-header)] mr-4">uvítání</span>
+                <span id="channel-desc" class="text-xs text-[var(--interactive-normal)] truncate hidden md:block">Veselé Vánoce!</span>
+                
+                <div class="ml-auto flex items-center gap-4 text-[var(--interactive-normal)]">
+                    <!-- Bookmark Counter -->
+                    <div id="bookmark-counter" class="hidden bg-[var(--bg-tertiary)] px-2 py-1 rounded text-xs flex items-center gap-2 cursor-pointer hover:text-white" onclick="showWatchlist()" title="Watchlist">
+                        <i class="fas fa-bookmark text-[var(--pink)]"></i>
+                        <span id="bookmark-count">0</span>
+                    </div>
+                    
+                    <!-- Search -->
+                    <div class="bg-[var(--bg-tertiary)] px-2 py-1 rounded text-xs flex items-center gap-2 w-32 md:w-48">
+                        <input type="text" placeholder="Hledat..." class="bg-transparent text-white focus:outline-none w-full" id="search-input">
+                        <i class="fas fa-search text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages/Content Area -->
+            <div id="messages-container" class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar flex flex-col gap-4 transition-colors duration-300">
+                <!-- Content will be injected here -->
+            </div>
+
+            <!-- Message Input (disabled for most channels) -->
+            <div class="px-4 pb-6 pt-2">
+                <div class="bg-[#40444b] rounded-lg px-4 py-3 flex items-center gap-3">
+                    <input type="text" id="main-input" placeholder="Tento kanál je jen pro čtení (nebo tajné příkazy?)" class="bg-transparent text-[var(--interactive-normal)] flex-1 focus:outline-none placeholder-gray-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- MEMBER LIST -->
+        <div class="w-60 bg-[var(--bg-secondary)] hidden lg:flex flex-col p-3 flex-shrink-0 border-l border-[var(--bg-tertiary)]">
+            <h3 class="text-xs font-bold text-[#8e9297] uppercase mb-2 px-2">ONLINE — 2</h3>
+            
+            <!-- Me -->
+            <div class="flex items-center gap-3 px-2 py-1.5 rounded hover:bg-[var(--bg-primary)] cursor-pointer group">
+                <div class="relative">
+                    <img src="discord_profilovka.jpg" alt="Jožka" class="w-8 h-8 rounded-full object-cover">
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[var(--green)] rounded-full border-2 border-[#2f3136]"></div>
+                </div>
+                <div>
+                    <div class="font-bold text-gray-200 text-sm">Jožka</div>
+                    <div class="text-xs text-gray-400">Hraje <span class="text-[var(--interactive-normal)]">Tetris</span></div>
+                </div>
+            </div>
+
+            <!-- Her -->
+            <div class="flex items-center gap-3 px-2 py-1.5 rounded hover:bg-[var(--bg-primary)] cursor-pointer group mt-1">
+                <div class="relative">
+                    <img src="klarka_profilovka.webp" alt="Klárka" class="w-8 h-8 rounded-full object-cover">
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[var(--green)] rounded-full border-2 border-[#2f3136]"></div>
+                </div>
+                <div>
+                    <div class="font-bold text-gray-200 text-sm">Klárka</div>
+                    <div class="text-xs text-gray-400">Fact-Checkuje mýty</div>
+                </div>
+            </div>
+
+            <!-- Themes -->
+            <div class="mt-auto pt-6 border-t border-[var(--bg-tertiary)]">
+                <div class="text-xs font-bold text-[#8e9297] uppercase px-2 mb-2">Téma</div>
+                <div class="flex gap-2 px-2">
+                    <button onclick="changeTheme('default')" class="flex-1 bg-[var(--blurple)] hover:opacity-90 text-white p-1 rounded text-[10px] shadow-sm">Discord</button>
+                    <button onclick="changeTheme('christmas')" class="flex-1 bg-[#c92a2a] hover:opacity-90 text-white p-1 rounded text-[10px] shadow-sm">Vánoce</button>
+                    <button onclick="changeTheme('tetris')" class="flex-1 bg-[#a000f0] hover:opacity-90 text-white p-1 rounded text-[10px] shadow-sm">Tetris</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODALS ========== -->
+    
+    <!-- Download Modal -->
+    <div id="download-modal" class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4">
+        <div class="bg-[#36393f] rounded-xl shadow-2xl w-full max-w-md border border-[#202225] overflow-hidden">
+            <div class="p-6">
+                <div class="text-5xl text-center mb-4">🧲</div>
+                <h3 class="font-bold text-white text-center text-xl mb-2">Stahování</h3>
+                <p class="text-gray-300 text-center mb-6" id="download-message"></p>
+                
+                <div class="space-y-4">
+                    <button onclick="openMagnetLink()" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white py-3 rounded-lg font-bold flex items-center justify-center gap-3">
+                        <i class="fas fa-magnet"></i>
+                        Otevřít v qBittorrent
+                    </button>
+                    <button onclick="openGoogleDrive()" class="w-full bg-[#3ba55c] hover:bg-[#2d7d46] text-white py-3 rounded-lg font-bold flex items-center justify-center gap-3">
+                        <i class="fab fa-google-drive"></i>
+                        Google Drive (záložní)
+                    </button>
+                    <button onclick="closeModal('download-modal')" class="w-full bg-[#4f545c] hover:bg-[#5d6269] text-white py-3 rounded-lg">
+                        Zrušit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Watchlist Modal -->
+    <div id="watchlist-modal" class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4">
+        <div class="bg-[#36393f] rounded-xl shadow-2xl w-full max-w-2xl border border-[#202225] overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-[#202225] flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <h3 class="font-bold text-white text-xl flex items-center gap-3">
+                        <i class="fas fa-bookmark text-[#eb459e]"></i>
+                        Tvůj Watchlist
+                    </h3>
+                    <p class="text-gray-400 text-sm mt-1 ml-2">Položky k společnému sledování</p>
+                </div>
+                <button onclick="closeModal('watchlist-modal')" class="text-gray-400 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="watchlist-items" class="p-6 overflow-y-auto flex-1">
+                <!-- Watchlist items will be injected here -->
+            </div>
+            
+            <div class="p-6 border-t border-[#202225] flex justify-between">
+                <div class="text-gray-400 text-sm">
+                    <span id="watchlist-total">0</span> položek
+                </div>
+                <div class="space-x-3">
+                    <button onclick="exportWatchlist()" class="bg-[#5865F2] hover:bg-[#4752c4] text-white px-4 py-2 rounded text-sm">
+                        <i class="fas fa-share mr-1"></i>Exportovat
+                    </button>
+                    <button onclick="clearWatchlist()" class="bg-[#4f545c] hover:bg-[#5d6269] text-white px-4 py-2 rounded text-sm">
+                        <i class="fas fa-trash mr-1"></i>Vyčistit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confession Terminal (CMD Style) -->
+    <div id="confession-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-transparent backdrop-blur-sm">
+        <div class="cmd-window w-full max-w-3xl rounded-none border border-[#444] cursor-text" onclick="document.getElementById('hidden-input').focus()">
+             <!-- Hidden input to capture keypress on mobile/desktop -->
+            <input type="text" id="hidden-input" class="opacity-0 absolute" style="top: -1000px">
+            
+            <div class="cmd-header">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-terminal text-[10px]"></i>
+                    <span>Administrator: C:\Windows\System32\cmd.exe</span>
+                </div>
+                <div class="flex gap-2">
+                    <div class="w-3 h-3 bg-gray-400"></div>
+                    <div class="w-3 h-3 bg-gray-400"></div>
+                    <div class="w-3 h-3 bg-red-500 cursor-pointer" onclick="closeModal('confession-modal')"></div>
+                </div>
+            </div>
+            <div class="cmd-body" id="terminal-body">
+                <div id="terminal-output"></div>
+                <div class="flex">
+                    <span id="prompt-text">C:\Klárka\Heart&gt;</span>
+                    <span id="typing-area" class="ml-2"></span>
+                    <span id="cmd-cursor" class="cmd-cursor ml-1"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Confession UI -->
+    <div id="final-confession-modal" class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4">
+        <div class="bg-[#36393f] rounded-xl shadow-2xl w-full max-w-md border border-[#5865F2] overflow-hidden relative animate-fade-in" id="final-modal-box">
+            <!-- Close Button -->
+            <button onclick="closeModal('final-confession-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <div class="p-8 text-center" id="final-modal-content">
+                <!-- No title as requested -->
+                
+                <div id="typing-container" class="text-gray-300 mb-8 text-left space-y-4 leading-relaxed min-h-[200px] mt-8">
+                    <!-- Text will be typed here -->
+                </div>
+                
+                <div id="confession-buttons" class="space-y-3 hidden">
+                    <button onclick="responseYes()" class="w-full bg-gradient-to-r from-[#eb459e] to-[#5865F2] hover:opacity-90 text-white py-4 rounded-lg font-bold text-lg transition shadow-lg">
+                        Ano, pojďme to zkusit <i class="fas fa-heart ml-2"></i>
+                    </button>
+                    <button onclick="responseNo()" class="w-full bg-[#4f545c] hover:bg-[#5d6269] text-white py-3 rounded-lg transition">
+                        Zůstaňme kamarádi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Redirect Prompt Modal -->
+    <div id="redirect-modal" class="fixed inset-0 z-[60] hidden modal-backdrop items-center justify-center p-4">
+        <div class="bg-[#36393f] rounded-xl shadow-2xl w-full max-w-sm border border-[#202225] p-6 text-center">
+            <div class="text-4xl mb-3 text-[#3ba55c]"><i class="fas fa-check-circle"></i></div>
+            <h3 class="text-xl font-bold text-white mb-2">Návrh zkopírován!</h3>
+            <p class="text-gray-300 mb-6 text-sm">Informace o rande byly uloženy do schránky. Můžeš mi je poslat na Discordu (CTRL+V).</p>
+            <div class="flex gap-2">
+                <a href="https://discord.com/app" target="_blank" class="flex-1 bg-[#5865F2] hover:bg-[#4752c4] text-white py-2 rounded font-bold text-sm">
+                    Přejít na Discord
+                </a>
+                <button onclick="closeModal('redirect-modal')" class="flex-1 bg-[#4f545c] hover:bg-[#5d6269] text-white py-2 rounded font-bold text-sm">
+                    Zavřít
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+        // --- GLOBAL STATE ---
+        const state = {
+            currentChannel: 'welcome',
+            watchlist: JSON.parse(localStorage.getItem('klarka_watchlist')) || [],
+            quizAnswers: JSON.parse(localStorage.getItem('klarka_quiz')) || { score: 0, completed: false },
+            currentDownload: null,
+            terminalIndex: 0
         };
-    }
 
-    function finishQuiz() {
-        document.querySelector('.progress-bar-fill').style.width = '100%';
-        userProgress.quizScore = 100; // Simplified
-        saveProgress();
-        switchScreen('screen-quiz', 'screen-cert');
-    }
-
-    function shakeElement(el) {
-        el.classList.remove('shake');
-        void el.offsetWidth;
-        el.classList.add('shake');
-    }
-
-    // --- MODALS ---
-    function openMagnetModal(title) {
-        const link = downloadLinks[title] || "https://drive.google.com/"; // Fallback
-        const modal = document.getElementById('modal-magnet');
-        const btn = document.getElementById('confirm-magnet-btn');
-        const p = modal.querySelector('p');
-        
-        const isGame = libraryData.games.includes(title);
-        p.innerText = isGame ? 
-            "Spouštím instalaci hry. Ujisti se, že máš dost místa na disku!" :
-            "Otevírám video soubor. Připrav popcorn (nebo radši gumídky).";
-
-        btn.onclick = function() {
-            window.open(link, '_blank');
-            modal.style.display = 'none';
-        };
-        modal.style.display = 'flex';
-    }
-
-    // --- CONFESSION STATE ---
-    let isConsoleWaiting = false;
-
-    function showConfession() {
-        playSound('sound-notification');
-        const modal = document.getElementById('modal-confession');
-        modal.style.display = 'flex';
-        
-        // Reset and rebuild modal content
-        const modalContent = modal.querySelector('.cmd-modal-content');
-        // Clear body
-        const cmdBody = document.getElementById('cmd-body');
-        cmdBody.innerHTML = '';
-
-        const lines = [
-            "C:\\Users\\Klarka> relationship_upgrade.exe",
-            "Initializing system components...",
-            "Loading shared memory: 'Polešovice_Fire.log' ... [OK]",
-            "Loading shared memory: 'Tetris_Scores.db' ... [OK]",
-            "Loading shared memory: 'Math_Doucovani.dll' ... [OK]",
-            "Analysing compatibility...",
-            "> Humor: 100% (Dark/Weird)",
-            "> Values: SYNCED",
-            "> ADHD/Autism Support: ENABLED",
-            "Calculating future projection...",
-            "> Destination: VUT FIT",
-            "> Status: PROMISING",
-            "Executing final payload...",
-            "Decrypting message..."
+        // --- QUIZ DATA ---
+        const quizQuestions = [
+            { question: "Seznámili jsme se kvůli škole.", correct: false, explanation: "Bylo to kvůli Clashku, ale prosím tě, změň si deck ať máš taky někdy šanci mě porazit." },
+            { question: "Podolí je samostatná obec.", correct: false, explanation: "Je to jenom část Kunovic. Smiř se s tím, čím dřív to přijmeš, tím líp pro tebe (prostě jsi Kunovjanka)." },
+            { question: "Ženy jsou špatné řidičky.", correct: false, explanation: "Jsi můj osobní Uber a zvládáš to aj bez světel a pod vlivem... :-)." },
+            { question: "Při táboráku nám pes sežral řízek.", correct: false, explanation: "Byl to špekáček. Zloděj, nevím, jestli náhodou nebyl černý, ale vím, že vypadal jak špekáček." },
+            { question: "Nero hrál na lyru, zatímco Řím lehl popelem.", correct: false, explanation: "Je to mýtus, jo, věřím v mýty a legendy, aj díky tomu byl výlet do Polešovic legendární. Vážím si toho, že jsi můj osobní fact-checker." },
+            { question: "Umím poznat všechny hvězdy na obloze.", correct: true, explanation: "Umím je poznat, jenom jim dám nová kreativní jména jako „vrtulník“ nebo „letadlo“. Why so Sirius?" },
+            { question: "Jsem nejlepší hráč Geoguessru na světě.", correct: true, explanation: "Všude jsem byl, všude to znám, nikdy jsi mě neporazila, mám prostě orientační smysl pravého skauta." },
+            { question: "Nejlepší věc, co se dá koupit, je Casio kalkulačka.", correct: true, explanation: "Ale jenom do chvíle, než poznáš tu plyšovou s pískátkem." },
+            { question: "Popcorn je ideální snack k filmu.", correct: false, explanation: "Sere se mezi zuby, tak snad budou ty Tetris gumídky ok." },
+            { question: "Sezení u počítače a sprchování jsou bezpečné aktivity.", correct: false, explanation: "Můžeme se zeptat tvého přisedlého/zlomeného kotníku." },
+             { question: "Brýle jsou nutné k tomu, aby člověk viděl.", correct: false, explanation: "Aj bez brýlí vidíš moji retardaci/autismus/ADHD a teorie, které nikdo jiný nechápe." }
         ];
 
-        let i = 0;
-        
-        function typeLine() {
-            if (i < lines.length) {
-                const p = document.createElement('div');
-                p.className = 'cmd-line';
-                p.innerText = lines[i];
-                cmdBody.appendChild(p);
-                cmdBody.scrollTop = cmdBody.scrollHeight;
-                i++;
-                setTimeout(typeLine, 800); 
+        // Ensure unique random facts
+        const funFacts = [
+            "🐙 Chobotnice mají tři srdce. Dvě pumpují krev do žáber a jedno do zbytku těla.",
+            "🦉 Sovy nemohou hýbat očima v důlcích, proto musí otáčet celou hlavou (až o 270°).",
+            "🐙 Chobotnice má modrou krev, protože obsahuje měď místo železa.",
+            "🦉 Sovy slyší kořist i pod sněhem díky asymetricky umístěným uším.",
+            "🐙 Chobotnice jsou mistry úniků a dokážou se protáhnout jakýmkoliv otvorem větším než jejich zobák.",
+            "🦉 Skupině sov se v angličtině říká 'parliament' (parlament).",
+            "🐙 Chobotnice dokážou měnit barvu a texturu kůže během zlomku sekundy.",
+            "🦉 Některé sovy (jako Výr velký) loví i menší sovy.",
+            "🐙 Chobotnice jsou jedny z nejinteligentnějších bezobratlých, používají nástroje.",
+            "🦉 Soví peří je uzpůsobeno pro naprosto tichý let."
+        ];
+        let availableFacts = [...funFacts];
+
+        const library = {
+            movies: [
+                {id:103,title:"Angry Birds",icon:"🐦",cat:"Animáky & Pohádky"},
+                {id:116,title:"Shrek",icon:"🧅",cat:"Animáky & Pohádky"},
+                {id:128,title:"Za plotem",icon:"🦝",cat:"Animáky & Pohádky"},
+                {id:127,title:"Úžasňákovi",icon:"🦸",cat:"Animáky & Pohádky"},
+                {id:113,title:"Rango",icon:"🦎",cat:"Animáky & Pohádky"},
+                {id:5,title:"Klaus",icon:"🎅",cat:"Animáky & Pohádky"},
+                {id:104,title:"Asterix a Obelix",icon:"🐗",cat:"Komedie"},
+                {id:101,title:"21 Jump Street",icon:"👮",cat:"Komedie"},
+                {id:102,title:"22 Jump Street",icon:"🚔",cat:"Komedie"},
+                {id:122,title:"Borat",icon:"👍",cat:"Komedie"},
+                {id:118,title:"The Hangover",icon:"😵",cat:"Komedie"},
+                {id:124,title:"Drž hubu!",icon:"🤐",cat:"Komedie"},
+                {id:123,title:"Dědictví",icon:"🚜",cat:"Komedie"},
+                {id:115,title:"Scary Movie 1-5",icon:"👻",cat:"Komedie"},
+                {id:2,title:"The Dark Knight",icon:"🦇",cat:"Akční & Sci-Fi"},
+                {id:3,title:"Interstellar",icon:"🚀",cat:"Akční & Sci-Fi"},
+                {id:7,title:"The Matrix",icon:"💊",cat:"Akční & Sci-Fi"},
+                {id:105,title:"Deadpool",icon:"⚔️",cat:"Akční & Sci-Fi"},
+                {id:110,title:"Logan",icon:"🐺",cat:"Akční & Sci-Fi"},
+                {id:107,title:"Guardians of the Galaxy",icon:"🌌",cat:"Akční & Sci-Fi"},
+                {id:114,title:"Ready Player One",icon:"🕶️",cat:"Akční & Sci-Fi"},
+                {id:121,title:"Alien",icon:"👽",cat:"Akční & Sci-Fi"},
+                {id:111,title:"Mad Max: Fury Road",icon:"🔥",cat:"Akční & Sci-Fi"},
+                {id:108,title:"Kill Bill: Vol. 1",icon:"🗡️",cat:"Akční & Sci-Fi"},
+                {id:119,title:"LOTR Trilogie",icon:"💍",cat:"Akční & Sci-Fi"},
+                {id:1,title:"The Shawshank Redemption",icon:"🔓",cat:"Drama & Thriller"},
+                {id:4,title:"Pulp Fiction",icon:"🍔",cat:"Drama & Thriller"},
+                {id:6,title:"Fight Club",icon:"👊",cat:"Drama & Thriller"},
+                {id:8,title:"Whiplash",icon:"🥁",cat:"Drama & Thriller"},
+                {id:106,title:"Donnie Darko",icon:"🐰",cat:"Drama & Thriller"},
+                {id:112,title:"Prisoners",icon:"🔦",cat:"Drama & Thriller"},
+                {id:125,title:"Seven",icon:"📦",cat:"Drama & Thriller"},
+                {id:126,title:"The Social Network",icon:"👍",cat:"Drama & Thriller"},
+                {id:109,title:"Le Mans 66",icon:"🏎️",cat:"Drama & Thriller"},
+                {id:117,title:"The Gentlemen",icon:"🥃",cat:"Drama & Thriller"},
+                {id:120,title:"The Thing",icon:"❄️",cat:"Drama & Thriller"}
+            ],
+            series: [{id:9,title:"Breaking Bad",icon:"🧪"},{id:10,title:"Arcane",icon:"⚡"},{id:11,title:"Mr. Robot",icon:"💻"},{id:12,title:"True Detective S1",icon:"🕵️"}],
+            games: [{id:13,title:"Tetris Effect",icon:"🧩"},{id:14,title:"Hades",icon:"⚡"},{id:15,title:"Dead Cells",icon:"💀"},{id:16,title:"Portal 2",icon:"🌀"},{id:301,title:"Balatro",icon:"🃏"},{id:302,title:"Brotato",icon:"🥔"},{id:303,title:"Kingdom: Two Crowns",icon:"👑"},{id:304,title:"Mafia II: DE",icon:"🔫"},{id:305,title:"Papa's Freezeria",icon:"🍦"},{id:306,title:"Stackflow",icon:"💻"},{id:307,title:"Enter the Gungeon",icon:"🔫"},{id:308,title:"Hades II",icon:"🌙"},{id:309,title:"Jump King",icon:"👑"}]
+        };
+
+        // --- CORE FUNCTIONS ---
+        function getUniqueFunFact() {
+            if (availableFacts.length === 0) availableFacts = [...funFacts];
+            return availableFacts.splice(Math.floor(Math.random() * availableFacts.length), 1)[0];
+        }
+
+        function verifyLocation() {
+            const btn = document.getElementById('verify-btn');
+            const status = document.getElementById('verify-status');
+            const text = document.getElementById('verify-text');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            text.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Ověřování...';
+            status.classList.remove('hidden');
+            const steps = ["📡 Připojování k satelitu...", "📍 Triangulace pozice...", "❌ Podolí... 404 Not Found", "✅ Kunovice... NALEZENO"];
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    const div = document.createElement('div');
+                    div.className = i === 2 ? 'text-red-400' : (i === 3 ? 'text-green-400 font-bold' : 'text-gray-400');
+                    div.innerHTML = steps[i];
+                    status.appendChild(div);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('login-screen').style.display = 'none';
+                        showQuiz();
+                    }, 1000);
+                }
+            }, 800);
+        }
+
+        function changeTheme(theme) {
+            const root = document.documentElement;
+            // Clear inline styles first (font-family, font-size from Tetris)
+            document.body.style.fontFamily = '';
+            document.body.style.fontSize = '';
+            
+            if (theme === 'christmas') { 
+                root.style.setProperty('--bg-tertiary', '#420d0d'); 
+                root.style.setProperty('--bg-secondary', '#5c1414'); 
+                root.style.setProperty('--bg-primary', '#240a0a'); 
+                root.style.setProperty('--blurple', '#c92a2a'); // Red
+                root.style.setProperty('--green', '#ffd700'); // Gold
+                root.style.setProperty('--text-header', '#ffffff');
+                root.style.setProperty('--interactive-active', '#ffffff');
+                root.style.setProperty('--interactive-normal', '#e8e8e8'); // Lighter text
+                root.style.setProperty('--text-normal', '#f0f0f0');
+            } 
+            else if (theme === 'tetris') {
+                root.style.setProperty('--bg-tertiary', '#0d0e15');
+                root.style.setProperty('--bg-secondary', '#151620');
+                root.style.setProperty('--bg-primary', '#1c1d29');
+                root.style.setProperty('--blurple', '#00e5ff'); 
+                root.style.setProperty('--green', '#69f0ae'); 
+                root.style.setProperty('--red', '#ff5252'); 
+                root.style.setProperty('--yellow', '#ffd740'); 
+                root.style.setProperty('--pink', '#e040fb'); 
+                root.style.setProperty('--text-normal', '#33ff00');
+                root.style.setProperty('--interactive-normal', '#33ff00');
+                document.body.style.fontFamily = "'Press Start 2P', cursive"; 
+                document.body.style.fontSize = "0.8rem";
+            }
+            else { // default
+                root.style.setProperty('--bg-tertiary', '#202225'); root.style.setProperty('--bg-secondary', '#2f3136'); root.style.setProperty('--bg-primary', '#36393f'); 
+                root.style.setProperty('--blurple', '#5865F2');
+                root.style.setProperty('--green', '#3ba55c');
+                root.style.setProperty('--red', '#ed4245');
+                root.style.setProperty('--yellow', '#faa61a');
+                root.style.setProperty('--pink', '#eb459e');
+                root.style.setProperty('--text-normal', '#dcddde');
+                root.style.setProperty('--interactive-normal', '#b9bbbe');
+            }
+            showNotification(`Téma změněno: ${theme}`, 'success');
+        }
+
+        // --- QUIZ ---
+        function showQuiz() {
+            document.getElementById('quiz-screen').style.display = 'flex';
+            loadQuizQuestion(0);
+        }
+        function loadQuizQuestion(index) {
+            const container = document.getElementById('quiz-container');
+            const progress = ((index) / quizQuestions.length) * 100;
+            document.getElementById('quiz-progress').style.width = `${progress}%`;
+            document.getElementById('quiz-step-text').innerText = `${index + 1}/${quizQuestions.length}`;
+            if (index >= quizQuestions.length) { finishQuiz(); return; }
+            const q = quizQuestions[index];
+            container.innerHTML = `<div class="mb-10 text-center"><h3 class="text-white font-extrabold text-2xl leading-relaxed">${q.question}</h3></div><div id="quiz-options" class="flex flex-col gap-4"><button onclick="answerQuiz(${index}, true)" class="w-full bg-[#2f3136] hover:bg-[#3ba55c] text-left px-4 py-4 rounded border border-[#202225] hover:border-[#3ba55c] transition flex items-center group"><div class="w-6 h-6 rounded-full border-2 border-gray-500 group-hover:border-white mr-3 flex items-center justify-center"></div><span class="text-gray-300 group-hover:text-white font-medium text-lg">FAKT</span></button><button onclick="answerQuiz(${index}, false)" class="w-full bg-[#2f3136] hover:bg-[#ed4245] text-left px-4 py-4 rounded border border-[#202225] hover:border-[#ed4245] transition flex items-center group"><div class="w-6 h-6 rounded-full border-2 border-gray-500 group-hover:border-white mr-3 flex items-center justify-center"></div><span class="text-gray-300 group-hover:text-white font-medium text-lg">MÝTUS</span></button></div><div id="quiz-result-feedback" class="hidden mt-4 pt-4 border-t border-[#36393f]"></div>`;
+            document.getElementById('fun-fact-container').style.display = 'block';
+            document.getElementById('fun-fact-text').innerText = getUniqueFunFact();
+        }
+        function answerQuiz(index, answer) {
+            const q = quizQuestions[index];
+            const correct = (answer === q.correct);
+            if (!state.quizAnswers.completed && correct) state.quizAnswers.score += 10;
+            document.getElementById('quiz-options').style.display = 'none';
+            const feedback = document.getElementById('quiz-result-feedback');
+            feedback.innerHTML = `
+                <div class="mb-6 p-4 bg-[#202225] rounded-lg border-l-4 ${correct ? 'border-green-500' : 'border-red-500'}">
+                    <h4 class="${correct?'text-green-400':'text-red-400'} font-bold text-xl mb-2 flex items-center">
+                        <i class="fas ${correct?'fa-check-circle':'fa-times-circle'} mr-2"></i>
+                        ${correct?'Správně!':'Ups!'}
+                    </h4>
+                    <p class="text-white text-lg leading-relaxed mt-2">${q.explanation}</p>
+                </div>
+                <button onclick="loadQuizQuestion(${index + 1})" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white py-4 rounded-lg font-bold text-xl shadow-md transition transform hover:scale-[1.02]">
+                    ${index + 1 < quizQuestions.length ? 'Další otázka ➜' : 'Dokončit 🎉'}
+                </button>
+            `;
+            feedback.classList.remove('hidden');
+        }
+        function finishQuiz() {
+            state.quizAnswers.completed = true;
+            localStorage.setItem('klarka_quiz', JSON.stringify(state.quizAnswers));
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('quiz-score').textContent = `${state.quizAnswers.score}%`;
+            document.getElementById('cert-date').textContent = new Date().toLocaleDateString('cs-CZ');
+            document.getElementById('certificate-screen').style.display = 'flex';
+        }
+
+        // --- APP NAVIGATION ---
+        function showMainApp() {
+            document.getElementById('certificate-screen').style.display = 'none';
+            const app = document.getElementById('app-interface');
+            app.classList.remove('hidden');
+            setTimeout(() => app.classList.remove('opacity-0'), 10);
+            renderChannels();
+            switchChannel('welcome');
+            updateBookmarkCounter();
+        }
+        function renderChannels() {
+            const container = document.getElementById('channels-container');
+            container.innerHTML = `
+                <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Informace</div><div onclick="switchChannel('welcome')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-door-open text-gray-500"></i> uvítání</div><div onclick="switchChannel('timeline')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-history text-gray-500"></i> timeline</div></div>
+                <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Knihovna</div><div onclick="switchChannel('manual')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-book text-[var(--green)]"></i> návod</div><div onclick="switchChannel('movies')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-film text-[var(--yellow)]"></i> filmy</div><div onclick="switchChannel('series')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-tv text-[#5865F2]"></i> seriály</div><div onclick="switchChannel('games')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-gamepad text-[var(--green)]"></i> hry</div><div onclick="showWatchlist()" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-[var(--pink)] hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-bookmark text-[var(--pink)]"></i> tvůj-watchlist</div></div>
+                <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Důležité</div><div onclick="switchChannel('upgrade')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-[var(--yellow)] hover:bg-[#faa61a] hover:text-black flex items-center gap-2 cursor-pointer pulse-glow"><i class="fas fa-file-alt text-[var(--yellow)]"></i> README.md</div></div>
+            `;
+        }
+        function switchChannel(channel) {
+            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('bg-[#393c43]', 'text-white'));
+            const clicked = Array.from(document.querySelectorAll('.channel-item')).find(el => el.getAttribute('onclick').includes(channel));
+            if(clicked) clicked.classList.add('bg-[#393c43]', 'text-white');
+            state.currentChannel = channel;
+            
+            const titles = {'welcome':'uvítání','manual':'návod','timeline':'timeline','movies':'filmy','series':'seriály','games':'hry','upgrade':'README.md'};
+            const icons = {'welcome':'fa-door-open','manual':'fa-book','timeline':'fa-history','movies':'fa-film','series':'fa-tv','games':'fa-gamepad','upgrade':'fa-file-alt'};
+            document.getElementById('channel-name').textContent = titles[channel];
+            document.getElementById('channel-icon').className = `fas ${icons[channel]} text-gray-500 text-xl mr-2`;
+            document.getElementById('user-status').textContent = channel === 'upgrade' ? 'Přemýšlí o upgradu' : 'Online';
+            
+            const container = document.getElementById('messages-container');
+            container.innerHTML = '';
+            
+            if(channel === 'welcome') renderWelcome();
+            else if (channel === 'manual') renderManual();
+            else if (channel === 'timeline') renderTimeline();
+            else if (['movies','series','games'].includes(channel)) renderLibrary(channel);
+            else if (channel === 'upgrade') {
+                container.innerHTML = `<div class="flex gap-4 items-start"><img src="discord_profilovka.jpg" 
+                 alt="Jožka" 
+                 class="w-10 h-10 rounded-full object-cover mt-1 shadow-md"><div class="flex-1"><div class="flex items-baseline gap-2"><span class="font-bold text-[var(--text-header)]">Jožka</span></div><div onclick="startConfession()" class="mt-4 bg-[#2f3136] border border-[#292b2f] rounded p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer hover:bg-[#36393f] transition group"><div class="file-icon-wrapper w-10 h-10 flex items-center justify-center text-4xl text-[#5865F2]"><i class="fas fa-file-code"></i></div><div class="flex-1 min-w-0"><div class="text-[#5865F2] font-medium truncate group-hover:underline text-sm">system_patch_v2.0.exe</div><div class="text-xs text-[#b9bbbe]">1.2 MB • Executable</div></div><div class="text-[#b9bbbe] hover:text-white transition text-lg"><i class="fas fa-download"></i></div></div></div></div>`;
+            }
+            // Add scroll to top logic for timeline as well
+            if (['movies', 'series', 'games', 'manual', 'timeline'].includes(channel)) {
+                container.scrollTop = 0;
             } else {
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    document.getElementById('modal-final-msg').style.display = 'flex';
-                }, 1500);
+                container.scrollTop = container.scrollHeight;
             }
         }
-        typeLine();
-    }
 
-    function responseYes() {
-        userProgress.confessionResponse = 'yes';
-        saveProgress();
-        const content = document.querySelector('#modal-final-msg .modal-content');
-        content.innerHTML = `
-            <h1 style="color: #ff0080; font-size: 2.5em;">🎉 ANO! 🎉</h1>
-            <p style="margin: 20px 0; font-size: 1.1em;">Oficiálně jsme upgradovali!</p>
-            <div style="font-size: 60px; margin: 20px;">🦉❤️🐙</div>
-            
-            <div style="margin-top: 20px; padding: 15px; background: rgba(255,0,128,0.1); border-radius: 8px;">
-                <p style="margin-bottom: 10px; font-size: 0.9em;">Chceš si uložit tento moment?</p>
-                <button onclick="createMemory()" class="btn btn-outline" style="border-color: #ff0080; color: #ff0080; font-size: 0.85em;">
-                    <i class="fas fa-heart-circle-plus"></i> Uložit jako vzpomínku
-                </button>
-            </div>
-
-            <button class="btn btn-success" style="margin-top: 15px;" onclick="unlockSecretChannel()">Jít stahovat filmy</button>
-        `;
-    }
-
-    function createMemory() {
-        const memory = {
-            date: new Date().toISOString(),
-            event: "První ano ❤️",
-            location: "Digitální dárek",
-            notes: "Upgrade na Relationship 2.0 úspěšný!"
-        };
-        const memoryString = JSON.stringify(memory, null, 2);
-        navigator.clipboard.writeText(memoryString).then(() => {
-            alert("Vzpomínka zkopírována! Můžeš ji uložit kamkoliv.");
-        });
-    }
-
-    function unlockSecretChannel() {
-        closeFinal();
-        const dashboard = document.getElementById('screen-dashboard');
-        // Check if secret channel exists
-        if (!document.getElementById('secret-channel')) {
-            const secretHTML = `
-            <div id="secret-channel" style="margin-top: 30px; border-left: 4px solid #eb459e; padding-left: 15px; animation: fadeIn 1s;">
-                <h3 style="color: #eb459e; font-size: 0.9em;"><i class="fas fa-lock-open"></i> #tajny-kanal (ODEMČENO)</h3>
-                <p style="font-size: 0.85em; color: #b9bbbe; margin: 5px 0;">
-                    Přístup pouze pro Relationship 2.0 uživatele.
-                </p>
-                <button onclick="alert('Tajný kanál by obsahoval:\\n• Naše budoucí plány\\n• Společné fotky\\n• Dlouhé osobní zprávy\\n• ...a další překvapení! ❤️')" class="btn btn-outline" style="border-color: #eb459e; color: #eb459e; margin-top: 10px; font-size: 0.8em;">
-                    <i class="fas fa-arrow-right"></i> Vstoupit
-                </button>
-            </div>
-            `;
-            dashboard.insertAdjacentHTML('beforeend', secretHTML);
-            // Scroll to bottom
-            dashboard.scrollTop = dashboard.scrollHeight;
-        }
-    }
-
-    function responseNo() {
-        userProgress.confessionResponse = 'no';
-        saveProgress();
-        const content = document.querySelector('#modal-final-msg .modal-content');
-        content.innerHTML = `
-            <h2>Respektuju to! 🛡️</h2>
-            <p>Jsem rád, že tě mám. Co-op pokračuje.</p>
-            <button class="btn btn-outline" onclick="closeFinal()">Zpět</button>
-        `;
-    }
-
-    function closeConfession() { document.getElementById('modal-confession').style.display = 'none'; }
-    function closeFinal() { document.getElementById('modal-final-msg').style.display = 'none'; }
-    
-    function switchScreen(from, to) {
-        document.getElementById(from).classList.remove('active');
-        document.getElementById(to).classList.add('active');
-        window.scrollTo(0,0);
-        if (to === 'screen-dashboard') {
-            // Loading state simulation
-            const gridIds = ['grid-movies', 'grid-series', 'grid-games'];
-            gridIds.forEach(id => {
-                document.getElementById(id).innerHTML = `
-                    <div style="display:flex; justify-content:center; padding:20px; color:#72767d;">
-                        <i class="fas fa-spinner fa-spin"></i> Načítání...
+        function renderWelcome() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = `
+                <div class="flex gap-4 items-start">
+                    <div class="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center text-white text-sm font-bold mt-1">
+                        <i class="fas fa-robot"></i>
                     </div>
-                `;
-            });
-            setTimeout(() => renderLibrary(), 300);
+                    <div class="flex-1">
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-bold text-[var(--text-header)]">System Bot</span>
+                            <span class="text-xs text-[var(--interactive-normal)]">Dnes v 22:15</span>
+                        </div>
+                        <div class="text-[var(--text-normal)] bg-[#2f3136] p-4 rounded-lg mt-2 shadow-sm">
+                            <p class="font-bold text-[var(--text-header)] mb-2">Vítej na serveru Kiscord, Klárko! 🎄</p>
+                            <p>Tvůj status Vrchního Fact-Checkera byl úspěšně ověřen. Abys dokončila dnešní misi, postupuj podle tohoto protokolu:</p>
+                            <ul class="list-none pl-0 mt-3 space-y-2 text-sm">
+                                <li><i class="fas fa-folder-open text-[var(--yellow)] mr-2"></i> <strong>#knihovna</strong> – Projdi si mnou doporučené filmy, seriály a hry, rovnou je můžeš stahovat.</li>
+                                <li><i class="fas fa-hourglass-half text-[var(--blurple)] mr-2"></i> <strong>#timeline</strong> – Synchronizuj si naše společné vzpomínky a mýty.</li>
+                                <li><i class="fas fa-scroll text-[var(--pink)] mr-2"></i> <strong>#README.md</strong> – Finální systémový log (otevřít až po splnění bodů 1 a 2).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4 items-start mt-6">
+                    <img src="discord_profilovka.jpg" 
+                        alt="Jožka" 
+                        class="w-10 h-10 rounded-full object-cover mt-1 shadow-md">
+                    <div class="flex-1">
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-bold text-[var(--text-header)] hover:underline cursor-pointer">Jožka</span>
+                            <span class="text-xs text-[var(--interactive-normal)]">Právě teď</span>
+                        </div>
+                        <div class="text-[var(--text-normal)] mt-1">
+                            <p>Čus! Snad se ti tento způsob předání dárku líbí 🎅.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
-    }
 
-</script>
+        function renderManual() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = `
+                <div class="flex gap-4 items-start"><img src="discord_profilovka.jpg" 
+                 alt="Jožka" 
+                 class="w-10 h-10 rounded-full object-cover mt-1 shadow-md"><div class="flex-1"><div class="flex items-baseline gap-2"><span class="font-bold text-[var(--text-header)]">Jožka</span><span class="text-xs text-[var(--interactive-normal)]">Pinned</span></div><div class="bg-gradient-to-br from-[#2f3136] to-[#202225] border-l-4 border-[#faa61a] p-4 rounded-r-lg mt-3"><h3 class="font-bold text-white text-lg mb-3 flex items-center gap-2"><i class="fas fa-graduation-cap text-[#faa61a]"></i> Návod na stahování</h3><div class="space-y-4"><div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white flex-shrink-0">1</div><div><p class="font-bold text-white">Instalace qBittorrent</p><p class="text-[var(--text-normal)] text-sm">Stáhni si z <a href="https://www.qbittorrent.org/download.php" target="_blank" class="text-[#5865F2] hover:underline font-bold">qbittorrent.org/download</a>. Neboj, není to virus.</p></div></div><div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white flex-shrink-0">2</div><div><p class="font-bold text-white">Magnet Link 🧲</p><p class="text-[var(--text-normal)] text-sm">V knihovně klikni na ikonu stahování u položky. Otevře se ti to přímo v klientovi.</p></div></div><div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white flex-shrink-0">3</div><div><p class="font-bold text-white">HDMI kabel (ten 5m)</p><p class="text-[var(--text-normal)] text-sm">Připoj notebook k TV, zmáčkni <code class="bg-black px-1 rounded text-white">Win + P</code> a vyber "Duplicate" nebo "Extend".</p></div></div></div></div></div></div>`;
+        }
+        function renderTimeline() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = `<div class="p-4"><h3 class="text-white font-bold text-lg mb-6 pl-4 border-l-4 border-[#5865F2]">Naše Společná Cesta</h3><div class="relative pl-8 sm:pl-12"><div class="absolute left-[19px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#5865F2] to-[#eb459e]"></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-shield-alt text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Kde to všechno začalo – Clash Royale</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Zeptal jsem se tě, jestli nedáme 1v1 (samozřejmě jsem vyhrál). <br>(P.S. Ten deck si fakt už změň, ať máš aspoň teoretickou šanci.)</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#3ba55c] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-mobile-alt text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Nekonečný Scroll & Teorie</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Šest miliónů poslaných Reels a hodiny konverzací o životě. Jsi jediný člověk s dostatečným procesorovým výkonem na to, aby pobral moje teorie (dává to smysl?).</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#faa61a] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-graduation-cap text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Discord Maratony</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">271k+ hodin volání. Od tvé nekonečné trpělivosti a obětavosti při doučování mého autistického ADHD mozku až po naše bitvy ve Vyzyvateli, Tetrisu, Geoguessru, Fall Guys, Super Animal Royale a Minigolfu.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#eb459e] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-fire text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Ohýnek u Vlčnovských búd</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Já sehnal dřevo, ty jsi řídila. Pes nám sežral večeři, potkali jsme náhodného Holanďana a já nás hrdinně bránil sekerou proti dřevěné soše (která vypadala fakt podezřele!). Přežili jsme.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#ed4245] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-wine-glass text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Hody Mařatice</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Večer, kdy jsi mi zachránila prdel. Dotáhla jsi mě do auta, vyslechla si moje opilecké ujišťování, že fakt nejsem gej, a pak jsi jen sledovala můj akrobatický přeskok přes plot.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-star text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Polešovice</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">První jako skvělý navigátor jsem vybral tu správnou odbočku/zkratku, abychom se mohli vyhnout hasičům (predicted/foreshadowing). Dál moje perfektní orientace ve tmě, ještě lepší schopnost poznávání hvězd (letadel) a výhled na požár pod námi. Tady jsi mě poprvé fact-checknula s Nerem a od té doby věřím mýtům.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#faa61a] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-basketball-ball text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Basketbal, Modrá a Velehrad</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Poprvé, co jsem já řídil a málem nás sejmul autobus. Basketbalový zápas, kde si borec zlomil nohu. Sidequest (ještě s Elen) na Modrou na rozhlednu ve velké mlze a zimě, potom dolů na Velehrad v bahně do altánku k rybníku. Po víc jak hodinovém yappování na parkovišti jsme zašli na kebab, ale nemohli jsme si ho vychutnat kvůli cajtům. Skvělý večer.</p></div></div><div class="relative max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#5865F2] to-[#eb459e] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-gift text-white text-xs"></i></div><div class="bg-gradient-to-r from-[#2f3136] to-[#202225] p-4 rounded-lg border border-[#5865F2] ml-2"><h4 class="font-bold text-white mb-1">Tento dárek</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Všechny naše vzpomínky na jednom místě. Diddyblud kalkulator a 5 metrů HDMI kabelu (místo mašle), abys mohla nastudovat všechny moje filmové reference.</p></div></div></div></div>`;
+        }
 
+        function renderLibrary(type) {
+            const container = document.getElementById('messages-container');
+            const searchInput = document.getElementById('search-input');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            let items = library[type].filter(item => item.title.toLowerCase().includes(searchTerm));
+            items.sort((a, b) => {
+                const aB = state.watchlist.some(w => w.id === a.id);
+                const bB = state.watchlist.some(w => w.id === b.id);
+                return bB - aB;
+            });
+
+            const typeName = type === 'movies' ? 'filmy' : type === 'series' ? 'seriály' : 'hry';
+            
+            // Group by category if available, otherwise 'Ostatní'
+            const grouped = items.reduce((acc, item) => {
+                const cat = item.cat || 'Ostatní';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(item);
+                return acc;
+            }, {});
+
+            let html = `<div class="p-2 space-y-8">`; // Increased spacing between sections
+            
+            // Order categories for movies if present
+            const categoryOrder = ["Animáky & Pohádky", "Komedie", "Akční & Sci-Fi", "Drama & Thriller", "Ostatní"];
+            const sortedCategories = Object.keys(grouped).sort((a, b) => {
+                return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
+            });
+
+            if (items.length === 0) {
+                html += `<div class="text-gray-400 italic text-center mt-10">Nic nenalezeno... :(</div>`;
+            } else {
+                sortedCategories.forEach(cat => {
+                    if (grouped[cat]) {
+                        html += `
+                            <div>
+                                <h3 class="text-[var(--text-header)] font-bold mb-3 uppercase text-xs tracking-wide opacity-80 border-b border-[#2f3136] pb-1 ml-1">
+                                    ${cat}
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        `;
+                        grouped[cat].forEach(item => {
+                            const isBookmarked = state.watchlist.some(w => w.id === item.id);
+                            // Pink icon if bookmarked (#eb459e)
+                            const bookmarkBtnClass = isBookmarked 
+                                ? 'bg-[#2f3136] text-[#eb459e] hover:text-[#d4357e]' 
+                                : 'bg-[#202225] text-gray-400 hover:text-[#eb459e]';
+                            
+                            html += `
+                                <div class="bg-[#2f3136] p-3 rounded hover:bg-[#36393f] transition library-item flex justify-between items-center group ${isBookmarked ? 'border-l-2 border-[#eb459e]' : ''}">
+                                    <div class="flex items-center gap-3 overflow-hidden">
+                                        <span class="text-xl flex-shrink-0">${item.icon}</span>
+                                        <span class="font-medium text-[var(--text-header)] truncate text-sm">${item.title}</span>
+                                    </div>
+                                    <div class="flex gap-2 flex-shrink-0 opacity-100 transition">
+                                        <button onclick="toggleBookmark(${item.id}, '${type}')" class="w-8 h-8 rounded ${bookmarkBtnClass} flex items-center justify-center transition" title="Přidat do watchlistu">
+                                            <i class="${isBookmarked ? 'fas' : 'far'} fa-bookmark"></i>
+                                        </button>
+                                        <button onclick="initiateDownload(${item.id})" class="w-8 h-8 rounded bg-[#202225] flex items-center justify-center text-gray-400 hover:text-[#5865F2]" title="Stáhnout">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += `</div></div>`;
+                    }
+                });
+            }
+            
+            html += `
+                <div class="mt-8 p-4 bg-[#2f3136] rounded-lg border-l-4 border-[#5865F2] animate-fade-in">
+                    <p class="text-sm text-[var(--text-normal)]">
+                        <i class="fas fa-info-circle text-[#5865F2] mr-1"></i>
+                        <strong>Tip:</strong> Všechny soubory seeduju (sdílím) z mého PC. Klikni na <i class="fas fa-download mx-1"></i> a otevře se ti to rovnou v qBittorrentu. Rychlost by měla být fajn!
+                    </p>
+                </div>
+            </div>`;
+            container.innerHTML = html;
+        }
+
+        function renderUpgrade() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = `<div class="flex gap-4 items-start"><img src="discord_profilovka.jpg" 
+                 alt="Jožka" 
+                 class="w-10 h-10 rounded-full object-cover mt-1 shadow-md"><div class="flex-1"><div class="flex items-baseline gap-2"><span class="font-bold text-[var(--text-header)]">Jožka</span></div><div onclick="startConfession()" class="mt-4 bg-[#2f3136] border border-[#292b2f] rounded p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer hover:bg-[#36393f] transition group"><div class="file-icon-wrapper w-10 h-10 flex items-center justify-center text-4xl text-[#5865F2]"><i class="fas fa-file-code"></i></div><div class="flex-1 min-w-0"><div class="text-[#5865F2] font-medium truncate group-hover:underline text-sm">system_patch_v2.0.exe</div><div class="text-xs text-[#b9bbbe]">1.2 MB • Executable</div></div><div class="text-[#b9bbbe] hover:text-white transition text-lg"><i class="fas fa-download"></i></div></div></div></div>`;
+        }
+
+        // --- WATCHLIST LOGIC ---
+        function toggleBookmark(id, type) {
+            let item;
+            for(let k in library) { item = library[k].find(i => i.id === id); if(item) { item.type = type; break; } }
+            const idx = state.watchlist.findIndex(w => w.id === id);
+            if(idx === -1) { state.watchlist.push(item); showNotification('Přidáno', 'success'); }
+            else { state.watchlist.splice(idx, 1); showNotification('Odebráno', 'info'); }
+            localStorage.setItem('klarka_watchlist', JSON.stringify(state.watchlist));
+            updateBookmarkCounter();
+            if(['movies','series','games'].includes(state.currentChannel)) renderLibrary(state.currentChannel);
+        }
+        function updateBookmarkCounter() {
+            const count = state.watchlist.length;
+            document.getElementById('bookmark-count').textContent = count;
+            document.getElementById('bookmark-counter').style.display = count > 0 ? 'flex' : 'none';
+        }
+        function showWatchlist() {
+            document.getElementById('watchlist-modal').style.display = 'flex';
+            const container = document.getElementById('watchlist-items');
+            document.getElementById('watchlist-total').textContent = state.watchlist.length;
+            if(state.watchlist.length === 0) container.innerHTML = '<div class="text-center text-gray-500 py-10">Prázdno.</div>';
+            else container.innerHTML = state.watchlist.map(i => `<div class="bg-[#2f3136] p-3 rounded flex justify-between items-center mb-2"><div class="flex items-center gap-3"><span class="text-xl">${i.icon}</span><span class="text-white">${i.title}</span></div><button onclick="toggleBookmark(${i.id},'${i.type}');showWatchlist()" class="text-[#ed4245]"><i class="fas fa-trash"></i></button></div>`).join('');
+        }
+        function clearWatchlist() {
+            if(confirm('Vyčistit?')) { state.watchlist = []; localStorage.setItem('klarka_watchlist', '[]'); showWatchlist(); updateBookmarkCounter(); if(['movies','series','games'].includes(state.currentChannel)) renderLibrary(state.currentChannel); showNotification('Watchlist vyčištěn', 'info'); }
+        }
+        function exportWatchlist() {
+            if(state.watchlist.length === 0) { showNotification('Watchlist je prázdný!', 'warning'); return; }
+            const listText = state.watchlist.map(item => `• ${item.title} (${item.type === 'movies' ? 'Film' : item.type === 'series' ? 'Seriál' : 'Hra'})`).join('\n');
+            const fullText = `🧾 NÁŠ SPOLEČNÝ WATCHLIST\n\n${listText}\n\n📅 Vytvořeno: ${new Date().toLocaleDateString('cs-CZ')}\n❤️ Těším se na společné sledování!`;
+            const fallbackCopy = (text) => { const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); showNotification('Watchlist zkopírován do schránky!', 'success'); } catch (err) { showNotification('Nepodařilo se zkopírovat text', 'error'); } document.body.removeChild(textArea); };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(fullText).then(() => showNotification('Watchlist zkopírován do schránky!', 'success')).catch(() => fallbackCopy(fullText));
+            else fallbackCopy(fullText);
+        }
+        function showNotification(msg, type) {
+            const div = document.createElement('div'); div.className = `fixed top-4 right-4 text-white px-4 py-2 rounded shadow-lg z-[100] ${type==='success'?'bg-[#3ba55c]':'bg-[#5865F2]'}`;
+            div.innerHTML = msg; document.body.appendChild(div); setTimeout(()=>div.remove(), 3000);
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        // --- DOWNLOAD ---
+        function initiateDownload(id) {
+            let item = null;
+            for (const category in library) { const found = library[category].find(i => i.id === id); if (found) { item = found; break; } }
+            if (!item) return;
+            state.currentDownload = item;
+            document.getElementById('download-message').textContent = `Stáhnout "${item.title}"?`;
+            document.getElementById('download-modal').style.display = 'flex';
+        }
+
+        function openMagnetLink() { showNotification('Spouštím qBittorrent...', 'success'); closeModal('download-modal'); }
+        function openGoogleDrive() { showNotification('Otevírám Google Drive...', 'success'); closeModal('download-modal'); }
+
+        // --- CONFESSION ---
+        function startConfession() {
+            // Play music 1
+            const music1 = document.getElementById('audio-final-countdown');
+            if(music1) {
+                music1.currentTime = 0;
+                music1.volume = 0.5;
+                music1.play().catch(e => console.log("Audio play failed (user interaction needed first):", e));
+            }
+
+            const modal = document.getElementById('confession-modal');
+            const output = document.getElementById('terminal-output');
+            const typingArea = document.getElementById('typing-area');
+            const promptText = document.getElementById('prompt-text');
+            const cmdCursor = document.getElementById('cmd-cursor');
+            modal.style.display = 'flex';
+            output.innerHTML = `<div>Microsoft Windows [Version 10.0.19045]</div><div>(c) Microsoft Corporation. All rights reserved.</div><br>`;
+            typingArea.textContent = '';
+            promptText.textContent = "C:\\Users\\Klárka\\Heart>";
+            cmdCursor.style.display = 'inline-block';
+            const command = " system_patch_v2.0.exe";
+            let charIndex = 0;
+            const lines = ["Loading shared memory database...", "✓ Discord logs... OK", "✓ Co-op games... OK", "✓ Inside jokes... OK", "Running compatibility analysis...", ">> Humor: MATCH (weird/dark)", ">> Values: SYNCED", "Analysis complete. Conclusion: You are my Player 2.", "Decrypting final message...", "Press any key to continue..."];
+            
+            function typeCommand() {
+                if (charIndex < command.length) { typingArea.textContent += command.charAt(charIndex); charIndex++; setTimeout(typeCommand, Math.random() * 50 + 50); } 
+                else setTimeout(runLogs, 500);
+            }
+            function runLogs() {
+                const cmdLine = document.createElement('div');
+                cmdLine.innerHTML = `C:\\Users\\Klárka\\Heart&gt;${command}`;
+                output.appendChild(cmdLine);
+                typingArea.textContent = ''; promptText.textContent = ''; cmdCursor.style.display = 'none';
+                let lineIndex = 0;
+                function printLine() {
+                    if (lineIndex < lines.length) {
+                        const div = document.createElement('div');
+                        div.textContent = lines[lineIndex];
+                        output.appendChild(div);
+                        document.getElementById('terminal-body').scrollTop = document.getElementById('terminal-body').scrollHeight;
+                        lineIndex++;
+                        if(lineIndex === lines.length) {
+                             const cursorSpan = document.createElement('span');
+                             cursorSpan.className = 'cmd-cursor';
+                             cursorSpan.innerText = ' '; // spacer
+                             const pressKey = document.createElement('span');
+                             pressKey.className = 'animate-pulse text-gray-500 ml-2';
+                             pressKey.innerText = 'Press any key to continue...';
+                             
+                             const lastLine = document.createElement('div');
+                             lastLine.appendChild(pressKey);
+                             lastLine.appendChild(cursorSpan);
+                             output.appendChild(lastLine);
+                             
+                             const proceed = () => {
+                                document.removeEventListener('keydown', proceed);
+                                document.removeEventListener('click', proceed);
+                                document.getElementById('confession-modal').style.display = 'none';
+                                
+                                // Switch Music
+                                const music1 = document.getElementById('audio-final-countdown');
+                                const music2 = document.getElementById('audio-divka');
+                                if(music1) {
+                                    // Simple fade out logic could go here, but pause is safer for stability
+                                    music1.pause();
+                                }
+                                if(music2) {
+                                    music2.currentTime = 0;
+                                    music2.volume = 0.5;
+                                    music2.play().catch(e => console.log("Audio 2 play failed:", e));
+                                }
+
+                                const finalModal = document.getElementById('final-confession-modal');
+                                const modalBox = document.getElementById('final-modal-box');
+                                
+                                document.getElementById('typing-container').innerHTML = '';
+                                document.getElementById('confession-buttons').classList.add('hidden');
+                                
+                                finalModal.style.display = 'flex';
+                                
+                                setTimeout(() => {
+                                    modalBox.classList.remove('opacity-0', 'scale-95');
+                                    modalBox.classList.add('opacity-100', 'scale-100');
+                                    setTimeout(typeFinalMessage, 500);
+                                }, 50);
+                             };
+                             
+                             // Add listeners with a small delay to prevent accidental double clicks
+                             setTimeout(() => {
+                                document.addEventListener('keydown', proceed);
+                                document.addEventListener('click', proceed);
+                             }, 500);
+                        } else setTimeout(printLine, 400 + Math.random() * 400);
+                    }
+                }
+                printLine();
+            }
+            typeCommand();
+        }
+
+        function typeFinalMessage() {
+            const container = document.getElementById('typing-container');
+            container.innerHTML = '';
+            document.getElementById('confession-buttons').classList.add('hidden');
+            
+            const textParts = [
+                { text: "Klárko,", bold: true },
+                { text: "hrozně si vážím toho, co mezi sebou máme. Máme podobné hodnoty, ve všem si rozumíme a jsi neuvěřitelně inteligentní a klidná." },
+                { text: "Hlavně jsi ale člověk, se kterým můžu být naprosto sám sebou, protože vím, že mě bereš přesně takového, jaký jsem." },
+                { text: "Mám tě hrozně rád.", highlight: true },
+                { text: "Naše přátelství pro mě znamená strašně moc a nikdy o něj nechci přijít. Zároveň ale cítím, že k tobě mám mnohem blíž, a byl bych moc rád, kdybychom to spolu zkusili i jako pár." },
+                { text: "Nechtěla bys to se mnou zkusit?", bold: true, center: true }
+            ];
+            
+            let partIndex = 0;
+            let charIndex = 0;
+            let currentP = null;
+            
+            function typeChar() {
+                if (partIndex >= textParts.length) {
+                    setTimeout(() => {
+                        const btns = document.getElementById('confession-buttons');
+                        btns.classList.remove('hidden');
+                        btns.classList.add('animate-fade-in');
+                    }, 500);
+                    return;
+                }
+                
+                const part = textParts[partIndex];
+                
+                if (!currentP) {
+                    currentP = document.createElement('p');
+                    if (part.bold) currentP.className = "font-bold text-white text-lg";
+                    if (part.highlight) currentP.className = "text-[#eb459e] font-bold text-center text-xl my-2";
+                    if (part.center) currentP.className = "font-bold text-white text-center mt-4 text-lg";
+                    currentP.classList.add('typing-cursor');
+                    container.appendChild(currentP);
+                }
+                
+                if (charIndex < part.text.length) {
+                    currentP.textContent = part.text.substring(0, charIndex + 1);
+                    charIndex++;
+                    setTimeout(typeChar, 60); // Faster typing speed per char
+                } else {
+                    currentP.classList.remove('typing-cursor');
+                    currentP = null;
+                    charIndex = 0;
+                    partIndex++;
+                    setTimeout(typeChar, 600); // Shorter pause between lines
+                }
+            }
+            
+            typeChar();
+        }
+
+        function responseYes() { 
+            document.getElementById('final-modal-content').innerHTML = `
+                <div class="animate-fade-in">
+                    <h2 class="text-3xl font-bold text-[#eb459e] mb-2">❤️ CONNECTION ESTABLISHED! ❤️</h2>
+                    <p class="text-gray-300 text-lg leading-relaxed mb-6">
+                        Děkuju, že jsi mi dala šanci. Jsi moje kotva v celém tom mém chaosu a slibuju, že si toho budu vážit každý den.
+                        <br><br>
+                        Těším se na všechno, co nás čeká.
+                    </p>
+                    <div class="mt-8">
+                        <button onclick="planDate()" class="w-full bg-gradient-to-r from-[#eb459e] to-[#5865F2] hover:opacity-90 text-white py-4 rounded-lg font-bold text-xl shadow-lg transition transform hover:scale-105">
+                            Naplánovat rande
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        function responseNo() { 
+            document.getElementById('final-modal-content').innerHTML = `
+                <div class="animate-fade-in">
+                    <h2 class="text-2xl font-bold text-white mb-4">Díky za upřímnost, Klárko.</h2>
+                    <p class="text-gray-300 text-lg mb-6 leading-relaxed">
+                        Moc si tě vážím a jsem rád, že si můžeme dál zůstat blízcí tak, jak jsme.
+                        <br><br>
+                        Nic se nemění – dál budeme yappovat o teoriích a hrát Tetris. 😊
+                    </p>
+                    <button onclick="closeModal('final-confession-modal')" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white py-3 rounded-lg font-bold transition">
+                        Zpět na server
+                    </button>
+                </div>
+            `; 
+        }
+
+        function planDate() {
+            const modal = document.getElementById('final-confession-modal');
+            const modalBox = document.getElementById('final-modal-box'); // Use the inner box for content replacement
+            
+            // Create content HTML
+            const content = `
+                <div class="animate-fade-in">
+                    <div class="text-4xl mb-2">📅</div>
+                    <h2 class="text-xl font-bold text-white mb-4">Plánovač Rande v1.0</h2>
+                    <div class="space-y-4 text-left">
+                        <div>
+                            <label class="block text-[#b9bbbe] text-xs font-bold uppercase mb-1">Kdy máš čas?</label>
+                            <select id="date-select" class="w-full bg-[#202225] text-white p-2.5 rounded border border-[#202225] focus:border-[#5865F2] focus:outline-none transition">
+                                <option value="Co nejdříve">Co nejdříve! 🚀</option>
+                                <option value="Tento víkend">Tento víkend</option>
+                                <option value="Příští týden">Příští týden</option>
+                                <option value="Po zkouškách">Až po zkouškách</option>
+                                <option value="Jindy">Jindy (napišu ti)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[#b9bbbe] text-xs font-bold uppercase mb-1">Co podnikneme?</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="selectActivity(this, 'Kino')" class="activity-btn bg-[#2f3136] hover:bg-[#40444b] text-white p-3 rounded text-sm font-medium transition border border-transparent hover:border-[#5865F2]">Kino 🍿</button>
+                                <button type="button" onclick="selectActivity(this, 'Kavárna')" class="activity-btn bg-[#2f3136] hover:bg-[#40444b] text-white p-3 rounded text-sm font-medium transition border border-transparent hover:border-[#5865F2]">Kavárna ☕</button>
+                                <button type="button" onclick="selectActivity(this, 'Procházka')" class="activity-btn bg-[#2f3136] hover:bg-[#40444b] text-white p-3 rounded text-sm font-medium transition border border-transparent hover:border-[#5865F2]">Procházka 🌲</button>
+                                <button type="button" onclick="selectActivity(this, 'Chill')" class="activity-btn bg-[#2f3136] hover:bg-[#40444b] text-white p-3 rounded text-sm font-medium transition border border-transparent hover:border-[#5865F2]">Chill u mě 🎮</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[#b9bbbe] text-xs font-bold uppercase mb-1">Detaily / Poznámka</label>
+                            <textarea id="custom-note" class="w-full bg-[#202225] text-white p-2.5 rounded border border-[#202225] focus:border-[#5865F2] focus:outline-none transition text-sm h-20 resize-none" placeholder="Např. na co máš chuť, jaký film..."></textarea>
+                        </div>
+                    </div>
+                    <button onclick="confirmDate()" class="mt-6 w-full bg-[#5865F2] hover:bg-[#4752c4] text-white py-3 rounded font-bold transition transform active:scale-95 shadow-md"><i class="fas fa-paper-plane mr-2"></i> Odeslat návrh</button>
+                </div>
+            `;
+            
+            // Replace only content inside the box
+            document.getElementById('final-modal-content').innerHTML = content;
+        }
+        function selectActivity(btn, act) {
+            document.querySelectorAll('.activity-btn').forEach(b => { b.classList.remove('bg-[#5865F2]', 'border-[#5865F2]', 'selected'); b.classList.add('bg-[#2f3136]'); });
+            btn.classList.remove('bg-[#2f3136]'); btn.classList.add('bg-[#5865F2]', 'selected'); btn.dataset.value = act;
+        }
+        function confirmDate() {
+            const date = document.getElementById('date-select').value;
+            const actBtn = document.querySelector('.activity-btn.selected');
+            const activity = actBtn ? actBtn.dataset.value : "Něco vymyslíme";
+            const note = document.getElementById('custom-note').value;
+            const message = `📅 **NÁVRH RANDE**\n\n🕒 **Kdy:** ${date}\n🎭 **Co:** ${activity}\n📝 **Poznámka:** ${note || "Bez poznámky"}\n\n*Odesláno z Kiscordu*`;
+            const fallbackCopy = (text) => {
+                const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select();
+                try { document.execCommand('copy'); showRedirect(); } catch (err) { showNotification('Chyba', 'error'); }
+                document.body.removeChild(textArea);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(message).then(showRedirect).catch(() => fallbackCopy(message));
+            else fallbackCopy(message);
+        }
+        function showRedirect() { document.getElementById('final-confession-modal').style.display = 'none'; document.getElementById('redirect-modal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showNotification(msg, type) {
+            const div = document.createElement('div'); div.className = `fixed top-4 right-4 text-white px-4 py-2 rounded shadow-lg z-[100] ${type==='success'?'bg-[#3ba55c]':'bg-[#5865F2]'}`;
+            div.innerHTML = msg; document.body.appendChild(div); setTimeout(()=>div.remove(), 3000);
+        }
+
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter' && e.target.value.startsWith('/')) {
+                const cmd = e.target.value.trim();
+                if(cmd === '/sova') showNotification('🦉 Sovy otočí hlavu o 270°!', 'info');
+                else if(cmd === '/chobotnice') showNotification('🐙 Chobotnice mají modrou krev.', 'info');
+                e.target.value = '';
+            }
+        });
+        
+        // MISSING FUNCTIONS RESTORED
+        function inviteFriend() {
+            const tempInput = document.createElement("input");
+            tempInput.value = "https://kiscord.gg/invite/podoli-is-fake";
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            showNotification("Invite link zkopírován! (Je to jen vtip)", "success");
+        }
+
+        function changeTheme(theme) {
+            const root = document.documentElement;
+            // Clear inline styles first (font-family, font-size from Tetris)
+            document.body.style.fontFamily = '';
+            document.body.style.fontSize = '';
+            
+            if (theme === 'christmas') { 
+                root.style.setProperty('--bg-tertiary', '#420d0d'); 
+                root.style.setProperty('--bg-secondary', '#5c1414'); 
+                root.style.setProperty('--bg-primary', '#240a0a'); 
+                root.style.setProperty('--blurple', '#c92a2a'); // Red
+                root.style.setProperty('--green', '#ffd700'); // Gold
+                root.style.setProperty('--text-header', '#ffffff');
+                root.style.setProperty('--interactive-active', '#ffffff');
+                root.style.setProperty('--interactive-normal', '#e8e8e8'); // Lighter text
+                root.style.setProperty('--text-normal', '#f0f0f0');
+            } 
+            else if (theme === 'tetris') {
+                root.style.setProperty('--bg-tertiary', '#0d0e15');
+                root.style.setProperty('--bg-secondary', '#151620');
+                root.style.setProperty('--bg-primary', '#1c1d29');
+                root.style.setProperty('--blurple', '#00e5ff'); 
+                root.style.setProperty('--green', '#69f0ae'); 
+                root.style.setProperty('--red', '#ff5252'); 
+                root.style.setProperty('--yellow', '#ffd740'); 
+                root.style.setProperty('--pink', '#e040fb'); 
+                root.style.setProperty('--text-normal', '#33ff00');
+                root.style.setProperty('--interactive-normal', '#33ff00');
+                document.body.style.fontFamily = "'Press Start 2P', cursive"; 
+                document.body.style.fontSize = "0.8rem";
+            }
+            else { // default
+                root.style.setProperty('--bg-tertiary', '#202225'); root.style.setProperty('--bg-secondary', '#2f3136'); root.style.setProperty('--bg-primary', '#36393f'); 
+                root.style.setProperty('--blurple', '#5865F2');
+                root.style.setProperty('--green', '#3ba55c');
+                root.style.setProperty('--red', '#ed4245');
+                root.style.setProperty('--yellow', '#faa61a');
+                root.style.setProperty('--pink', '#eb459e');
+                root.style.setProperty('--text-normal', '#dcddde');
+                root.style.setProperty('--interactive-normal', '#b9bbbe');
+            }
+            showNotification(`Téma změněno: ${theme}`, 'success');
+        }
+
+        // INIT
+        if(state.quizAnswers.completed) { document.getElementById('login-screen').style.display = 'none'; showMainApp(); }
+        const search = document.getElementById('search-input');
+        if (search) search.addEventListener('input', () => { if (['movies', 'series', 'games'].includes(state.currentChannel)) renderLibrary(state.currentChannel); });
+    </script>
 </body>
 </html>
