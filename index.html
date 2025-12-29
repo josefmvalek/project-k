@@ -651,76 +651,80 @@
         const GLOBAL_DRIVE_LINK = "https://drive.google.com/drive/folders/19KnBcai5wHxwlryX_keLO9zPs8Qvj48l?usp=sharing";
 
         // --- DATE PLANNER DATA ---
+        // --- DATE PLANNER DATA (Reorganized) ---
+        // --- DATE PLANNER DATA (Reorganized: Walk -> View -> Fun -> Food) ---
         const dateLocations = [
-            // VÝHLEDY & TURISTIKA
-            { id: 1, name: "Rozhledna Salaš", cat: "view", lat: 49.142871, lng: 17.352267, desc: "Designová rozhledna ve tvaru sedmiček. Super výhled na Chřiby." },
-            { id: 2, name: "Rozhledna Rovnina", cat: "view", lat: 49.071519, lng: 17.513178, desc: "Klasika nad Jarošovem. Kousek pěšky, hezký výhled na Hradiště." },
-            { id: 3, name: "Floriánka", cat: "view", lat: 49.037799, lng: 17.326382, desc: "Kousek od Polešovic. Víme, že tam fouká, ale výhled na vinohrady top." },
-            { id: 4, name: "Maják Šrotík", cat: "view", lat: 49.073950, lng: 17.426840, desc: "Ve Staráku v Kovozoo. Trochu bizár, ale vtipný." },
-            { id: 5, name: "Velký Lopeník", cat: "view", lat: 48.940368, lng: 17.779172, desc: "Túra na hranice. Dřevěná rozhledna, pořádný výšlap." },
-            { id: 6, name: "Rozhledna Modrá", cat: "view", lat: 49.119035, lng: 17.403316, desc: "Malá dřevěná rozhledna v těch sadech nad Modrou." },
-            { id: 7, name: "Kaple sv. Barbory", cat: "view", lat: 49.108641, lng: 17.318941, desc: "Modlivka. Nejlepší místo na západ slunce pod Buchlovem." },
-            { id: 8, name: "Hrad Buchlov", cat: "view", lat: 49.107481, lng: 17.310858, desc: "Klasika. Vyhlídka z věže je povinnost." },
-            { id: 9, name: "Svatý Kliment", cat: "view", lat: 49.085400, lng: 17.217700, desc: "Hradisko v lesích. Klid, historie a Gorazd." },
-            { id: 10, name: "Zřícenina Cimburk", cat: "view", lat: 49.103700, lng: 17.216200, desc: "Romantická zřícenina u Koryčan. Málo lidí, hodně klidu." },
-            { id: 12, name: "Kazatelna", cat: "view", lat: 49.095453, lng: 17.226237, desc: "Skalní útvar v Chřibech. Prý se odtud kázalo." },
-            { id: 53, name: "Větrný mlýn Jalubí", cat: "view", lat: 49.124389, lng: 17.431000, desc: "Nově postavený mlýn. Krátká procházka a super fotky." },
-            { id: 54, name: "Rozhledna Doubí", cat: "view", lat: 49.039200, lng: 17.303600, desc: "Menší rozhledna v polích, výhled na Chřiby a Bílé Karpaty." },
-            { id: 56, name: "Pískovcový útvar Kozel", cat: "view", lat: 49.097599, lng: 17.216784, desc: "Skála v Chřibech, co vypadá... no jako kozel. Kousek od Kazatelny." },
-            { id: 76, name: "Letecká vyhlídka Kunovice", cat: "view", lat: 49.023249, lng: 17.441864, desc: "Díra v plotě u letiště, kde přistávají letadla těsně nad hlavou." },
-            { id: 78, name: "Kaplička na Rochusu", cat: "view", lat: 49.076822, lng: 17.494639, desc: "Ještě kousek nad skanzenem. Krásný výhled na západ slunce nad UH." },
-            { id: 81, name: "Bukovanský mlýn", cat: "view", lat: 49.036979, lng: 17.091398, desc: "Rozhledna, minigolf a restaurace kousek od Kyjova. Krásný výlet." },
-            { id: 82, name: "Zámek Milotice", cat: "view", lat: 48.959258, lng: 17.138092, desc: "Barokní perla. Ty zahrady jsou na procházku jak dělané." },
+            // --- 100+: PROCHÁZKY - Parky, Voda & Místa (Dříve 300+) ---
+            { id: 101, name: "Kunovský les", cat: "walk", lat: 49.053913, lng: 17.449622, desc: "Procházka po rovině, ideální na pokec." },
+            { id: 102, name: "Smetanovy sady (UH)", cat: "walk", lat: 49.066836, lng: 17.468690, desc: "Park v centru UH, kousek od Slovácké búdy." },
+            { id: 103, name: "Zámecký park Buchlovice", cat: "walk", lat: 49.083800, lng: 17.336900, desc: "Nádherný park, pávi a pohoda." },
+            { id: 104, name: "Rybník Kunovice", cat: "walk", lat: 49.041773, lng: 17.478465, desc: "Hezká procházka po Kunovicích kolem rybníku." },
+            { id: 105, name: "Štěrkopísková jezera", cat: "walk", lat: 49.018258, lng: 17.426915, desc: "Alfrédov. Čistá voda, v létě na koupání, v zimě na otužování." },
+            { id: 106, name: "Luhačovická přehrada", cat: "walk", lat: 49.123999, lng: 17.778854, desc: "Procházka kolem přehrady, koupaliště." },
+            { id: 107, name: "Přehrada Lučina", cat: "walk", lat: 48.862398, lng: 17.392934, desc: "Jezero s možností koupání a procházka za Radějovem." },
+            { id: 108, name: "Staré Hutě", cat: "walk", lat: 49.105800, lng: 17.258300, desc: "Krásná procházka v údolí pod Buchlovem." },
+            { id: 109, name: "Bunč", cat: "walk", lat: 49.177000, lng: 17.351500, desc: "Turistické centrum Chřibů, kousek na Brdo." },
+            { id: 110, name: "Zámeček Pepčín", cat: "walk", lat: 49.026573, lng: 17.586872, desc: "Ruiny zámečku u Drslavic, tajemné místo." },
+            { id: 111, name: "Vlčnovské búdy", cat: "walk", lat: 49.019280, lng: 17.591636, desc: "Místo činu (ohniště, pes, sekerka)." },
+            { id: 112, name: "Podolí", cat: "walk", lat: 49.038929, lng: 17.532952, desc: "Expedice do neexistující obce." },
 
-            // ZÁBAVA & AKTIVITY
-            { id: 13, name: "Kovozoo Staré Město", cat: "fun", lat: 49.073950, lng: 17.426840, desc: "Zvířata ze šrotu. Projdeme se, dáme fotku s gepardem." },
-            { id: 14, name: "Aquapark UH", cat: "fun", lat: 49.067042, lng: 17.472961, desc: "Tobogány nebo wellness? Spíš ten wellness." },
-            { id: 15, name: "Kino Hvězda", cat: "fun", lat: 49.067479, lng: 17.468837, desc: "Popcorn (i když leze do zubů) a nějaký film z watchlistu." },
-            { id: 16, name: "Letecké muzeum Kunovice", cat: "fun", lat: 49.034854, lng: 17.458005, desc: "Naganský expres a stíhačky. Povinnost." },
-            { id: 17, name: "Skanzen Rochus", cat: "fun", lat: 49.071833, lng: 17.489000, desc: "Procházka mezi starýma barákama nad Mařaticama." },
-            { id: 18, name: "Živá Voda Modrá", cat: "fun", lat: 49.103295, lng: 17.406936, desc: "Ten podvodní tunel s vyžranýma kaprama. A prury." },
-            { id: 19, name: "Archeoskanzen Modrá", cat: "fun", lat: 49.105611, lng: 17.409365, desc: "Historie, Velká Morava a tak. Hned vedle Živé vody." },
-            { id: 20, name: "Baloncentrum Břestek", cat: "fun", lat: 49.094338, lng: 17.355034, desc: "Koukat jak startují balóny a dát si limonádu." },
-            { id: 21, name: "Laser Game UH", cat: "fun", lat: 49.063000, lng: 17.470000, desc: "Ať vidíme, kdo má lepší mušku (já)." },
-            { id: 22, name: "Motokáry Staré Město", cat: "fun", lat: 49.072239, lng: 17.420460, desc: "Trocha adrenalinu na parkovišti (Rec Group)." },
-            { id: 60, name: "Amfík Bukovina", cat: "fun", lat: 49.061544, lng: 17.516969, desc: "Když bude nějaká akce nebo letní kino. Pěkný areál." },
-            { id: 61, name: "Adventure Golf (Slovácký dvůr)", cat: "fun", lat: 49.011805, lng: 17.440694, desc: "Nejlepší minigolf v okolí. Je to v Ostrožské, hned u vody." },
-            { id: 62, name: "Discgolf Kunovský les", cat: "fun", lat: 49.054300, lng: 17.448500, desc: "Házení talířem na koše. Je to sranda a je to v lese." },
-            { id: 63, name: "Bowling Mařatice", cat: "fun", lat: 49.061068, lng: 17.481452, desc: "Klasika, když prší. Pivo a koule." },
-            { id: 64, name: "Muzeum Tupeské keramiky", cat: "fun", lat: 49.083111, lng: 17.371576, desc: "Trocha kultury a malovaných hrníčků. Je to kousek." },
-            { id: 66, name: "Hřebčín Napajedla", cat: "fun", lat: 49.167521, lng: 17.514192, desc: "Procházka kolem výběhů s koňmi. Relax." },
+            // --- 200+: VÝHLEDY - Rozhledny, Kopce & Památky (Dříve 100+) ---
+            { id: 201, name: "Rozhledna Salaš", cat: "view", lat: 49.142871, lng: 17.352267, desc: "Designová rozhledna ve tvaru sedmiček. Super výhled na Chřiby." },
+            { id: 202, name: "Rozhledna Rovnina", cat: "view", lat: 49.071519, lng: 17.513178, desc: "Klasika nad Jarošovem. Kousek pěšky, hezký výhled na Hradiště." },
+            { id: 203, name: "Floriánka", cat: "view", lat: 49.037799, lng: 17.326382, desc: "Kousek od Polešovic. Víme, že tam fouká, ale výhled na vinohrady top." },
+            { id: 204, name: "Maják Šrotík", cat: "view", lat: 49.073950, lng: 17.426840, desc: "Ve Staráku v Kovozoo. Trochu bizár, ale vtipný." },
+            { id: 205, name: "Velký Lopeník", cat: "view", lat: 48.940368, lng: 17.779172, desc: "Túra na hranice. Dřevěná rozhledna, pořádný výšlap." },
+            { id: 206, name: "Rozhledna Modrá", cat: "view", lat: 49.119035, lng: 17.403316, desc: "Malá dřevěná rozhledna v těch sadech nad Modrou." },
+            { id: 207, name: "Rozhledna Brdo", cat: "view", lat: 49.186500, lng: 17.308500, desc: "Nejvyšší kamenná rozhledna v Chřibech." },
+            { id: 208, name: "Větrný mlýn Jalubí", cat: "view", lat: 49.124389, lng: 17.431000, desc: "Nově postavený mlýn. Krátká procházka a super fotky." },
+            { id: 209, name: "Rozhledna Doubí", cat: "view", lat: 49.039200, lng: 17.303600, desc: "Menší rozhledna v polích, výhled na Chřiby a Bílé Karpaty." },
+            { id: 210, name: "Bukovanský mlýn", cat: "view", lat: 49.036979, lng: 17.091398, desc: "Rozhledna, minigolf a restaurace kousek od Kyjova. Krásný výlet." },
+            { id: 211, name: "Rozhledna Radošov", cat: "view", lat: 48.924786, lng: 17.427983, desc: "Pěkná rozhledna za Veselím n. M." },
+            { id: 212, name: "Rozhledna Travičná", cat: "view", lat: 48.860205, lng: 17.365718, desc: "Pěkná rozhledna za Radějovem." },
+            { id: 213, name: "Velká Javořina", cat: "view", lat: 48.858500, lng: 17.671000, desc: "Nejvyšší hora Bílých Karpat, vysílač a daleké výhledy." },
+            { id: 230, name: "Hrad Buchlov", cat: "view", lat: 49.107481, lng: 17.310858, desc: "Klasika. Vyhlídka z věže je povinnost." },
+            { id: 231, name: "Kaple svaté Barbory", cat: "view", lat: 49.108641, lng: 17.318941, desc: "Modlivka. Nejlepší místo na západ slunce pod Buchlovem." },
+            { id: 232, name: "Zřícenina Cimburk", cat: "view", lat: 49.103700, lng: 17.216200, desc: "Romantická zřícenina u Koryčan. Málo lidí, hodně klidu." },
+            { id: 233, name: "Hradisko sv. Klimenta", cat: "view", lat: 49.085400, lng: 17.217700, desc: "Hradisko v lesích. Klid, historie a Gorazd." },
+            { id: 234, name: "Zřícenina Střílky", cat: "view", lat: 49.135000, lng: 17.220500, desc: "Zřícenina s krásným výhledem, kousek od Střílek." },
+            { id: 235, name: "Kaple svatého Rocha", cat: "view", lat: 49.076822, lng: 17.494639, desc: "Ještě kousek nad skanzenem. Krásný výhled na západ slunce nad UH." },
+            { id: 236, name: "Zámek Milotice", cat: "view", lat: 48.959258, lng: 17.138092, desc: "Barokní perla. Ty zahrady jsou na procházku jak dělané." },
+            { id: 237, name: "Hrad Malenovice", cat: "view", lat: 49.203480, lng: 17.599559, desc: "Zajímavý hrad/zámek, procházka v lese." },
+            { id: 238, name: "Velehrad (Bazilika)", cat: "view", lat: 49.103500, lng: 17.395800, desc: "Je to tam hezké, i když nejsme věřící. Zmrzlina u cesty." },
+            { id: 239, name: "Kostel Panny Marie (Sady)", cat: "view", lat: 49.052542, lng: 17.481772, desc: "Výšina sv. Metoděje, archeologické naleziště a výhled." },
+            { id: 250, name: "Kazatelna", cat: "view", lat: 49.095453, lng: 17.226237, desc: "Skalní útvar v Chřibech. Prý se odtud kázalo." },
+            { id: 251, name: "Kozel", cat: "view", lat: 49.097599, lng: 17.216784, desc: "Skála v Chřibech, co vypadá... no jako kozel. Kousek od Kazatelny." },
+            { id: 252, name: "Buchlovský kámen", cat: "view", lat: 49.117200, lng: 17.288900, desc: "Osamělý pískovcový skalní útvar v Chřibech." },
+            { id: 253, name: "Břestecká Skála", cat: "view", lat: 49.111593, lng: 17.335545, desc: "Pískovcové skály v Chřibech, kousek od Břestku." },
 
-            // JÍDLO & KÁVA
-            { id: 30, name: "Kafec U Komína", cat: "food", lat: 49.072781, lng: 17.455032, desc: "Nejlepší vafle a kafe v UH." },
-            { id: 31, name: "Káva na Mlýně", cat: "food", lat: 49.062276, lng: 17.458285, desc: "Starý mlýn ve Staráku, super atmosféra." },
-            { id: 32, name: "Mlsná Kočka", cat: "food", lat: 49.069418, lng: 17.464654, desc: "Kavárna přímo na náměstí." },
-            { id: 33, name: "Bistro Lázeňská", cat: "food", lat: 49.067468, lng: 17.462312, desc: "Na něco dobrého a rychlého." },
-            { id: 34, name: "Čokoládovna (Zámek Buchlovice)", cat: "food", lat: 49.083726, lng: 17.335870, desc: "Procházka v parku a pak horká čokoláda." },
-            { id: 35, name: "Slovácká búda", cat: "food", lat: 49.069700, lng: 17.461100, desc: "Klasika ve Smetanových sadech." },
-            { id: 36, name: "Pizzerie U Medvěda", cat: "food", lat: 49.068940, lng: 17.460775, desc: "Pizza jistota v centru." },
-            { id: 37, name: "Akropolis", cat: "food", lat: 49.069000, lng: 17.460000, desc: "Řecká kuchyně, kdyby byla chuť na gyros." },
-            { id: 38, name: "Black Burger", cat: "food", lat: 49.065882, lng: 17.464730, desc: "Když je velký hlad na burger." },
-            { id: 67, name: "Vinné sklepy Plže (Petrov)", cat: "food", lat: 48.885000, lng: 17.279000, desc: "Trochu dál, ale ty modrobílé sklepy za to stojí. A víno." },
-            { id: 68, name: "Pražírna Coffeespot (Babinice)", cat: "food", lat: 49.123759, lng: 17.476727, desc: "Pro milovníky kafe povinnost. Mají i podnikovou prodejnu." },
-            { id: 69, name: "Penzion BalonCentrum", cat: "food", lat: 49.094338, lng: 17.355034, desc: "Jídlo s výhledem v Břestku." },
-            { id: 70, name: "Bistro Naší Lásky (Zlín)", cat: "food", lat: 49.223000, lng: 17.666000, desc: "Výlet do Zlína? Tohle je top burger a hranolky." },
-            { id: 71, name: "Hospůdka Přístav (Kostelany)", cat: "food", lat: 49.043850, lng: 17.402133, desc: "Přímo u Baťáku, rybí speciality a pohoda u vody." },
-            { id: 72, name: "Cukrárna U Andělů (Velehrad)", cat: "food", lat: 49.103399, lng: 17.395772, desc: "Vyhlášená cukrárna hned u baziliky." },
-            
-            // PROCHÁZKY & OSTATNÍ
-            { id: 40, name: "Kunovský les", cat: "walk", lat: 49.053913, lng: 17.449622, desc: "Procházka po rovině, ideální na pokec." },
-            { id: 41, name: "Baťův kanál (Přístaviště)", cat: "walk", lat: 49.072883, lng: 17.456433, desc: "Půjčit lodičku nebo se jen projít podél vody." },
-            { id: 42, name: "Velehrad (Bazilika)", cat: "walk", lat: 49.103500, lng: 17.395800, desc: "Je to tam hezké, i když nejsme věřící. Zmrzlina u cesty." },
-            { id: 43, name: "Břestecká skála", cat: "walk", lat: 49.111593, lng: 17.335545, desc: "Pískovcové skály v Chřibech, kousek od Břestku." },
-            { id: 45, name: "Masarykovo náměstí UH", cat: "walk", lat: 49.069722, lng: 17.465278, desc: "Prostě courání po městě, kašna a tak." },
-            { id: 46, name: "Sady Staré Město", cat: "walk", lat: 49.075411, lng: 17.435728, desc: "Kousek od nádraží, klid." },
-            { id: 47, name: "Vlčnovské búdy", cat: "walk", lat: 49.019280, lng: 17.591636, desc: "Místo činu (ohniště, pes, sekerka)." },
-            { id: 48, name: "Přístav Spytihněv", cat: "walk", lat: 49.138865, lng: 17.502758, desc: "Půjčení hausbótu na půl dne?" },
-            { id: 49, name: "Zřícenina Nový Světlov", cat: "view", lat: 49.034870, lng: 17.788501, desc: "Výlet do Bojkovic na zámek." },
-            { id: 50, name: "Podolí (Fake Village)", cat: "fun", lat: 49.051515, lng: 17.524959, desc: "Expedice do neexistující obce." },
-            { id: 75, name: "Štěrkopísková jezera (ONV)", cat: "walk", lat: 49.018258, lng: 17.426915, desc: "Alfrédov. Čistá voda, v létě na koupání, v zimě na otužování." },
-            { id: 77, name: "Lesopark Hraběcí (Uh. Brod)", cat: "walk", lat: 49.031580, lng: 17.653556, desc: "Moc hezky udělaný park s jezírky a altánky." },
-            { id: 80, name: "Pašerácká stezka (Chřiby)", cat: "walk", lat: 49.125608, lng: 17.288595, desc: "Tajemné stezky kolem Buchlova, kde se dřív pašoval tabák." }
+            // --- 300+: ZÁBAVA - Sport, Zvířata & Akce (Dříve 200+) ---
+            { id: 301, name: "Kovozoo Staré Město", cat: "fun", lat: 49.073950, lng: 17.426840, desc: "Zvířata ze šrotu. Projdeme se, dáme fotku s gepardem." },
+            { id: 302, name: "ZOO Lešná", cat: "fun", lat: 49.274700, lng: 17.713600, desc: "Nejhezčí ZOO v okolí. Rejnoci a zámek." },
+            { id: 303, name: "Staroměstská Minizoo", cat: "fun", lat: 49.076500, lng: 17.436500, desc: "Malá zoo ve Staráku (Rybníček)." },
+            { id: 304, name: "Živá Voda Modrá", cat: "fun", lat: 49.103295, lng: 17.406936, desc: "Ten podvodní tunel s vyžranýma kaprama. A prury." },
+            { id: 305, name: "Archeoskanzen Modrá", cat: "fun", lat: 49.105611, lng: 17.409365, desc: "Historie, Velká Morava a tak. Hned vedle Živé vody." },
+            { id: 306, name: "Skanzen Rochus", cat: "fun", lat: 49.071833, lng: 17.489000, desc: "Procházka mezi starýma barákama nad Mařaticama." },
+            { id: 307, name: "Skanzen Strážnice", cat: "fun", lat: 48.904117, lng: 17.312200, desc: "Velký skanzen s vinohrady." },
+            { id: 308, name: "Stezka Lovců Mamutů", cat: "fun", lat: 49.054580, lng: 17.349503, desc: "Naučná stezka s dřevěnými zvířaty u Boršic." },
+            { id: 309, name: "Letecké muzeum Kunovice", cat: "fun", lat: 49.034854, lng: 17.458005, desc: "Naganský expres a stíhačky. Povinnost." },
+            { id: 310, name: "Slovácké muzeum", cat: "fun", lat: 49.056575, lng: 17.360344, desc: "Muzeum v parku, historie Slovácka." },
+            { id: 320, name: "Kino Hvězda UH", cat: "fun", lat: 49.067479, lng: 17.468837, desc: "Popcorn (i když leze do zubů) a nějaký film z watchlistu." },
+            { id: 321, name: "Aquapark UH", cat: "fun", lat: 49.067042, lng: 17.472961, desc: "Tobogány nebo wellness? Spíš ten wellness." },
+            { id: 322, name: "Laser Game UH", cat: "fun", lat: 49.063000, lng: 17.470000, desc: "Ať vidíme, kdo má lepší mušku (já)." },
+            { id: 323, name: "Motokáry Staré Město", cat: "fun", lat: 49.072239, lng: 17.420460, desc: "Trocha adrenalinu na parkovišti (Rec Group)." },
+            { id: 324, name: "Bowling Mařatice", cat: "fun", lat: 49.061068, lng: 17.481452, desc: "Klasika, když prší. Pivo a koule." },
+            { id: 325, name: "Sport Centrum Morava", cat: "fun", lat: 49.068200, lng: 17.485600, desc: "Bowling a pizza v Mařaticích." },
+            { id: 326, name: "Discgolf Kunovský les", cat: "fun", lat: 49.054300, lng: 17.448500, desc: "Házení talířem na koše. Je to sranda a je to v lese." },
+            { id: 327, name: "Minigolf Horní Němčí", cat: "fun", lat: 48.927500, lng: 17.625500, desc: "Fajn minigolf trochu dál, ale v přírodě." },
+            { id: 328, name: "Slovácký dvůr", cat: "fun", lat: 49.011805, lng: 17.440694, desc: "Adventure golf a koupání v Ostrožské." },
+            { id: 329, name: "Baloncentrum Břestek", cat: "fun", lat: 49.094338, lng: 17.355034, desc: "Koukat jak startují balóny a dát si limonádu." },
+            { id: 330, name: "Amfík Bukovina", cat: "fun", lat: 49.061544, lng: 17.516969, desc: "Když bude nějaká akce nebo letní kino. Pěkný areál." },
+            { id: 331, name: "Basketbal Kunovice", cat: "fun", lat: 49.044594, lng: 17.470963, desc: "Basketbal U Pálenice." },
+
+            // --- 400+: JÍDLO & KÁVA (Zůstává) ---
+            { id: 401, name: "Kafec U Komína", cat: "food", lat: 49.072781, lng: 17.455032, desc: "Nejlepší vafle a kafe v UH." },
+            { id: 402, name: "Zašívárna U Osla", cat: "food", lat: 49.066500, lng: 17.461500, desc: "Skvělá atmosféra a dobré pití." },
+            { id: 403, name: "Hospůdka na Haldě", cat: "food", lat: 49.056575, lng: 17.360344, desc: "Ryby a pohoda v Boršicích." }
         ];
 
         let selectedDateLocation = null;
@@ -1410,19 +1414,19 @@
                     <div class="md:hidden absolute top-4 left-4 right-4 z-[1000] flex gap-2">
                         <div class="flex-1 bg-[#202225]/90 backdrop-blur shadow-lg rounded-lg flex items-center px-3 py-2 border border-gray-700">
                             <i class="fas fa-search text-gray-400 mr-2"></i>
-                            <input type="text" oninput="searchLocations(this.value)" placeholder="Kam vyrazíme?" class="bg-transparent text-white text-sm w-full outline-none placeholder-gray-500">
+                            <input type="text" id="planner-search-mobile" oninput="searchLocations(this.value)" placeholder="Kam vyrazíme?" class="bg-transparent text-white text-sm w-full outline-none placeholder-gray-500">
                         </div>
                         <button onclick="toggleMobileList()" class="bg-[#5865F2] text-white w-10 h-10 rounded-lg shadow-lg flex items-center justify-center flex-shrink-0 active:scale-95 transition">
                             <i class="fas fa-list"></i>
                         </button>
                     </div>
 
-                    <div class="md:hidden absolute top-16 left-0 right-0 z-[1000] px-4 overflow-x-auto hide-scrollbar flex gap-2 pb-2">
-                         <button onclick="filterMap('all')" class="px-3 py-1.5 bg-[#202225]/90 backdrop-blur text-white rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap">Vše</button>
-                         <button onclick="filterMap('view')" class="px-3 py-1.5 bg-[#202225]/90 backdrop-blur text-[#eb459e] rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap"><i class="fas fa-binoculars mr-1"></i> Výhledy</button>
-                         <button onclick="filterMap('fun')" class="px-3 py-1.5 bg-[#202225]/90 backdrop-blur text-[#ed4245] rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap"><i class="fas fa-ticket-alt mr-1"></i> Zábava</button>
-                         <button onclick="filterMap('food')" class="px-3 py-1.5 bg-[#202225]/90 backdrop-blur text-[#faa61a] rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap"><i class="fas fa-utensils mr-1"></i> Jídlo</button>
-                         <button onclick="filterMap('walk')" class="px-3 py-1.5 bg-[#202225]/90 backdrop-blur text-[#3ba55c] rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap"><i class="fas fa-tree mr-1"></i> Procházky</button>
+                    <div class="md:hidden absolute top-16 left-0 right-0 z-[1000] px-1 overflow-x-auto hide-scrollbar flex gap-1 pb-2 justify-center">
+                         <button onclick="filterMap('all')" data-filter="all" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200">Vše</button>
+                         <button onclick="filterMap('walk')" data-filter="walk" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-tree mr-1"></i> Procházky</button>
+                         <button onclick="filterMap('view')" data-filter="view" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-binoculars mr-1"></i> Výhledy</button>
+                         <button onclick="filterMap('fun')" data-filter="fun" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-bolt mr-1"></i> Zábava</button>
+                         <button onclick="filterMap('food')" data-filter="food" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-utensils mr-1"></i> Jídlo</button>
                     </div>
 
                     <div id="planner-sidebar" class="w-full md:w-80 bg-[#2f3136] border-r border-[#202225] flex-col flex-shrink-0 z-30 shadow-lg mobile-list-overlay md:flex md:relative pt-[120px] md:pt-0">
@@ -1432,15 +1436,15 @@
                                 <i class="fas fa-map-marked-alt text-[#eb459e]"></i> Kam vyrazíme?
                             </h2>
                             <div class="flex gap-1 overflow-x-auto custom-scrollbar pb-2 mb-2">
-                                <button onclick="filterMap('all')" class="px-2 py-1 bg-[#5865F2] text-white rounded text-xs whitespace-nowrap">Vše</button>
-                                <button onclick="filterMap('view')" class="px-2 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b]">Výhledy</button>
-                                <button onclick="filterMap('fun')" class="px-2 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b]">Zábava</button>
-                                <button onclick="filterMap('food')" class="px-2 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b]">Jídlo</button>
-                                <button onclick="filterMap('walk')" class="px-2 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b]">Procházky</button>
+                                <button onclick="filterMap('all')" data-filter="all" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Vše</button>
+                                <button onclick="filterMap('walk')" data-filter="walk" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Procházky</button>
+                                <button onclick="filterMap('view')" data-filter="view" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Výhledy</button>
+                                <button onclick="filterMap('fun')" data-filter="fun" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Zábava</button>
+                                <button onclick="filterMap('food')" data-filter="food" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Jídlo</button>
                             </div>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-search text-gray-500"></i></div>
-                                <input type="text" oninput="searchLocations(this.value)" placeholder="Hledat místo..." class="w-full bg-[#202225] text-white text-xs rounded pl-8 pr-2 py-2 border border-[#202225] focus:border-[#5865F2] focus:outline-none transition">
+                                <input type="text" id="planner-search-desktop" oninput="searchLocations(this.value)" placeholder="Hledat místo..." class="w-full bg-[#202225] text-white text-xs rounded pl-8 pr-2 py-2 border border-[#202225] focus:border-[#5865F2] focus:outline-none transition">
                             </div>
                         </div>
 
@@ -1508,12 +1512,12 @@
                 </div>
             `;
 
-            filterMap('all');
+            filterMap('all'); // Initialize
             updateRouteUI(); 
             
             setTimeout(() => {
                 initMap();
-                state.mapInstance.invalidateSize();
+                if(state.mapInstance) state.mapInstance.invalidateSize();
             }, 100);
         }
 
@@ -2137,7 +2141,9 @@
                 if (loc.cat === 'food') { color = '#faa61a'; iconClass = 'fa-utensils'; }
                 if (loc.cat === 'view') { color = '#eb459e'; iconClass = 'fa-binoculars'; }
                 if (loc.cat === 'walk') { color = '#3ba55c'; iconClass = 'fa-tree'; }
-                if (loc.cat === 'fun') { color = '#ed4245'; iconClass = 'fa-ticket-alt'; }
+                
+                // ZMĚNA: Tady je teď blesk
+                if (loc.cat === 'fun') { color = '#ed4245'; iconClass = 'fa-bolt'; }
 
                 // 2. Vytvoření Pinu
                 const customIcon = L.divIcon({
@@ -2177,7 +2183,8 @@
             }
 
             locations.forEach(loc => {
-                const icons = { view: '⛰️', food: '🍔', fun: '🎢', walk: '🌲' };
+                // ZMĚNA: fun: '⚡' místo horské dráhy
+                const icons = { view: '⛰️', food: '🍔', fun: '⚡', walk: '🌲' };
                 let icon = icons[loc.cat] || '📍';
                 
                 listContainer.innerHTML += `
@@ -2194,14 +2201,58 @@
 
         // 2. Upravená filtrace podle kategorií
         function filterMap(category) {
-            // Vymazat vyhledávací pole, když klikne na kategorii
-            const searchInput = document.getElementById('location-search-input');
-            if(searchInput) searchInput.value = '';
+            // 1. Vyčistit vyhledávací pole při změně filtru
+            const mobileSearch = document.getElementById('planner-search-mobile');
+            const desktopSearch = document.getElementById('planner-search-desktop');
+            if(mobileSearch) mobileSearch.value = '';
+            if(desktopSearch) desktopSearch.value = '';
 
+            // 2. Filtrovat data
             const filtered = category === 'all' ? dateLocations : dateLocations.filter(l => l.cat === category);
-            
             renderLocationList(filtered);
             renderMarkers(filtered);
+
+            // 3. AKTUALIZACE TLAČÍTEK (Visual)
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Definice barev pro aktivní stav
+            const activeColors = {
+                'all': 'bg-[#5865F2]', // Modrá
+                'view': 'bg-[#eb459e]', // Růžová
+                'fun': 'bg-[#ed4245]',  // Červená
+                'food': 'bg-[#faa61a]', // Oranžová
+                'walk': 'bg-[#3ba55c]'  // Zelená
+            };
+
+            buttons.forEach(btn => {
+                const btnCat = btn.getAttribute('data-filter');
+                const isActive = btnCat === category;
+
+                // Reset: Odstraníme všechny barvy a "active" classy
+                btn.className = btn.className
+                    .replace(/bg-\[#\w+\]/g, '') // Pryč s hex barvami pozadí
+                    .replace('text-white', '')
+                    .replace('text-gray-300', '')
+                    .replace('shadow-lg', '')
+                    .replace('scale-105', '');
+
+                if (isActive) {
+                    // AKTIVNÍ: Správná barva, bílý text, stín
+                    btn.classList.add(activeColors[btnCat], 'text-white', 'shadow-lg', 'scale-105');
+                    // Na mobilu zrušíme průhlednost, ať to svítí
+                    btn.classList.remove('bg-[#202225]/90'); 
+                } else {
+                    // NEAKTIVNÍ: Tmavé pozadí, šedý text
+                    btn.classList.add('text-gray-400'); // Neaktivní text
+                    
+                    // Pozadí podle toho, jestli je to mobil (backdrop) nebo desktop
+                    if (btn.classList.contains('backdrop-blur')) {
+                        btn.classList.add('bg-[#202225]/90');
+                    } else {
+                        btn.classList.add('bg-[#202225]');
+                    }
+                }
+            });
         }
 
         // 3. NOVÁ FUNKCE: Vyhledávání
