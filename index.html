@@ -17,6 +17,7 @@
     <meta name="theme-color" content="#5865F2">
     <link rel="apple-touch-icon" href="Czippel2_kytka.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -51,6 +52,10 @@
             color: var(--text-normal);
             overflow: hidden;
         }
+
+        html { scroll-behavior: smooth; }
+
+        input, textarea { user-select: text !important; -webkit-user-select: text !important; }
 
         /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -363,32 +368,140 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* Detail panel jako "Bottom Sheet" na mobilu */
-        @media (max-width: 768px) {
-            .mobile-map-overlay {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                max-height: 60vh; /* Maximálně 60% výšky obrazovky */
-                border-radius: 20px 20px 0 0;
-                box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-                z-index: 1000 !important;
+        /* --- MOBILE DATE PLANNER STYLES --- */
+            /* --- MOBILE DATE PLANNER STYLES --- */
+            @media (max-width: 768px) {
+                .mobile-map-overlay {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    
+                    /* --- FINÁLNÍ NASTAVENÍ --- */
+                    height: 85vh !important; /* Panel je vysoký 85% obrazovky */
+                    display: flex;
+                    flex-direction: column;
+                    
+                    background: #2f3136;
+                    border-radius: 20px 20px 0 0;
+                    box-shadow: 0 -10px 30px rgba(0,0,0,0.5); /* Výraznější stín */
+                    z-index: 9999 !important;
+                    
+                    /* Pro plynulost na iPhonech */
+                    will-change: transform; 
+                    transform: translateY(100%); 
+                    transition: transform 0.3s cubic-bezier(0.1, 0.7, 0.1, 1);
+                }
                 
-                /* PŘIDÁNO: Aby se dalo scrolovat, když je obsah dlouhý */
-                overflow-y: auto; 
+                #detail-content {
+                    overscroll-behavior: contain; 
+                }
+
+                /* Na mobilu chceme místo dole kvůli gestům */
+                @media (max-width: 768px) {
+                    #detail-content {
+                        /* Původně 80px, zmenšeno na minimum + rezerva pro iPhone čárku */
+                        padding-bottom: calc(20px + env(safe-area-inset-bottom)); 
+                    }
+                }
+
+                /* Na PC chceme jen malé odsazení */
+                @media (min-width: 769px) {
+                    #detail-content {
+                        padding-bottom: 10px; /* Malé odsazení na PC */
+                    }
+                }
+
+                /* Seznam míst na mobilu */
+                .mobile-list-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: #2f3136;
+                    z-index: 900;
+                    display: none; 
+                }
+                .mobile-list-overlay.active { display: flex; }
+            }
+        
+            /* Styl pro panel, který platí vždy (i na desktopu) */
+            .mobile-map-overlay {
+                background: #2f3136; /* Barva pozadí */
+                border-radius: 20px 20px 0 0; /* Kulaté rohy nahoře */
+                box-shadow: 0 -10px 30px rgba(0,0,0,0.5); /* Stín */
                 display: flex;
                 flex-direction: column;
+                z-index: 999;
+            }
+
+            /* Na mobilu chceme fixní výšku, na desktopu max-výšku */
+            @media (max-width: 768px) {
+                .mobile-map-overlay {
+                    height: 85vh !important;
+                }
+            }
+
+        @media (min-width: 769px) {
+            .mobile-map-overlay {
+                height: auto !important; /* DŮLEŽITÉ: Výška se přizpůsobí obsahu */
+                max-height: 60vh;        /* Ale nepůjde přes 60% obrazovky */
+                bottom: 20px;            /* Odlepíme ho od spodní hrany (vypadá to moderněji) */
+                left: 20px;              /* Odlepíme zleva */
+                right: 20px;             /* Odlepíme zprava (nebo můžeš dát width: 500px a margin: 0 auto) */
+                border-radius: 20px;     /* Zakulatíme všechny rohy, nejen horní */
+                box-shadow: 0 5px 30px rgba(0,0,0,0.8); /* Silnější stín pro oddělení od mapy */
             }
             
-            /* Seznam míst na mobilu bude taky přes celou obrazovku */
-            .mobile-list-overlay {
-                position: absolute;
-                inset: 0;
-                background: #2f3136;
-                z-index: 900;
-                display: none; /* Defaultně skryté */
+            /* Skryjeme "tahátko" (handle) na desktopu, tam nedává smysl */
+            #sheet-handle {
+                display: none !important;
             }
-            .mobile-list-overlay.active { display: flex; }
+            
+            /* Tlačítko zavřít posuneme, aby vypadalo lépe */
+            .mobile-map-overlay .fa-times {
+                top: 10px !important;
+                right: 10px !important;
+            }
+        }
+
+        /* --- MOBILE GESTURES CSS --- */
+        
+        /* Zabrání scrollování stránky při tažení panelu */
+        .touch-none { touch-action: none; }
+        
+        /* Větší plocha pro "chycení" panelu nahoře */
+        /* Větší plocha pro "chycení" panelu nahoře */
+        .sheet-handle-area {
+            width: 100%;
+            height: 40px; /* Zvětšil jsem to z 30px, ať je víc místa pro prst */
+            
+            /* --- ZMĚNA ZDE: Už ne absolute! --- */
+            position: relative; 
+            flex-shrink: 0; /* Aby se nezmenšoval, když je málo místa */
+            /* ---------------------------------- */
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            z-index: 50;
+            background: transparent; 
+        }
+
+        /* Vizuální čárka (Handle) */
+        .sheet-handle-bar {
+            width: 40px;
+            height: 5px;
+            background-color: #4f545c;
+            border-radius: 10px;
+            transition: background-color 0.2s;
+        }
+        .sheet-handle-area:active .sheet-handle-bar {
+            background-color: #eb459e; /* Zrůžoví při tažení */
+        }
+
+        /* Hladká animace jen když netaháme prstem */
+        .sheet-transition {
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
     </style>
@@ -565,6 +678,83 @@
         </div>
     </div>
 
+    <div id="history-modal" class="fixed inset-0 z-[90] hidden modal-backdrop items-center justify-center p-4">
+        <div class="bg-[#36393f] rounded-xl shadow-2xl w-full max-w-sm border border-[#202225] overflow-hidden animate-fade-in">
+            <div class="bg-[#2f3136] p-4 border-b border-[#202225] flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-history text-[#eb459e]"></i> Deníček sledování
+                </h3>
+                <button onclick="closeModal('history-modal')" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="history-item-id">
+
+                <div>
+                    <label class="block text-[#b9bbbe] text-xs font-bold uppercase mb-2">Stav</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setHistoryStatus('unseen')" id="status-unseen" class="status-btn p-2 rounded border border-gray-600 hover:bg-[#40444b] text-center transition opacity-50">
+                            <div class="text-xl mb-1">❌</div>
+                            <div class="text-[10px] font-bold text-gray-300">Neviděno</div>
+                        </button>
+                        <button onclick="setHistoryStatus('watching')" id="status-watching" class="status-btn p-2 rounded border border-gray-600 hover:bg-[#40444b] text-center transition opacity-50">
+                            <div class="text-xl mb-1">👀</div>
+                            <div class="text-[10px] font-bold text-blue-300">Rozkoukáno</div>
+                        </button>
+                        <button onclick="setHistoryStatus('seen')" id="status-seen" class="status-btn p-2 rounded border border-gray-600 hover:bg-[#40444b] text-center transition opacity-50">
+                            <div class="text-xl mb-1">✅</div>
+                            <div class="text-[10px] font-bold text-green-400">Viděno</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="history-date-wrapper" class="hidden transition-all">
+                    <label class="block text-[#b9bbbe] text-xs font-bold uppercase mb-1">Kdy jsme to viděli?</label>
+                    <input type="date" id="history-date" class="w-full bg-[#202225] text-white p-2 rounded border border-[#202225] focus:border-[#eb459e] outline-none text-sm">
+                </div>
+
+                <div id="history-reaction-wrapper" class="hidden transition-all">
+                    <label class="block text-[#b9bbbe] text-xs font-bold uppercase mb-1">Tvoje reakce</label>
+                    <div class="flex gap-2 mb-2">
+                        <button onclick="setReactionInput('❤️')" class="flex-1 bg-[#202225] hover:bg-[#2f3136] py-1 rounded text-lg">❤️</button>
+                        <button onclick="setReactionInput('😂')" class="flex-1 bg-[#202225] hover:bg-[#2f3136] py-1 rounded text-lg">😂</button>
+                        <button onclick="setReactionInput('😭')" class="flex-1 bg-[#202225] hover:bg-[#2f3136] py-1 rounded text-lg">😭</button>
+                        <button onclick="setReactionInput('🤯')" class="flex-1 bg-[#202225] hover:bg-[#2f3136] py-1 rounded text-lg">🤯</button>
+                        <button onclick="setReactionInput('😴')" class="flex-1 bg-[#202225] hover:bg-[#2f3136] py-1 rounded text-lg">😴</button>
+                    </div>
+                    <input type="text" id="history-reaction" placeholder="Nebo napiš vlastní..." class="w-full bg-[#202225] text-white p-2 rounded border border-[#202225] focus:border-[#eb459e] outline-none text-sm">
+                </div>
+
+                <button onclick="saveHistory()" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white py-3 rounded font-bold mt-2 shadow-lg">Uložit záznam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gallery-modal" class="fixed inset-0 z-[120] hidden bg-black/95 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-300">
+        <button onclick="closeGallery()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-50 p-2">
+            <i class="fas fa-times text-3xl"></i>
+        </button>
+
+        <div class="relative w-full h-full flex items-center justify-center p-4 md:p-10">
+            
+            <button onclick="changeGalleryImage(-1)" class="absolute left-2 md:left-8 text-white hover:text-[#5865F2] transition p-4 z-50 bg-black/50 hover:bg-black/80 rounded-full">
+                <i class="fas fa-chevron-left text-2xl md:text-4xl"></i>
+            </button>
+
+            <div class="max-w-5xl max-h-full flex flex-col items-center">
+                <img id="gallery-image" src="" class="max-h-[80vh] max-w-full object-contain rounded-lg shadow-2xl border border-[#2f3136] animate-fade-in">
+                <div class="mt-4 text-center">
+                    <h3 id="gallery-title" class="text-white font-bold text-xl mb-1">Název</h3>
+                    <p id="gallery-counter" class="text-gray-400 text-sm">1 / 5</p>
+                </div>
+            </div>
+
+            <button onclick="changeGalleryImage(1)" class="absolute right-2 md:right-8 text-white hover:text-[#5865F2] transition p-4 z-50 bg-black/50 hover:bg-black/80 rounded-full">
+                <i class="fas fa-chevron-right text-2xl md:text-4xl"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Confession Terminal -->
     <div id="confession-modal" class="fixed inset-0 z-[90] hidden items-center justify-center bg-transparent backdrop-blur-sm">
         <div class="cmd-window w-full max-w-3xl rounded-none border border-[#444] cursor-text" onclick="document.getElementById('hidden-input').focus()">
@@ -637,6 +827,382 @@
     </div>
 
     <script>
+        function triggerHaptic(type = 'light') {
+            // Haptika funguje hlavně na Androidu v Chrome/Samsung Internet
+            if (!navigator.vibrate) return;
+            
+            if (type === 'light') navigator.vibrate(5); // Jemné ťuknutí
+            else if (type === 'medium') navigator.vibrate(15); // Potvrzení
+            else if (type === 'heavy') navigator.vibrate(30); // Chyba/Důležité
+            else if (type === 'success') navigator.vibrate([10, 30, 10]); // Dvojité
+        }
+
+        // --- BOTTOM SHEET LOGIC (Snap Points) ---
+        let sheetState = {
+            startY: 0,
+            currentY: 0,
+            isDragging: false,
+            panelHeight: 0,
+            startTime: 0
+        };
+
+        function initBottomSheetGestures() {
+            const panel = document.getElementById('detail-panel');
+            const handle = document.getElementById('sheet-handle');
+            
+            if (!panel || !handle) return;
+
+            // Dotyk začal
+            handle.addEventListener('touchstart', (e) => {
+                sheetState.isDragging = true;
+                sheetState.startY = e.touches[0].clientY;
+                // Získáme aktuální transform hodnotu (pokud nějaká je)
+                const style = window.getComputedStyle(panel);
+                const matrix = new WebKitCSSMatrix(style.transform);
+                sheetState.currentY = matrix.m42;
+                sheetState.panelHeight = panel.offsetHeight;
+                sheetState.startTime = Date.now();
+                
+                // Vypneme animace pro okamžitou reakci na prst
+                panel.classList.remove('sheet-transition');
+            }, { passive: false });
+
+            // Dotyk se hýbe
+            document.addEventListener('touchmove', (e) => {
+                if (!sheetState.isDragging) return;
+                
+                const deltaY = e.touches[0].clientY - sheetState.startY;
+                let newY = sheetState.currentY + deltaY;
+
+                // Omezení (nemůžeme táhnout výš než top obrazovky)
+                if (newY < 0) newY = 0; // Top stop
+
+                panel.style.transform = `translateY(${newY}px)`;
+                
+                // Zabráníme scrollování stránky na pozadí
+                if(e.cancelable) e.preventDefault();
+            }, { passive: false });
+
+            // Dotyk skončil - Snap Logic
+            document.addEventListener('touchend', (e) => {
+                if (!sheetState.isDragging) return;
+                sheetState.isDragging = false;
+                
+                // Zapneme zpět animaci pro hladké dojetí
+                panel.classList.add('sheet-transition');
+                panel.style.transform = ''; // Vyčistíme inline style, použijeme třídy nebo JS logiku
+
+                const endY = e.changedTouches[0].clientY;
+                const deltaY = endY - sheetState.startY;
+                const time = Date.now() - sheetState.startTime;
+                const velocity = Math.abs(deltaY / time);
+                const windowHeight = window.innerHeight;
+
+                // Kde se prst pustil? (Relativně k oknu)
+                const releasePoint = endY;
+
+                // --- SNAP POINT LOGIC ---
+                // Definice bodů (v pixelech od shora)
+                const pointFull = windowHeight * 0.1; // 90% výšky panelu (10% odshora)
+                const pointHalf = windowHeight * 0.5; // 50% výšky
+                const pointClosed = windowHeight;     // Zavřeno
+
+                // Rychlý švih (Swipe)
+                if (velocity > 0.5) {
+                    if (deltaY > 0) {
+                        // Švih dolů -> Zavřít
+                        closeDetailPanel();
+                    } else {
+                        // Švih nahoru -> Fullscreen
+                        setPanelPosition('full');
+                    }
+                } else {
+                    // Pomalé tažení -> Najít nejbližší bod
+                    if (releasePoint < windowHeight * 0.35) {
+                        setPanelPosition('full');
+                    } else if (releasePoint > windowHeight * 0.75) {
+                        closeDetailPanel();
+                    } else {
+                        setPanelPosition('half');
+                    }
+                }
+            });
+        }
+
+        function setPanelPosition(mode) {
+            const panel = document.getElementById('detail-panel');
+            const content = document.getElementById('detail-content'); // Obsahová část
+            const handle = document.getElementById('sheet-handle');    // Horní lišta pro tažení
+            
+            if(!panel || !content) return;
+            
+            // Zapneme animaci
+            panel.style.transition = 'transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1)';
+            
+            // Získáme rozměry
+            const panelTotalHeight = panel.offsetHeight; // Celková fyzická výška panelu (85vh)
+            const windowH = window.innerHeight;
+
+            if (mode === 'full') {
+                // FULL: Panel vyjede úplně nahoru
+                panel.style.transform = `translateY(0px)`;
+                
+            } else if (mode === 'half') {
+                // --- UPRAVENÁ LOGIKA (Desktop vs Mobil) ---
+                
+                // 1. DESKTOP (šířka nad 768px):
+                // Na PC chceme panel zobrazit normálně (translateY 0),
+                // protože jsme v CSS nastavili 'height: auto', takže se výška přizpůsobí obsahu sama.
+                if (window.innerWidth > 768) {
+                    panel.style.transform = `translateY(0px)`;
+                } 
+                // 2. MOBIL:
+                // Tady musíme počítat posun (translateY), protože panel má fixní výšku (85vh)
+                // a my ho chceme vysunout jen kousek.
+                else {
+                    const handleHeight = handle ? handle.offsetHeight : 40;
+                    const realContentHeight = content.scrollHeight + handleHeight + 20; // +20px rezerva
+                    
+                    // Stanovíme maximální povolenou výšku (např. 55 % obrazovky)
+                    const maxAllowedHeight = windowH * 0.55;
+                    
+                    // Vybereme to menší číslo (buď podle obsahu, nebo max povolenou výšku)
+                    const targetVisibleHeight = Math.min(realContentHeight, maxAllowedHeight);
+                    
+                    // Výpočet posunu: Celková výška panelu mínus to, co chceme vidět
+                    let translation = panelTotalHeight - targetVisibleHeight;
+                    
+                    // Aplikace posunu
+                    panel.style.transform = `translateY(${Math.max(0, translation)}px)`;
+                }
+                
+            } else {
+                // CLOSE: Schovat dolů
+                panel.style.transform = `translateY(100%)`;
+            }
+            
+            triggerHaptic('light');
+        }
+        
+        // Upravená funkce selectLocation pro inicializaci na "Half" snap
+        // Tuto funkci musíš zavolat uvnitř své existující selectLocation na konci
+        function snapToHalf() {
+             const panel = document.getElementById('detail-panel');
+             if(panel) {
+                 panel.classList.add('sheet-transition');
+                 setPanelPosition('half');
+             }
+        }
+
+        // --- SIDEBAR SWIPE GESTURES ---
+        // --- GESTURES STATE FLAGS ---
+        let isSidebarGesturesInit = false;
+        // Poznámka: BottomSheet se inicializuje pokaždé znovu, protože jeho DOM se maže,
+        // ale Sidebar je v DOMu trvale, ten nesmíme inicializovat víckrát!
+
+        function initSidebarGestures() {
+            if (isSidebarGesturesInit) return; // UŽ BĚŽÍ -> STOP
+            
+            let touchStartX = 0;
+            const triggerZone = 40; 
+            
+            document.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            });
+
+            document.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchEndX - touchStartX;
+                const sidebar = document.getElementById('sidebar-wrapper');
+                const overlay = document.getElementById('mobile-overlay');
+
+                // Swipe Doprava
+                if (diff > 80 && touchStartX < triggerZone) {
+                    if (sidebar && sidebar.classList.contains('-translate-x-full')) {
+                        sidebar.classList.remove('-translate-x-full');
+                        if(overlay) overlay.classList.remove('hidden');
+                        triggerHaptic('medium');
+                    }
+                }
+
+                // Swipe Doleva
+                if (diff < -80) {
+                    if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                        sidebar.classList.add('-translate-x-full');
+                        if(overlay) overlay.classList.add('hidden');
+                        triggerHaptic('light');
+                    }
+                }
+            });
+
+            isSidebarGesturesInit = true; // Značka: Hotovo
+            console.log("Sidebar gestures initialized.");
+        }
+
+        // Pomocná funkce na odstranění diakritiky (aby "čaj" našel "caj")
+        function normalizeText(text) {
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+
+        // --- SMART SEARCH LOGIC ---
+        
+        function expandSearchQuery(query) {
+            const normQuery = normalizeText(query);
+            let terms = [normQuery];
+            
+            // Projdi synonyma a pokud najdeš shodu, přidej klíčovou kategorii
+            for (const [category, words] of Object.entries(searchSynonyms)) {
+                if (words.some(w => normalizeText(w).includes(normQuery)) || category.includes(normQuery)) {
+                    terms.push(category);
+                }
+            }
+            return terms;
+        }
+
+        function highlightText(text, query) {
+            if (!query) return text;
+            const normText = normalizeText(text);
+            const normQuery = normalizeText(query);
+            
+            // Jednoduchý highlight - najde index a obalí originální text
+            const index = normText.indexOf(normQuery);
+            if (index >= 0) {
+                const originalPart = text.substring(index, index + query.length);
+                return text.substring(0, index) + 
+                       `<span class="bg-[#faa61a] text-black font-bold px-0.5 rounded">${originalPart}</span>` + 
+                       text.substring(index + query.length);
+            }
+            return text;
+        }
+
+        function renderGlobalSearch(rawValue) {
+            const container = document.getElementById('messages-container');
+            const query = rawValue.trim();
+            
+            if (!query) {
+                // Pokud smažeš hledání, vrať se na aktuální kanál
+                switchChannel(state.currentChannel); 
+                return;
+            }
+
+            const terms = expandSearchQuery(query); // Rozšíříme o synonyma
+            const searchRegex = new RegExp(terms.join('|'), 'i'); // Regex pro hledání
+            const normalize = (str) => normalizeText(str || '');
+
+            // 1. HLEDÁNÍ V KANÁLECH
+            const channels = [
+                { id: 'welcome', name: 'Uvítání', icon: 'fa-door-open' },
+                { id: 'timeline', name: 'Timeline', icon: 'fa-history' },
+                { id: 'dateplanner', name: 'Plánovač rande', icon: 'fa-map-marked-alt' },
+                { id: 'movies', name: 'Filmy', icon: 'fa-film' },
+                { id: 'series', name: 'Seriály', icon: 'fa-tv' },
+                { id: 'games', name: 'Hry', icon: 'fa-gamepad' }
+            ];
+            const foundChannels = channels.filter(c => terms.some(t => normalize(c.name).includes(t)));
+
+            // 2. HLEDÁNÍ V KNIHOVNĚ (Filmy, Hry...)
+            let foundLibrary = [];
+            Object.keys(library).forEach(cat => {
+                library[cat].forEach(item => {
+                    // Hledáme v názvu, kategorii a synonymech kategorie
+                    if (terms.some(t => normalize(item.title).includes(t) || normalize(item.cat).includes(t))) {
+                        foundLibrary.push({ ...item, type: cat }); // Přidáme typ pro rozlišení
+                    }
+                });
+            });
+
+            // 3. HLEDÁNÍ V MÍSTECH (Date Planner)
+            const foundPlaces = dateLocations.filter(loc => 
+                terms.some(t => normalize(loc.name).includes(t) || normalize(loc.desc).includes(t) || normalize(loc.cat).includes(t))
+            );
+
+
+            // --- VYKRESLENÍ VÝSLEDKŮ ---
+            let html = `<div class="p-6 max-w-5xl mx-auto space-y-8 animate-fade-in">`;
+            
+            html += `<h2 class="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">
+                        🔍 Výsledky pro: <span class="text-[#5865F2]">"${query}"</span>
+                     </h2>`;
+
+            if (foundChannels.length === 0 && foundLibrary.length === 0 && foundPlaces.length === 0) {
+                html += `<div class="text-center text-gray-500 py-10 text-lg">Nic jsme nenašli... zkus jiné slovo (třeba "hlad" nebo "les") 🤷‍♂️</div>`;
+            }
+
+            // A) KANÁLY
+            if (foundChannels.length > 0) {
+                html += `<div><h3 class="text-gray-400 font-bold uppercase text-xs mb-3">Kanály</h3><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">`;
+                foundChannels.forEach(c => {
+                    html += `
+                        <div onclick="switchChannel('${c.id}')" class="bg-[#2f3136] p-3 rounded flex items-center gap-3 cursor-pointer hover:bg-[#40444b] border border-[#202225] hover:border-[#5865F2] transition">
+                            <div class="w-8 h-8 rounded-full bg-[#202225] flex items-center justify-center text-[#b9bbbe]"><i class="fas ${c.icon}"></i></div>
+                            <span class="font-bold text-gray-200">${highlightText(c.name, query)}</span>
+                        </div>`;
+                });
+                html += `</div></div>`;
+            }
+
+            // B) MÍSTA (DATE PLANNER)
+            if (foundPlaces.length > 0) {
+                html += `<div><h3 class="text-gray-400 font-bold uppercase text-xs mb-3">Místa na rande</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">`;
+                foundPlaces.forEach(loc => {
+                    // Trik: switchChannel na planner a pak selectLocation
+                    html += `
+                        <div onclick="switchChannel('dateplanner'); setTimeout(() => selectLocation(${loc.id}), 100);" class="bg-[#2f3136] p-3 rounded flex gap-3 cursor-pointer hover:bg-[#40444b] border border-[#202225] hover:border-[#3ba55c] transition group">
+                            <div class="text-2xl pt-1">${loc.cat === 'food' ? '🍔' : (loc.cat === 'view' ? '🔭' : '📍')}</div>
+                            <div>
+                                <div class="font-bold text-white group-hover:underline">${highlightText(loc.name, query)}</div>
+                                <div class="text-xs text-gray-400">${highlightText(loc.desc, query)}</div>
+                            </div>
+                        </div>`;
+                });
+                html += `</div></div>`;
+            }
+
+            // C) KNIHOVNA (FILMY, HRY)
+            if (foundLibrary.length > 0) {
+                html += `<div><h3 class="text-gray-400 font-bold uppercase text-xs mb-3">Knihovna</h3><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">`;
+                foundLibrary.forEach(item => {
+                    html += `
+                        <div onclick="switchChannel('${item.type === 'games' ? 'games' : (item.type === 'series' ? 'series' : 'movies')}')" class="bg-[#2f3136] rounded p-2 hover:bg-[#40444b] transition cursor-pointer border border-[#202225] hover:border-[#faa61a] flex flex-col items-center text-center">
+                            <div class="text-4xl mb-2">${item.icon}</div>
+                            <div class="font-bold text-white text-xs">${highlightText(item.title, query)}</div>
+                            <div class="text-[10px] text-gray-500 mt-1">${item.cat}</div>
+                        </div>`;
+                });
+                html += `</div></div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+            function randomInOut(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                
+                // Konfety padají náhodně ze dvou stran
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInOut(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInOut(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+            
+            showNotification("🎉 LÁSKA DETEKOVÁNA! 🎉", "success");
+        }
+
+
         // --- GLOBAL STATE ---
         const state = {
             currentChannel: 'welcome',
@@ -646,148 +1212,14 @@
             quizAnswers: JSON.parse(localStorage.getItem('klarka_quiz')) || { score: 0, completed: false },
             watchlist: JSON.parse(localStorage.getItem('klarka_watchlist')) || [],
             route: [],
-            ratings: JSON.parse(localStorage.getItem('klarka_ratings')) || {} // <--- NOVÉ: Ukládání hodnocení
+            ratings: JSON.parse(localStorage.getItem('klarka_ratings')) || {},
+            dateRatings: JSON.parse(localStorage.getItem('klarka_date_ratings')) || {},
+            watchHistory: JSON.parse(localStorage.getItem('klarka_watch_history')) || {}
         };
 
         const GLOBAL_DRIVE_LINK = "https://drive.google.com/drive/folders/19KnBcai5wHxwlryX_keLO9zPs8Qvj48l?usp=sharing";
 
-        // --- DATE PLANNER DATA ---
-        // --- DATE PLANNER DATA (Reorganized) ---
-        // --- DATE PLANNER DATA (Reorganized: Walk -> View -> Fun -> Food) ---
-        const dateLocations = [
-            // --- 100+: PROCHÁZKY - Parky, Voda & Místa (Dříve 300+) ---
-            { id: 101, name: "Kunovský les", cat: "walk", lat: 49.053913, lng: 17.449622, desc: "Procházka po rovině, ideální na pokec." },
-            { id: 102, name: "Smetanovy sady (UH)", cat: "walk", lat: 49.066836, lng: 17.468690, desc: "Park v centru UH, kousek od Slovácké búdy." },
-            { id: 103, name: "Zámecký park Buchlovice", cat: "walk", lat: 49.083800, lng: 17.336900, desc: "Nádherný park, pávi a pohoda." },
-            { id: 104, name: "Rybník Kunovice", cat: "walk", lat: 49.041773, lng: 17.478465, desc: "Hezká procházka po Kunovicích kolem rybníku." },
-            { id: 105, name: "Štěrkopísková jezera", cat: "walk", lat: 49.018258, lng: 17.426915, desc: "Alfrédov. Čistá voda, v létě na koupání, v zimě na otužování." },
-            { id: 106, name: "Luhačovická přehrada", cat: "walk", lat: 49.123999, lng: 17.778854, desc: "Procházka kolem přehrady, koupaliště." },
-            { id: 107, name: "Přehrada Lučina", cat: "walk", lat: 48.862398, lng: 17.392934, desc: "Jezero s možností koupání a procházka za Radějovem." },
-            { id: 108, name: "Staré Hutě", cat: "walk", lat: 49.105800, lng: 17.258300, desc: "Krásná procházka v údolí pod Buchlovem." },
-            { id: 109, name: "Bunč", cat: "walk", lat: 49.177000, lng: 17.351500, desc: "Turistické centrum Chřibů, kousek na Brdo." },
-            { id: 110, name: "Zámeček Pepčín", cat: "walk", lat: 49.026573, lng: 17.586872, desc: "Ruiny zámečku u Drslavic, tajemné místo." },
-            { id: 111, name: "Vlčnovské búdy", cat: "walk", lat: 49.019280, lng: 17.591636, desc: "Místo činu (ohniště, pes, sekerka)." },
-            { id: 112, name: "Podolí", cat: "walk", lat: 49.038929, lng: 17.532952, desc: "Expedice do neexistující obce." },
-
-            // --- 200+: VÝHLEDY - Rozhledny, Kopce & Památky (Dříve 100+) ---
-            { id: 201, name: "Rozhledna Salaš", cat: "view", lat: 49.142871, lng: 17.352267, desc: "Designová rozhledna ve tvaru sedmiček. Super výhled na Chřiby." },
-            { id: 202, name: "Rozhledna Rovnina", cat: "view", lat: 49.071519, lng: 17.513178, desc: "Klasika nad Jarošovem. Kousek pěšky, hezký výhled na Hradiště." },
-            { id: 203, name: "Floriánka", cat: "view", lat: 49.037799, lng: 17.326382, desc: "Kousek od Polešovic. Víme, že tam fouká, ale výhled na vinohrady top." },
-            { id: 204, name: "Maják Šrotík", cat: "view", lat: 49.073950, lng: 17.426840, desc: "Ve Staráku v Kovozoo. Trochu bizár, ale vtipný." },
-            { id: 205, name: "Velký Lopeník", cat: "view", lat: 48.940368, lng: 17.779172, desc: "Túra na hranice. Dřevěná rozhledna, pořádný výšlap." },
-            { id: 206, name: "Rozhledna Modrá", cat: "view", lat: 49.119035, lng: 17.403316, desc: "Malá dřevěná rozhledna v těch sadech nad Modrou." },
-            { id: 207, name: "Rozhledna Brdo", cat: "view", lat: 49.186500, lng: 17.308500, desc: "Nejvyšší kamenná rozhledna v Chřibech." },
-            { id: 208, name: "Větrný mlýn Jalubí", cat: "view", lat: 49.124389, lng: 17.431000, desc: "Nově postavený mlýn. Krátká procházka a super fotky." },
-            { id: 209, name: "Rozhledna Doubí", cat: "view", lat: 49.039200, lng: 17.303600, desc: "Menší rozhledna v polích, výhled na Chřiby a Bílé Karpaty." },
-            { id: 210, name: "Bukovanský mlýn", cat: "view", lat: 49.036979, lng: 17.091398, desc: "Rozhledna, minigolf a restaurace kousek od Kyjova. Krásný výlet." },
-            { id: 211, name: "Rozhledna Radošov", cat: "view", lat: 48.924786, lng: 17.427983, desc: "Pěkná rozhledna za Veselím n. M." },
-            { id: 212, name: "Rozhledna Travičná", cat: "view", lat: 48.860205, lng: 17.365718, desc: "Pěkná rozhledna za Radějovem." },
-            { id: 213, name: "Velká Javořina", cat: "view", lat: 48.858500, lng: 17.671000, desc: "Nejvyšší hora Bílých Karpat, vysílač a daleké výhledy." },
-            { id: 230, name: "Hrad Buchlov", cat: "view", lat: 49.107481, lng: 17.310858, desc: "Klasika. Vyhlídka z věže je povinnost." },
-            { id: 231, name: "Kaple svaté Barbory", cat: "view", lat: 49.108641, lng: 17.318941, desc: "Modlivka. Nejlepší místo na západ slunce pod Buchlovem." },
-            { id: 232, name: "Zřícenina Cimburk", cat: "view", lat: 49.103700, lng: 17.216200, desc: "Romantická zřícenina u Koryčan. Málo lidí, hodně klidu." },
-            { id: 233, name: "Hradisko sv. Klimenta", cat: "view", lat: 49.085400, lng: 17.217700, desc: "Hradisko v lesích. Klid, historie a Gorazd." },
-            { id: 234, name: "Zřícenina Střílky", cat: "view", lat: 49.135000, lng: 17.220500, desc: "Zřícenina s krásným výhledem, kousek od Střílek." },
-            { id: 235, name: "Kaple svatého Rocha", cat: "view", lat: 49.076822, lng: 17.494639, desc: "Ještě kousek nad skanzenem. Krásný výhled na západ slunce nad UH." },
-            { id: 236, name: "Zámek Milotice", cat: "view", lat: 48.959258, lng: 17.138092, desc: "Barokní perla. Ty zahrady jsou na procházku jak dělané." },
-            { id: 237, name: "Hrad Malenovice", cat: "view", lat: 49.203480, lng: 17.599559, desc: "Zajímavý hrad/zámek, procházka v lese." },
-            { id: 238, name: "Velehrad (Bazilika)", cat: "view", lat: 49.103500, lng: 17.395800, desc: "Je to tam hezké, i když nejsme věřící. Zmrzlina u cesty." },
-            { id: 239, name: "Kostel Panny Marie (Sady)", cat: "view", lat: 49.052542, lng: 17.481772, desc: "Výšina sv. Metoděje, archeologické naleziště a výhled." },
-            { id: 250, name: "Kazatelna", cat: "view", lat: 49.095453, lng: 17.226237, desc: "Skalní útvar v Chřibech. Prý se odtud kázalo." },
-            { id: 251, name: "Kozel", cat: "view", lat: 49.097599, lng: 17.216784, desc: "Skála v Chřibech, co vypadá... no jako kozel. Kousek od Kazatelny." },
-            { id: 252, name: "Buchlovský kámen", cat: "view", lat: 49.117200, lng: 17.288900, desc: "Osamělý pískovcový skalní útvar v Chřibech." },
-            { id: 253, name: "Břestecká Skála", cat: "view", lat: 49.111593, lng: 17.335545, desc: "Pískovcové skály v Chřibech, kousek od Břestku." },
-
-            // --- 300+: ZÁBAVA - Sport, Zvířata & Akce (Dříve 200+) ---
-            { id: 301, name: "Kovozoo Staré Město", cat: "fun", lat: 49.073950, lng: 17.426840, desc: "Zvířata ze šrotu. Projdeme se, dáme fotku s gepardem." },
-            { id: 302, name: "ZOO Lešná", cat: "fun", lat: 49.274700, lng: 17.713600, desc: "Nejhezčí ZOO v okolí. Rejnoci a zámek." },
-            { id: 303, name: "Staroměstská Minizoo", cat: "fun", lat: 49.076500, lng: 17.436500, desc: "Malá zoo ve Staráku (Rybníček)." },
-            { id: 304, name: "Živá Voda Modrá", cat: "fun", lat: 49.103295, lng: 17.406936, desc: "Ten podvodní tunel s vyžranýma kaprama. A prury." },
-            { id: 305, name: "Archeoskanzen Modrá", cat: "fun", lat: 49.105611, lng: 17.409365, desc: "Historie, Velká Morava a tak. Hned vedle Živé vody." },
-            { id: 306, name: "Skanzen Rochus", cat: "fun", lat: 49.071833, lng: 17.489000, desc: "Procházka mezi starýma barákama nad Mařaticama." },
-            { id: 307, name: "Skanzen Strážnice", cat: "fun", lat: 48.904117, lng: 17.312200, desc: "Velký skanzen s vinohrady." },
-            { id: 308, name: "Stezka Lovců Mamutů", cat: "fun", lat: 49.054580, lng: 17.349503, desc: "Naučná stezka s dřevěnými zvířaty u Boršic." },
-            { id: 309, name: "Letecké muzeum Kunovice", cat: "fun", lat: 49.034854, lng: 17.458005, desc: "Naganský expres a stíhačky. Povinnost." },
-            { id: 310, name: "Slovácké muzeum", cat: "fun", lat: 49.056575, lng: 17.360344, desc: "Muzeum v parku, historie Slovácka." },
-            { id: 320, name: "Kino Hvězda UH", cat: "fun", lat: 49.067479, lng: 17.468837, desc: "Popcorn (i když leze do zubů) a nějaký film z watchlistu." },
-            { id: 321, name: "Aquapark UH", cat: "fun", lat: 49.067042, lng: 17.472961, desc: "Tobogány nebo wellness? Spíš ten wellness." },
-            { id: 322, name: "Laser Game UH", cat: "fun", lat: 49.063000, lng: 17.470000, desc: "Ať vidíme, kdo má lepší mušku (já)." },
-            { id: 323, name: "Motokáry Staré Město", cat: "fun", lat: 49.072239, lng: 17.420460, desc: "Trocha adrenalinu na parkovišti (Rec Group)." },
-            { id: 324, name: "Bowling Mařatice", cat: "fun", lat: 49.061068, lng: 17.481452, desc: "Klasika, když prší. Pivo a koule." },
-            { id: 325, name: "Sport Centrum Morava", cat: "fun", lat: 49.068200, lng: 17.485600, desc: "Bowling a pizza v Mařaticích." },
-            { id: 326, name: "Discgolf Kunovský les", cat: "fun", lat: 49.054300, lng: 17.448500, desc: "Házení talířem na koše. Je to sranda a je to v lese." },
-            { id: 327, name: "Minigolf Horní Němčí", cat: "fun", lat: 48.927500, lng: 17.625500, desc: "Fajn minigolf trochu dál, ale v přírodě." },
-            { id: 328, name: "Slovácký dvůr", cat: "fun", lat: 49.011805, lng: 17.440694, desc: "Adventure golf a koupání v Ostrožské." },
-            { id: 329, name: "Baloncentrum Břestek", cat: "fun", lat: 49.094338, lng: 17.355034, desc: "Koukat jak startují balóny a dát si limonádu." },
-            { id: 330, name: "Amfík Bukovina", cat: "fun", lat: 49.061544, lng: 17.516969, desc: "Když bude nějaká akce nebo letní kino. Pěkný areál." },
-            { id: 331, name: "Basketbal Kunovice", cat: "fun", lat: 49.044594, lng: 17.470963, desc: "Basketbal U Pálenice." },
-
-            // --- 400+: JÍDLO & KÁVA (Zůstává) ---
-            { id: 401, name: "Kafec U Komína", cat: "food", lat: 49.072781, lng: 17.455032, desc: "Nejlepší vafle a kafe v UH." },
-            { id: 402, name: "Zašívárna U Osla", cat: "food", lat: 49.066500, lng: 17.461500, desc: "Skvělá atmosféra a dobré pití." },
-            { id: 403, name: "Hospůdka na Haldě", cat: "food", lat: 49.056575, lng: 17.360344, desc: "Ryby a pohoda v Boršicích." }
-        ];
-
-        let selectedDateLocation = null;
-
-        // --- LIBRARY DATA ---
-        const library = {
-            movies: [
-                {id:103,title:"Angry Birds",icon:"🐦",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:3cfd78366ccfe2f5ce6d0f7d17f6e6abdc46cabd&dn=Angry.Birds.ve.filmu.2016.1080p.BluRay.CZ.SK.AC3.x264-Mr.MUX&xl=2196742337",gdrive:GLOBAL_DRIVE_LINK},
-                {id:116,title:"Shrek",icon:"🧅",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:ab2acd192c6bb60d5445c3216cacf72f609e21e1&dn=Shrek.Complete.Collection.1080p.CZ.EN.MixeD.x265-R.i.H&xl=24813754031",gdrive:GLOBAL_DRIVE_LINK},
-                {id:128,title:"Za plotem",icon:"🦝",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:a4078b0b3e7b1e12f51855ca313eac8ea1231b2c&dn=Za%20plotem%20%28Over%20the%20Hedge%29.2006.CZ.WebRip.1080p.10b.HEVC.C4U.mkv&xl=1903318064",gdrive:GLOBAL_DRIVE_LINK},
-                {id:127,title:"Úžasňákovi",icon:"🦸",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:2df5d449cf518fe2b9c1b1314b7735194c3b45e6&dn=%C3%9A%C5%BEas%C5%88%C3%A1kovi.avi&xl=1793605632",gdrive:GLOBAL_DRIVE_LINK},
-                {id:113,title:"Rango",icon:"🦎",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:bf1e9444f0ec40cae01e818de909e0456eedb541&dn=Rango.2011.Blu-ray.1080p.Extended.Cut.x264-CZ.SK.EN&xl=7072763782",gdrive:GLOBAL_DRIVE_LINK},
-                {id:5,title:"Klaus",icon:"🎅",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:1de24ef937f587ab64e284025582c27cf41246d9&dn=Klaus.2019.HDR.2160p.WEBRip.x265.CZ-iNTENSO&xl=5919259882",gdrive:GLOBAL_DRIVE_LINK},
-                {id:101,title:"21 Jump Street",icon:"👮",cat:"Komedie",magnet:"magnet:?xt=urn:btih:a7420cc60bde351b57d2f8c031d74a3177b05f65&dn=21%2C22%20Jump%20Street%202012%2C2014%201080p%20%28Multi%29%20WEB-DL%20HEVC%20x265%205.1%20BONE&xl=4540117518",gdrive:GLOBAL_DRIVE_LINK},
-                {id:102,title:"22 Jump Street",icon:"🚔",cat:"Komedie",magnet:"magnet:?xt=urn:btih:a7420cc60bde351b57d2f8c031d74a3177b05f65&dn=21%2C22%20Jump%20Street%202012%2C2014%201080p%20%28Multi%29%20WEB-DL%20HEVC%20x265%205.1%20BONE&xl=4540117518",gdrive:GLOBAL_DRIVE_LINK},
-                {id:122,title:"Borat",icon:"👍",cat:"Komedie",magnet:"magnet:?xt=urn:btih:4a80c302f3443fb48374ee2fd74a0fc7b637ffe2&dn=Borat%20%282006%29%20FHD%20cz%20en.mkv&xl=2050976063",gdrive:"https://drive.google.com/file/d/1yTGPSkYW4KskCqjXb9PlSeNYSsuoOqoG/view?usp=sharing"},
-                {id:118,title:"The Hangover",icon:"😵",cat:"Komedie",magnet:"magnet:?xt=urn:btih:bf4512d9861586190359e6c4552e3f9427a930e3&dn=The%20Hangover%20Trilogy%202009%2C2011%2C2013%2C%201080p%20BluRay%20HEVC%20x265%205.1%20BONE&xl=4674467377",gdrive:GLOBAL_DRIVE_LINK},
-                {id:124,title:"Drž hubu!",icon:"🤐",cat:"Komedie",magnet:"magnet:?xt=urn:btih:df7c4d2dcd42597e96068bf8d366dd452e9489f8&dn=Dr%C5%BE%20hubu%21%20%282003%29%20FHD%20cz%20fr.mkv&xl=2143250882",gdrive:GLOBAL_DRIVE_LINK},
-                {id:123,title:"Dědictví",icon:"🚜",cat:"Komedie",magnet:"magnet:?xt=urn:btih:ca95eb295f94086eecc166c6f0c245db7c4882eb&dn=Dedictvi%20aneb%20kurvahosigutntag%20%281992%29%20%5BCZ%5D%5BBDRip%5D%5B1080p%5D%5BHEVC%5D.mkv&xl=2867771371",gdrive:GLOBAL_DRIVE_LINK},
-                {id:115,title:"Scary Movie 1-5",icon:"👻",cat:"Komedie",magnet:"magnet:?xt=urn:btih:d9f7d0a6308a77b53bc1f04ced920c0c614e1cb7&dn=Scary%20Movie%201-5%20Collection%202000-2013%201080p%20BluRay%20HEVC%20x265%205.1%20BONE&xl=6644413780",gdrive:GLOBAL_DRIVE_LINK},
-                {id:2,title:"The Dark Knight",icon:"🦇",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:a4ea09adf3c9a51fe719b0358aa37cbe7545f63f&dn=The.Dark.Knight.2008.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=4315567522",gdrive:GLOBAL_DRIVE_LINK},
-                {id:7,title:"The Matrix",icon:"💊",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:db63243fdcc154dfd1034d9ae6f939be563f7973&dn=The%20Matrix%20%281999%29%202160p%20H265%2010%20bit%20DV%20HDR10%2B%20ita%20eg%20AC3%205.1%20sub%20ita%20eng%20Licdom.mkv&xl=4291914323",gdrive:GLOBAL_DRIVE_LINK},
-                {id:105,title:"Deadpool",icon:"⚔️",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:19ec5948aa22e430ceef97c559a685d81018fc87&dn=Deadpool.2016.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=2749846096",gdrive:GLOBAL_DRIVE_LINK},
-                {id:110,title:"Logan",icon:"🐺",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:0480637222dd5a1a2e7a199c56cce0b00c35b51c&dn=Logan%20%282017%29%20%5B1080p%5D%20%5BYTS.AG%5D&xl=2248685741",gdrive:GLOBAL_DRIVE_LINK},
-                {id:107,title:"Guardians of the Galaxy",icon:"🌌",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:2479bc7abfbca9921eb61318e567ad2c40971c95&dn=Guardians.of.the.Galaxy.2014.IMAX.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=2737487733",gdrive:GLOBAL_DRIVE_LINK},
-                {id:114,title:"Ready Player One",icon:"🕶️",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:0b2a8eac63a94cedf31118400f3f4bcb08b72d1a&dn=Ready%20Player%20One%20%282018%29%20%5BBluRay%5D%20%5B1080p%5D%20%5BYTS.AM%5D&xl=2415181864",gdrive:GLOBAL_DRIVE_LINK},
-                {id:121,title:"Alien",icon:"👽",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:dffbfb159af59bd3eb8cf720b8fa99b6ac72ba78&dn=Alien%201979%20DC%20REMASTERED%201080p%20BluRay%20HEVC%20x265%205.1%20BONE.mkv&xl=2075161124",gdrive:GLOBAL_DRIVE_LINK},
-                {id:111,title:"Mad Max: Fury Road",icon:"🔥",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:dbac9177cdbb06dfcb0ced506170b47b6f5e9796&dn=Mad.Max.Fury.Road.2015.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=3959350923",gdrive:GLOBAL_DRIVE_LINK},
-                {id:119,title:"LOTR Trilogie",icon:"💍",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:c8216c593a3bc4e660b9b12d49bb91b5857ae7bc&dn=The.Lord.Of.The.Rings.Trilogy.Extended.Remastered.1080p.BluRay.x265%20-88&xl=12166339629",gdrive:GLOBAL_DRIVE_LINK},
-                {id:1,title:"The Shawshank Redemption",icon:"🔓",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:e79a5b4ac27a9e66adf91689a98deb0d3ba7674b&dn=The.Shawshank.Redemption.1994.1080p.BluRay.x265.AAC.5.1%20-88&xl=2384290903",gdrive:GLOBAL_DRIVE_LINK},
-                {id:4,title:"Pulp Fiction",icon:"🍔",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:2516dd0343be41e7292b40441fcd84646c156d96&dn=Pulp%20Fiction%20Historky%20z%20podsveti%201994&xl=3066884151",gdrive:GLOBAL_DRIVE_LINK},
-                {id:6,title:"Fight Club",icon:"👊",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:70981326246aaea630c288c2429e683aa2690603&dn=Fight.Club.1999.REMASTERED.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=4301531029",gdrive:GLOBAL_DRIVE_LINK},
-                {id:8,title:"Whiplash",icon:"🥁",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:419dc46785809c0a9760be3046fb8cb880cf8493&dn=Whiplash%20%282014%29%20%2B%20Extras%20%281080p%20BluRay%20x265%20HEVC%2010bit%20AAC%207.1%20afm72%29&xl=4633276114",gdrive:GLOBAL_DRIVE_LINK},
-                {id:106,title:"Donnie Darko",icon:"🐰",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:8ecc1f141602919fc05d36eb88e6f1dca295019a&dn=Donnie.Darko.2001.REMASTERED.DC.1080p.BluRay.H264.AAC%20%5B88%5D&xl=2740960879",gdrive:GLOBAL_DRIVE_LINK},
-                {id:112,title:"Prisoners",icon:"🔦",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:e778030429d87438eb4f4a3b8197e5996c79f0e7&dn=Prisoners.2013.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=2681606834",gdrive:GLOBAL_DRIVE_LINK},
-                {id:125,title:"Seven",icon:"📦",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:61d09d1a63b8a630a8825307f87a9c14b268e382&dn=Seven%20-%20Se7en%20%281995%29%202160p%20H265%2010%20bit%20DV%20ita%20eng%20AC3%205.1%20sub%20ita%20eng%20NUita%20NUeng-Licdom.mkv&xl=3885400010",gdrive:GLOBAL_DRIVE_LINK},
-                {id:126,title:"The Social Network",icon:"👍",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:5c918fd1b8e6c2316463617d3727a2cfe1b24d4e&dn=The.Social.Network.2010.iTA.ENG.AC3.SUB.iTA.ENG.BluRay.HEVC.1080p.x265.jeddak-MIRCrew.mkv&xl=2946953369",gdrive:GLOBAL_DRIVE_LINK},
-                {id:109,title:"Le Mans 66",icon:"🏎️",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:84e8d7aba68140f12a4789ced23e0b7a1b278aa6&dn=Le%20Mans%2066%20Ford%20v%20Ferrari%20BluRay%201080xH264%20Ita%20Eng%20AC3%205.1%20Sub%20Ita%20Eng&xl=3828506737",gdrive:GLOBAL_DRIVE_LINK},
-                {id:117,title:"The Gentlemen",icon:"🥃",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:8896eea0fcf5ab67b547f980a53141217cded510&dn=The%20Gentlemen%20%282019%29%20%281080p%20BluRay%20x265%20HEVC%2010bit%20AAC%207.1%20Vyndros%29&xl=4387443401",gdrive:GLOBAL_DRIVE_LINK},
-                {id:120,title:"The Thing",icon:"❄️",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:4823e1956eba859311db0621ca9ea7d5bb4a66ca&dn=The.Thing.1982.REMASTERED.1080p.BluRay.x264.AAC5.0-ShAaNiG&xl=2142451662",gdrive:GLOBAL_DRIVE_LINK}
-            ],
-            series: [
-                {id:9,title:"Breaking Bad",icon:"🧪",cat:"Seriály",magnet:"magnet:?xt=urn:btih:7118a27453275949493ab3d77b709456404e0ef6&dn=Breaking%20Bad%20%282008%29%20Season%201-5%20S01-S05%20%281080p%20BluRay%20x265%20HEVC%2010bit%20AAC%205.1%20Silence%29&xl=150389060754",gdrive:GLOBAL_DRIVE_LINK},
-                {id:11,title:"Mr. Robot",icon:"💻",cat:"Seriály",magnet:"magnet:?xt=urn:btih:704122faa6db389c8e2eff2dbd12e5aa8712fe63&dn=Mr.Robot.COMPLETE.1080p.BluRay.AV1.DDP.5.1-dAV1nci&xl=30529111722",gdrive:GLOBAL_DRIVE_LINK},
-                {id:12,title:"True Detective S1",icon:"🕵️",cat:"Seriály",magnet:"magnet:?xt=urn:btih:6f6fe19e361b14dc74c4a1dae8e51e802ef65ae7&dn=True%20Detective%20Season%201%20%20%281080p%20BD%20x265%2010bit%20FS84%20Joy%29&xl=5543662591",gdrive:GLOBAL_DRIVE_LINK}
-            ],
-            games: [
-                {id:13,title:"Tetris Effect",icon:"🧩",cat:"Hry",magnet:"magnet:?xt=urn:btih:e38087a21f8acab8e6f7120cd0622af10eaeb280&dn=Tetris.Effect.Connected.v2.0.2.rar&xl=3216489007",gdrive:GLOBAL_DRIVE_LINK},
-                {id:14,title:"Hades",icon:"⚡",cat:"Hry",magnet:"magnet:?xt=urn:btih:70947d6b874a01385511d50166cb2d23855facb1&dn=Hades.v1.38100.zip&xl=11582699763",gdrive:GLOBAL_DRIVE_LINK},
-                {id:15,title:"Dead Cells",icon:"💀",cat:"Hry",magnet:"magnet:?xt=urn:btih:3fed513b1d4172969a0239c0b0730e5c5a18894b&dn=Dead%20Cells%20%5BFitGirl%20Repack%5D&xl=2472856355",gdrive:GLOBAL_DRIVE_LINK},
-                {id:301,title:"Balatro",icon:"🃏",cat:"Hry",magnet:"magnet:?xt=urn:btih:8823764e16d978e6e0f9b46bf8a66416dad2f505&dn=Balatro.v1.0.1N&xl=66744928",gdrive:GLOBAL_DRIVE_LINK},
-                {id:302,title:"Brotato",icon:"🥔",cat:"Hry",magnet:"magnet:?xt=urn:btih:364d8768cc4628a3ad59a44644c34f324624fbea&dn=Brotato.v1.1.13.0&xl=308392977",gdrive:GLOBAL_DRIVE_LINK},
-                {id:303,title:"Kingdom: Two Crowns",icon:"👑",cat:"Hry",magnet:"magnet:?xt=urn:btih:05c33ad86589f64f0b26b51902e2edde80603f29&dn=Kingdom.Two.Crowns.v2.3&xl=4656710442",gdrive:GLOBAL_DRIVE_LINK},
-                {id:304,title:"Mafia II: DE",icon:"🔫",cat:"Hry",magnet:"magnet:?xt=urn:btih:4ed851ea6c87126480d2049f7b4d47fbb2d9e28f&dn=Mafia%20II%20-%20Definitive%20Edition%20%5BFitGirl%20Repack%5D&xl=13314267858",gdrive:GLOBAL_DRIVE_LINK},
-                {id:305,title:"Papa's Freezeria",icon:"🍦",cat:"Hry",magnet:"magnet:?xt=urn:btih:9c56c4604c305af0f51d908dc7930b7da48f8e77&dn=Papas.Freezeria.Deluxe&xl=63577281",gdrive:GLOBAL_DRIVE_LINK},
-                {id:306,title:"Stackflow",icon:"💻",cat:"Hry",magnet:"magnet:?xt=urn:btih:16e4c04d877d0fc94fa1d0fee3763d5fb3fbc0be&dn=Stackflow.v0.9&xl=129021781",gdrive:GLOBAL_DRIVE_LINK},
-                {id:307,title:"Enter the Gungeon",icon:"🔫",cat:"Hry",magnet:"magnet:?xt=urn:btih:d83d3e3e9f40a1d0ae2b5aacf2360fb2ddcb7abb&dn=Enter.the.Gungeon.v2.1.3.zip&xl=670706499",gdrive:GLOBAL_DRIVE_LINK},
-                {id:308,title:"Hades II",icon:"🌙",cat:"Hry",magnet:"magnet:?xt=urn:btih:3fb5b6737355f1d93e77969d7638fee90806b9d8&dn=Hades.II.v1.133066.rar&xl=9079366716",gdrive:GLOBAL_DRIVE_LINK},
-                {id:309,title:"Jump King",icon:"👑",cat:"Hry",magnet:"magnet:?xt=urn:btih:ee670e09061d5e5694ea356a8029a280766739e5&dn=Jump.King.v1.06.rar&xl=1313998599",gdrive:GLOBAL_DRIVE_LINK}
-            ]
-        };
-
+        // DATA
         const quizQuestions = [
             { question: "Jsem certifikovaný skaut, který bezpečně pozná všechny hvězdy na obloze.", correct: false, explanation: "MÝTUS! ❌ Poznám jen 'vrtulníky'. Sirius si to bude pamatovat navždy." },
             { question: "Když se učíme matematiku, jsem to já, kdo vysvětluje integrály tobě.", correct: false, explanation: "MÝTUS! ❌ Jsem ztracený případ. Díky za tvou nekonečnou trpělivost." },
@@ -916,6 +1348,234 @@
             "Lidé sdílí 50 % DNA s banány (někdy to tak i vypadá).",
             "VUT FIT má ve znaku sovu (nebo něco, co ji připomíná)."
         ];
+
+        const timelineEvents = [
+            {
+                title: "Kde to všechno začalo – Clash Royale",
+                icon: "fa-shield-alt",
+                color: "#5865F2", // Modrá
+                desc: "Zeptal jsem se tě, jestli nedáme 1v1 (samozřejmě jsem vyhrál). <br>(P.S. Ten deck si fakt už změň, ať máš aspoň teoretickou šanci.)",
+                images: [] // Příklad: ["fotky/clash1.jpg", "fotky/clash2.png"]
+            },
+            {
+                title: "Nekonečný Scroll & Teorie",
+                icon: "fa-mobile-alt",
+                color: "#3ba55c", // Zelená
+                desc: "Šest miliónů poslaných Reels a hodiny konverzací o životě. Jsi jediný člověk s dostatečným procesorovým výkonem na to, aby pobral moje teorie.",
+                images: ["img/dzus.jpg"] 
+            },
+            {
+                title: "Discord Maratony",
+                icon: "fa-graduation-cap",
+                color: "#faa61a", // Žlutá
+                desc: "271k+ hodin volání. Od tvé nekonečné trpělivosti a obětavosti při doučování mého autistického ADHD mozku až po naše bitvy ve hrách.",
+                images: ["img/matika_dis.png"] 
+            },
+            {
+                title: "Ohýnek u Vlčnovských búd",
+                icon: "fa-fire",
+                color: "#eb459e", // Růžová
+                desc: "Já sehnal dřevo, ty jsi řídila. Pes nám sežral večeři, potkali jsme náhodného Holanďana a já nás hrdinně bránil sekerou proti dřevěné soše.",
+                images: [] // Zde doplň fotky z opékačky!
+            },
+            {
+                title: "Hody Mařatice",
+                icon: "fa-wine-glass",
+                color: "#ed4245", // Červená
+                desc: "Večer, kdy jsi mi zachránila prdel. Dotáhla jsi mě do auta a vyslechla si moje opilecké ujišťování.",
+                images: ["img/maratice_tomac.jpg", "img/auto_rotor.jpg"] 
+            },
+            {
+                title: "Polešovice & Požár",
+                icon: "fa-star",
+                color: "#5865F2", 
+                desc: "Navigace, hasiči, výhled na požár. Tady jsi mě poprvé fact-checknula s Nerem a od té doby věřím mýtům.",
+                images: [] 
+            },
+            {
+                title: "Basketbal, Modrá a Velehrad",
+                icon: "fa-basketball-ball",
+                color: "#faa61a",
+                desc: "Málem nás sejmul autobus, zlomená noha na basketu, mlha na rozhledně a yappování v altánku u rybníka.",
+                images: ["img/rozhledna_modra.jpg", "img/rozhledna_modra_2.jpg"] 
+            },
+            {
+                title: "Tento dárek",
+                icon: "fa-gift",
+                color: "gradient", // Speciální flag
+                desc: "Všechny naše vzpomínky na jednom místě. Diddyblud kalkulator a 5 metrů HDMI kabelu.",
+                images: [] 
+            },
+            {
+                title: "První rande",
+                icon: "fa-heart",
+                color: "#ed4245", // Červená
+                desc: "Stezka lovců mamutů v Boršicích, větrný mlýn v Jalubí, procházka kolem rybníka, chill na chatě s ohýnkem.",
+                images: [] 
+            },
+            {
+                title: "Staré Hutě a Buchlovský kámen",
+                icon: "fa-tree",
+                color: "darkgreen",
+                desc: "Navigování se ve Starých Hutích, trasa přes les, začalo sněžit, potom nám svítilo slunko pro parádní výhled u Buchlovského kamene. Nakonec ještě nákup pro Silvestrovskou chatu (která nebyla), úklid a spravování střechy na chatě.",
+                images: ["img/bk_1.jpg", "img/bk_2.jpg", "img/bk_3.jpg", "img/bk_4.jpg", "img/bk_5.jpg", "img/bk_6.jpg"] 
+            },
+            {
+                title: "Procházka Kunovice, Sady, Rybník",
+                icon: "fa-snowflake",
+                color: "LightSkyBlue",
+                desc: "Procházka kolem Olšavy, kolotoč, Kostel v Sadech (hřbitov) (highlight divné písmo na hrobě??), přes východ zpátky do Kunovic a tam si sednout k rybníku",
+                images: [] 
+            }
+        ];
+
+        // --- LIBRARY DATA ---
+        const library = {
+            movies: [
+                {id:103,title:"Angry Birds",icon:"🐦",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:3cfd78366ccfe2f5ce6d0f7d17f6e6abdc46cabd&dn=Angry.Birds.ve.filmu.2016.1080p.BluRay.CZ.SK.AC3.x264-Mr.MUX&xl=2196742337",gdrive:GLOBAL_DRIVE_LINK},
+                {id:116,title:"Shrek",icon:"🧅",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:ab2acd192c6bb60d5445c3216cacf72f609e21e1&dn=Shrek.Complete.Collection.1080p.CZ.EN.MixeD.x265-R.i.H&xl=24813754031",gdrive:GLOBAL_DRIVE_LINK},
+                {id:128,title:"Za plotem",icon:"🦝",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:a4078b0b3e7b1e12f51855ca313eac8ea1231b2c&dn=Za%20plotem%20%28Over%20the%20Hedge%29.2006.CZ.WebRip.1080p.10b.HEVC.C4U.mkv&xl=1903318064",gdrive:GLOBAL_DRIVE_LINK},
+                {id:127,title:"Úžasňákovi",icon:"🦸",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:2df5d449cf518fe2b9c1b1314b7735194c3b45e6&dn=%C3%9A%C5%BEas%C5%88%C3%A1kovi.avi&xl=1793605632",gdrive:GLOBAL_DRIVE_LINK},
+                {id:113,title:"Rango",icon:"🦎",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:bf1e9444f0ec40cae01e818de909e0456eedb541&dn=Rango.2011.Blu-ray.1080p.Extended.Cut.x264-CZ.SK.EN&xl=7072763782",gdrive:GLOBAL_DRIVE_LINK},
+                {id:5,title:"Klaus",icon:"🎅",cat:"Animáky & Pohádky",magnet:"magnet:?xt=urn:btih:1de24ef937f587ab64e284025582c27cf41246d9&dn=Klaus.2019.HDR.2160p.WEBRip.x265.CZ-iNTENSO&xl=5919259882",gdrive:GLOBAL_DRIVE_LINK},
+                {id:101,title:"21 Jump Street",icon:"👮",cat:"Komedie",magnet:"magnet:?xt=urn:btih:a7420cc60bde351b57d2f8c031d74a3177b05f65&dn=21%2C22%20Jump%20Street%202012%2C2014%201080p%20%28Multi%29%20WEB-DL%20HEVC%20x265%205.1%20BONE&xl=4540117518",gdrive:GLOBAL_DRIVE_LINK},
+                {id:102,title:"22 Jump Street",icon:"🚔",cat:"Komedie",magnet:"magnet:?xt=urn:btih:a7420cc60bde351b57d2f8c031d74a3177b05f65&dn=21%2C22%20Jump%20Street%202012%2C2014%201080p%20%28Multi%29%20WEB-DL%20HEVC%20x265%205.1%20BONE&xl=4540117518",gdrive:GLOBAL_DRIVE_LINK},
+                {id:122,title:"Borat",icon:"👍",cat:"Komedie",magnet:"magnet:?xt=urn:btih:4a80c302f3443fb48374ee2fd74a0fc7b637ffe2&dn=Borat%20%282006%29%20FHD%20cz%20en.mkv&xl=2050976063",gdrive:"https://drive.google.com/file/d/1yTGPSkYW4KskCqjXb9PlSeNYSsuoOqoG/view?usp=sharing"},
+                {id:118,title:"The Hangover",icon:"😵",cat:"Komedie",magnet:"magnet:?xt=urn:btih:bf4512d9861586190359e6c4552e3f9427a930e3&dn=The%20Hangover%20Trilogy%202009%2C2011%2C2013%2C%201080p%20BluRay%20HEVC%20x265%205.1%20BONE&xl=4674467377",gdrive:GLOBAL_DRIVE_LINK},
+                {id:124,title:"Drž hubu!",icon:"🤐",cat:"Komedie",magnet:"magnet:?xt=urn:btih:df7c4d2dcd42597e96068bf8d366dd452e9489f8&dn=Dr%C5%BE%20hubu%21%20%282003%29%20FHD%20cz%20fr.mkv&xl=2143250882",gdrive:GLOBAL_DRIVE_LINK},
+                {id:123,title:"Dědictví",icon:"🚜",cat:"Komedie",magnet:"magnet:?xt=urn:btih:ca95eb295f94086eecc166c6f0c245db7c4882eb&dn=Dedictvi%20aneb%20kurvahosigutntag%20%281992%29%20%5BCZ%5D%5BBDRip%5D%5B1080p%5D%5BHEVC%5D.mkv&xl=2867771371",gdrive:GLOBAL_DRIVE_LINK},
+                {id:115,title:"Scary Movie 1-5",icon:"👻",cat:"Komedie",magnet:"magnet:?xt=urn:btih:d9f7d0a6308a77b53bc1f04ced920c0c614e1cb7&dn=Scary%20Movie%201-5%20Collection%202000-2013%201080p%20BluRay%20HEVC%20x265%205.1%20BONE&xl=6644413780",gdrive:GLOBAL_DRIVE_LINK},
+                {id:2,title:"The Dark Knight",icon:"🦇",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:a4ea09adf3c9a51fe719b0358aa37cbe7545f63f&dn=The.Dark.Knight.2008.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=4315567522",gdrive:GLOBAL_DRIVE_LINK},
+                {id:7,title:"The Matrix",icon:"💊",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:db63243fdcc154dfd1034d9ae6f939be563f7973&dn=The%20Matrix%20%281999%29%202160p%20H265%2010%20bit%20DV%20HDR10%2B%20ita%20eg%20AC3%205.1%20sub%20ita%20eng%20Licdom.mkv&xl=4291914323",gdrive:GLOBAL_DRIVE_LINK},
+                {id:105,title:"Deadpool",icon:"⚔️",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:19ec5948aa22e430ceef97c559a685d81018fc87&dn=Deadpool.2016.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=2749846096",gdrive:GLOBAL_DRIVE_LINK},
+                {id:110,title:"Logan",icon:"🐺",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:0480637222dd5a1a2e7a199c56cce0b00c35b51c&dn=Logan%20%282017%29%20%5B1080p%5D%20%5BYTS.AG%5D&xl=2248685741",gdrive:GLOBAL_DRIVE_LINK},
+                {id:107,title:"Guardians of the Galaxy",icon:"🌌",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:2479bc7abfbca9921eb61318e567ad2c40971c95&dn=Guardians.of.the.Galaxy.2014.IMAX.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=2737487733",gdrive:GLOBAL_DRIVE_LINK},
+                {id:114,title:"Ready Player One",icon:"🕶️",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:0b2a8eac63a94cedf31118400f3f4bcb08b72d1a&dn=Ready%20Player%20One%20%282018%29%20%5BBluRay%5D%20%5B1080p%5D%20%5BYTS.AM%5D&xl=2415181864",gdrive:GLOBAL_DRIVE_LINK},
+                {id:121,title:"Alien",icon:"👽",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:dffbfb159af59bd3eb8cf720b8fa99b6ac72ba78&dn=Alien%201979%20DC%20REMASTERED%201080p%20BluRay%20HEVC%20x265%205.1%20BONE.mkv&xl=2075161124",gdrive:GLOBAL_DRIVE_LINK},
+                {id:111,title:"Mad Max: Fury Road",icon:"🔥",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:dbac9177cdbb06dfcb0ced506170b47b6f5e9796&dn=Mad.Max.Fury.Road.2015.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=3959350923",gdrive:GLOBAL_DRIVE_LINK},
+                {id:119,title:"LOTR Trilogie",icon:"💍",cat:"Akční & Sci-Fi",magnet:"magnet:?xt=urn:btih:c8216c593a3bc4e660b9b12d49bb91b5857ae7bc&dn=The.Lord.Of.The.Rings.Trilogy.Extended.Remastered.1080p.BluRay.x265%20-88&xl=12166339629",gdrive:GLOBAL_DRIVE_LINK},
+                {id:1,title:"The Shawshank Redemption",icon:"🔓",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:e79a5b4ac27a9e66adf91689a98deb0d3ba7674b&dn=The.Shawshank.Redemption.1994.1080p.BluRay.x265.AAC.5.1%20-88&xl=2384290903",gdrive:GLOBAL_DRIVE_LINK},
+                {id:4,title:"Pulp Fiction",icon:"🍔",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:2516dd0343be41e7292b40441fcd84646c156d96&dn=Pulp%20Fiction%20Historky%20z%20podsveti%201994&xl=3066884151",gdrive:GLOBAL_DRIVE_LINK},
+                {id:6,title:"Fight Club",icon:"👊",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:70981326246aaea630c288c2429e683aa2690603&dn=Fight.Club.1999.REMASTERED.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=4301531029",gdrive:GLOBAL_DRIVE_LINK},
+                {id:8,title:"Whiplash",icon:"🥁",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:419dc46785809c0a9760be3046fb8cb880cf8493&dn=Whiplash%20%282014%29%20%2B%20Extras%20%281080p%20BluRay%20x265%20HEVC%2010bit%20AAC%207.1%20afm72%29&xl=4633276114",gdrive:GLOBAL_DRIVE_LINK},
+                {id:106,title:"Donnie Darko",icon:"🐰",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:8ecc1f141602919fc05d36eb88e6f1dca295019a&dn=Donnie.Darko.2001.REMASTERED.DC.1080p.BluRay.H264.AAC%20%5B88%5D&xl=2740960879",gdrive:GLOBAL_DRIVE_LINK},
+                {id:112,title:"Prisoners",icon:"🔦",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:e778030429d87438eb4f4a3b8197e5996c79f0e7&dn=Prisoners.2013.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265%5BTGx%5D&xl=2681606834",gdrive:GLOBAL_DRIVE_LINK},
+                {id:125,title:"Seven",icon:"📦",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:61d09d1a63b8a630a8825307f87a9c14b268e382&dn=Seven%20-%20Se7en%20%281995%29%202160p%20H265%2010%20bit%20DV%20ita%20eng%20AC3%205.1%20sub%20ita%20eng%20NUita%20NUeng-Licdom.mkv&xl=3885400010",gdrive:GLOBAL_DRIVE_LINK},
+                {id:126,title:"The Social Network",icon:"👍",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:5c918fd1b8e6c2316463617d3727a2cfe1b24d4e&dn=The.Social.Network.2010.iTA.ENG.AC3.SUB.iTA.ENG.BluRay.HEVC.1080p.x265.jeddak-MIRCrew.mkv&xl=2946953369",gdrive:GLOBAL_DRIVE_LINK},
+                {id:109,title:"Le Mans 66",icon:"🏎️",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:84e8d7aba68140f12a4789ced23e0b7a1b278aa6&dn=Le%20Mans%2066%20Ford%20v%20Ferrari%20BluRay%201080xH264%20Ita%20Eng%20AC3%205.1%20Sub%20Ita%20Eng&xl=3828506737",gdrive:GLOBAL_DRIVE_LINK},
+                {id:117,title:"The Gentlemen",icon:"🥃",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:8896eea0fcf5ab67b547f980a53141217cded510&dn=The%20Gentlemen%20%282019%29%20%281080p%20BluRay%20x265%20HEVC%2010bit%20AAC%207.1%20Vyndros%29&xl=4387443401",gdrive:GLOBAL_DRIVE_LINK},
+                {id:120,title:"The Thing",icon:"❄️",cat:"Drama & Thriller",magnet:"magnet:?xt=urn:btih:4823e1956eba859311db0621ca9ea7d5bb4a66ca&dn=The.Thing.1982.REMASTERED.1080p.BluRay.x264.AAC5.0-ShAaNiG&xl=2142451662",gdrive:GLOBAL_DRIVE_LINK}
+            ],
+            series: [
+                {id:9,title:"Breaking Bad",icon:"🧪",cat:"Seriály",magnet:"magnet:?xt=urn:btih:7118a27453275949493ab3d77b709456404e0ef6&dn=Breaking%20Bad%20%282008%29%20Season%201-5%20S01-S05%20%281080p%20BluRay%20x265%20HEVC%2010bit%20AAC%205.1%20Silence%29&xl=150389060754",gdrive:GLOBAL_DRIVE_LINK},
+                {id:11,title:"Mr. Robot",icon:"💻",cat:"Seriály",magnet:"magnet:?xt=urn:btih:704122faa6db389c8e2eff2dbd12e5aa8712fe63&dn=Mr.Robot.COMPLETE.1080p.BluRay.AV1.DDP.5.1-dAV1nci&xl=30529111722",gdrive:GLOBAL_DRIVE_LINK},
+                {id:12,title:"True Detective S1",icon:"🕵️",cat:"Seriály",magnet:"magnet:?xt=urn:btih:6f6fe19e361b14dc74c4a1dae8e51e802ef65ae7&dn=True%20Detective%20Season%201%20%20%281080p%20BD%20x265%2010bit%20FS84%20Joy%29&xl=5543662591",gdrive:GLOBAL_DRIVE_LINK}
+            ],
+            games: [
+                {id:13,title:"Tetris Effect",icon:"🧩",cat:"Hry",magnet:"magnet:?xt=urn:btih:e38087a21f8acab8e6f7120cd0622af10eaeb280&dn=Tetris.Effect.Connected.v2.0.2.rar&xl=3216489007",gdrive:GLOBAL_DRIVE_LINK},
+                {id:14,title:"Hades",icon:"⚡",cat:"Hry",magnet:"magnet:?xt=urn:btih:70947d6b874a01385511d50166cb2d23855facb1&dn=Hades.v1.38100.zip&xl=11582699763",gdrive:GLOBAL_DRIVE_LINK},
+                {id:15,title:"Dead Cells",icon:"💀",cat:"Hry",magnet:"magnet:?xt=urn:btih:3fed513b1d4172969a0239c0b0730e5c5a18894b&dn=Dead%20Cells%20%5BFitGirl%20Repack%5D&xl=2472856355",gdrive:GLOBAL_DRIVE_LINK},
+                {id:301,title:"Balatro",icon:"🃏",cat:"Hry",magnet:"magnet:?xt=urn:btih:8823764e16d978e6e0f9b46bf8a66416dad2f505&dn=Balatro.v1.0.1N&xl=66744928",gdrive:GLOBAL_DRIVE_LINK},
+                {id:302,title:"Brotato",icon:"🥔",cat:"Hry",magnet:"magnet:?xt=urn:btih:364d8768cc4628a3ad59a44644c34f324624fbea&dn=Brotato.v1.1.13.0&xl=308392977",gdrive:GLOBAL_DRIVE_LINK},
+                {id:303,title:"Kingdom: Two Crowns",icon:"👑",cat:"Hry",magnet:"magnet:?xt=urn:btih:05c33ad86589f64f0b26b51902e2edde80603f29&dn=Kingdom.Two.Crowns.v2.3&xl=4656710442",gdrive:GLOBAL_DRIVE_LINK},
+                {id:304,title:"Mafia II: DE",icon:"🔫",cat:"Hry",magnet:"magnet:?xt=urn:btih:4ed851ea6c87126480d2049f7b4d47fbb2d9e28f&dn=Mafia%20II%20-%20Definitive%20Edition%20%5BFitGirl%20Repack%5D&xl=13314267858",gdrive:GLOBAL_DRIVE_LINK},
+                {id:305,title:"Papa's Freezeria",icon:"🍦",cat:"Hry",magnet:"magnet:?xt=urn:btih:9c56c4604c305af0f51d908dc7930b7da48f8e77&dn=Papas.Freezeria.Deluxe&xl=63577281",gdrive:GLOBAL_DRIVE_LINK},
+                {id:306,title:"Stackflow",icon:"💻",cat:"Hry",magnet:"magnet:?xt=urn:btih:16e4c04d877d0fc94fa1d0fee3763d5fb3fbc0be&dn=Stackflow.v0.9&xl=129021781",gdrive:GLOBAL_DRIVE_LINK},
+                {id:307,title:"Enter the Gungeon",icon:"🔫",cat:"Hry",magnet:"magnet:?xt=urn:btih:d83d3e3e9f40a1d0ae2b5aacf2360fb2ddcb7abb&dn=Enter.the.Gungeon.v2.1.3.zip&xl=670706499",gdrive:GLOBAL_DRIVE_LINK},
+                {id:308,title:"Hades II",icon:"🌙",cat:"Hry",magnet:"magnet:?xt=urn:btih:3fb5b6737355f1d93e77969d7638fee90806b9d8&dn=Hades.II.v1.133066.rar&xl=9079366716",gdrive:GLOBAL_DRIVE_LINK},
+                {id:309,title:"Jump King",icon:"👑",cat:"Hry",magnet:"magnet:?xt=urn:btih:ee670e09061d5e5694ea356a8029a280766739e5&dn=Jump.King.v1.06.rar&xl=1313998599",gdrive:GLOBAL_DRIVE_LINK}
+            ]
+        };
+
+        // --- DATE PLANNER DATA ---
+        const dateLocations = [
+            // --- 100+: PROCHÁZKY - Parky, Voda & Místa (Dříve 300+) ---
+            { id: 101, name: "Kunovský les", cat: "walk", lat: 49.053913, lng: 17.449622, desc: "Procházka po rovině, ideální na pokec." },
+            { id: 102, name: "Smetanovy sady (UH)", cat: "walk", lat: 49.066836, lng: 17.468690, desc: "Park v centru UH, kousek od Slovácké búdy." },
+            { id: 103, name: "Zámecký park Buchlovice", cat: "walk", lat: 49.083800, lng: 17.336900, desc: "Nádherný park, pávi a pohoda." },
+            { id: 104, name: "Rybník Kunovice", cat: "walk", lat: 49.041773, lng: 17.478465, desc: "Hezká procházka po Kunovicích kolem rybníku." },
+            { id: 105, name: "Štěrkopísková jezera", cat: "walk", lat: 49.018258, lng: 17.426915, desc: "Alfrédov. Čistá voda, v létě na koupání, v zimě na otužování." },
+            { id: 106, name: "Luhačovická přehrada", cat: "walk", lat: 49.123999, lng: 17.778854, desc: "Procházka kolem přehrady, koupaliště." },
+            { id: 107, name: "Přehrada Lučina", cat: "walk", lat: 48.862398, lng: 17.392934, desc: "Jezero s možností koupání a procházka za Radějovem." },
+            { id: 108, name: "Staré Hutě", cat: "walk", lat: 49.129433, lng: 17.277701, desc: "Krásná procházka v údolí pod Buchlovem." },
+            { id: 109, name: "Bunč", cat: "walk", lat: 49.177000, lng: 17.351500, desc: "Turistické centrum Chřibů, kousek na Brdo." },
+            { id: 110, name: "Zámeček Pepčín", cat: "walk", lat: 49.026573, lng: 17.586872, desc: "Ruiny zámečku u Drslavic, tajemné místo." },
+            { id: 111, name: "Vlčnovské búdy", cat: "walk", lat: 49.019280, lng: 17.591636, desc: "Místo činu (ohniště, pes, sekerka)." },
+            { id: 112, name: "Podolí", cat: "walk", lat: 49.038929, lng: 17.532952, desc: "Expedice do neexistující obce." },
+
+            // --- 200+: VÝHLEDY - Rozhledny, Kopce & Památky (Dříve 100+) ---
+            { id: 201, name: "Rozhledna Salaš", cat: "view", lat: 49.142871, lng: 17.352267, desc: "Designová rozhledna ve tvaru sedmiček. Super výhled na Chřiby." },
+            { id: 202, name: "Rozhledna Rovnina", cat: "view", lat: 49.071519, lng: 17.513178, desc: "Klasika nad Jarošovem. Kousek pěšky, hezký výhled na Hradiště." },
+            { id: 203, name: "Floriánka", cat: "view", lat: 49.037799, lng: 17.326382, desc: "Kousek od Polešovic. Víme, že tam fouká, ale výhled na vinohrady top." },
+            { id: 204, name: "Maják Šrotík", cat: "view", lat: 49.073950, lng: 17.426840, desc: "Ve Staráku v Kovozoo. Trochu bizár, ale vtipný." },
+            { id: 205, name: "Velký Lopeník", cat: "view", lat: 48.940368, lng: 17.779172, desc: "Túra na hranice. Dřevěná rozhledna, pořádný výšlap." },
+            { id: 206, name: "Rozhledna Modrá", cat: "view", lat: 49.119035, lng: 17.403316, desc: "Malá dřevěná rozhledna v těch sadech nad Modrou." },
+            { id: 207, name: "Rozhledna Brdo", cat: "view", lat: 49.186500, lng: 17.308500, desc: "Nejvyšší kamenná rozhledna v Chřibech." },
+            { id: 208, name: "Větrný mlýn Jalubí", cat: "view", lat: 49.124389, lng: 17.431000, desc: "Nově postavený mlýn. Krátká procházka a super fotky." },
+            { id: 209, name: "Rozhledna Doubí", cat: "view", lat: 49.039200, lng: 17.303600, desc: "Menší rozhledna v polích, výhled na Chřiby a Bílé Karpaty." },
+            { id: 210, name: "Bukovanský mlýn", cat: "view", lat: 49.036979, lng: 17.091398, desc: "Rozhledna, minigolf a restaurace kousek od Kyjova. Krásný výlet." },
+            { id: 211, name: "Rozhledna Radošov", cat: "view", lat: 48.924786, lng: 17.427983, desc: "Pěkná rozhledna za Veselím n. M." },
+            { id: 212, name: "Rozhledna Travičná", cat: "view", lat: 48.860205, lng: 17.365718, desc: "Pěkná rozhledna za Radějovem." },
+            { id: 213, name: "Velká Javořina", cat: "view", lat: 48.858500, lng: 17.671000, desc: "Nejvyšší hora Bílých Karpat, vysílač a daleké výhledy." },
+            { id: 230, name: "Hrad Buchlov", cat: "view", lat: 49.107481, lng: 17.310858, desc: "Klasika. Vyhlídka z věže je povinnost." },
+            { id: 231, name: "Kaple svaté Barbory", cat: "view", lat: 49.108641, lng: 17.318941, desc: "Modlivka. Nejlepší místo na západ slunce pod Buchlovem." },
+            { id: 232, name: "Zřícenina Cimburk", cat: "view", lat: 49.103700, lng: 17.216200, desc: "Romantická zřícenina u Koryčan. Málo lidí, hodně klidu." },
+            { id: 233, name: "Hradisko sv. Klimenta", cat: "view", lat: 49.085400, lng: 17.217700, desc: "Hradisko v lesích. Klid, historie a Gorazd." },
+            { id: 234, name: "Zřícenina Střílky", cat: "view", lat: 49.135000, lng: 17.220500, desc: "Zřícenina s krásným výhledem, kousek od Střílek." },
+            { id: 235, name: "Kaple svatého Rocha", cat: "view", lat: 49.076822, lng: 17.494639, desc: "Ještě kousek nad skanzenem. Krásný výhled na západ slunce nad UH." },
+            { id: 236, name: "Zámek Milotice", cat: "view", lat: 48.959258, lng: 17.138092, desc: "Barokní perla. Ty zahrady jsou na procházku jak dělané." },
+            { id: 237, name: "Hrad Malenovice", cat: "view", lat: 49.203480, lng: 17.599559, desc: "Zajímavý hrad/zámek, procházka v lese." },
+            { id: 238, name: "Velehrad (Bazilika)", cat: "view", lat: 49.103500, lng: 17.395800, desc: "Je to tam hezké, i když nejsme věřící. Zmrzlina u cesty." },
+            { id: 239, name: "Kostel Panny Marie (Sady)", cat: "view", lat: 49.052542, lng: 17.481772, desc: "Výšina sv. Metoděje, archeologické naleziště a výhled." },
+            { id: 250, name: "Kazatelna", cat: "view", lat: 49.095453, lng: 17.226237, desc: "Skalní útvar v Chřibech. Prý se odtud kázalo." },
+            { id: 251, name: "Kozel", cat: "view", lat: 49.097599, lng: 17.216784, desc: "Skála v Chřibech, co vypadá... no jako kozel. Kousek od Kazatelny." },
+            { id: 252, name: "Buchlovský kámen", cat: "view", lat: 49.117200, lng: 17.288900, desc: "Osamělý pískovcový skalní útvar v Chřibech." },
+            { id: 253, name: "Břestecká Skála", cat: "view", lat: 49.111593, lng: 17.335545, desc: "Pískovcové skály v Chřibech, kousek od Břestku." },
+
+            // --- 300+: ZÁBAVA - Sport, Zvířata & Akce (Dříve 200+) ---
+            { id: 301, name: "Kovozoo Staré Město", cat: "fun", lat: 49.073950, lng: 17.426840, desc: "Zvířata ze šrotu. Projdeme se, dáme fotku s gepardem." },
+            { id: 302, name: "ZOO Lešná", cat: "fun", lat: 49.274700, lng: 17.713600, desc: "Nejhezčí ZOO v okolí. Rejnoci a zámek." },
+            { id: 303, name: "Staroměstská Minizoo", cat: "fun", lat: 49.076500, lng: 17.436500, desc: "Malá zoo ve Staráku (Rybníček)." },
+            { id: 304, name: "Živá Voda Modrá", cat: "fun", lat: 49.103295, lng: 17.406936, desc: "Ten podvodní tunel s vyžranýma kaprama. A prury." },
+            { id: 305, name: "Archeoskanzen Modrá", cat: "fun", lat: 49.105611, lng: 17.409365, desc: "Historie, Velká Morava a tak. Hned vedle Živé vody." },
+            { id: 306, name: "Skanzen Rochus", cat: "fun", lat: 49.071833, lng: 17.489000, desc: "Procházka mezi starýma barákama nad Mařaticama." },
+            { id: 307, name: "Skanzen Strážnice", cat: "fun", lat: 48.904117, lng: 17.312200, desc: "Velký skanzen s vinohrady." },
+            { id: 308, name: "Stezka Lovců Mamutů", cat: "fun", lat: 49.054580, lng: 17.349503, desc: "Naučná stezka s dřevěnými zvířaty u Boršic." },
+            { id: 309, name: "Letecké muzeum Kunovice", cat: "fun", lat: 49.034854, lng: 17.458005, desc: "Naganský expres a stíhačky. Povinnost." },
+            { id: 310, name: "Slovácké muzeum", cat: "fun", lat: 49.056575, lng: 17.360344, desc: "Muzeum v parku, historie Slovácka." },
+            { id: 320, name: "Kino Hvězda UH", cat: "fun", lat: 49.067479, lng: 17.468837, desc: "Popcorn (i když leze do zubů) a nějaký film z watchlistu." },
+            { id: 321, name: "Aquapark UH", cat: "fun", lat: 49.067042, lng: 17.472961, desc: "Tobogány nebo wellness? Spíš ten wellness." },
+            { id: 322, name: "Laser Game UH", cat: "fun", lat: 49.063000, lng: 17.470000, desc: "Ať vidíme, kdo má lepší mušku (já)." },
+            { id: 323, name: "Motokáry Staré Město", cat: "fun", lat: 49.072239, lng: 17.420460, desc: "Trocha adrenalinu na parkovišti (Rec Group)." },
+            { id: 324, name: "Bowling Mařatice", cat: "fun", lat: 49.061068, lng: 17.481452, desc: "Klasika, když prší. Pivo a koule." },
+            { id: 325, name: "Sport Centrum Morava", cat: "fun", lat: 49.068200, lng: 17.485600, desc: "Bowling a pizza v Mařaticích." },
+            { id: 326, name: "Discgolf Kunovský les", cat: "fun", lat: 49.054300, lng: 17.448500, desc: "Házení talířem na koše. Je to sranda a je to v lese." },
+            { id: 327, name: "Minigolf Horní Němčí", cat: "fun", lat: 48.927500, lng: 17.625500, desc: "Fajn minigolf trochu dál, ale v přírodě." },
+            { id: 328, name: "Slovácký dvůr", cat: "fun", lat: 49.011805, lng: 17.440694, desc: "Adventure golf a koupání v Ostrožské." },
+            { id: 329, name: "Baloncentrum Břestek", cat: "fun", lat: 49.094338, lng: 17.355034, desc: "Koukat jak startují balóny a dát si limonádu." },
+            { id: 330, name: "Amfík Bukovina", cat: "fun", lat: 49.061544, lng: 17.516969, desc: "Když bude nějaká akce nebo letní kino. Pěkný areál." },
+            { id: 331, name: "Basketbal Kunovice", cat: "fun", lat: 49.044594, lng: 17.470963, desc: "Basketbal U Pálenice." },
+
+            // --- 400+: JÍDLO & KÁVA (Zůstává) ---
+            { id: 401, name: "Kafec U Komína", cat: "food", lat: 49.072781, lng: 17.455032, desc: "Nejlepší vafle a kafe v UH." },
+            { id: 402, name: "Zašívárna U Osla", cat: "food", lat: 49.062827, lng: 17.423105, desc: "Skvělá atmosféra a dobré pití." },
+            { id: 403, name: "Hospůdka na Haldě", cat: "food", lat: 49.056575, lng: 17.360344, desc: "Ryby a pohoda v Boršicích." }
+        ];
+
+        // --- SMART SEARCH DATA ---
+        const searchSynonyms = {
+            'walk': ['procházka', 'les', 'příroda', 'výšlap', 'hory', '🌲', 'venku', 'vzduch'],
+            'food': ['jídlo', 'restaurace', 'kafe', 'oběd', 'večeře', 'burger', 'pizza', '🍔', '☕', 'hlad'],
+            'view': ['výhled', 'rozhledna', 'kopec', 'vyhlídka', '👀', 'panorama', 'západ slunce'],
+            'fun':  ['zábava', 'hra', 'sport', 'kino', 'akce', '🎉', 'bowling', 'laser'],
+            'movie': ['film', 'koukání', 'kino', '🎬', 'sleduj', 'pohádka'],
+            'game': ['hra', 'pařba', '🎮', 'play', 'skóre'],
+            'love': ['láska', 'rande', '❤️', 'spolu', 'miluju']
+        };
+
+        let selectedDateLocation = null;
+
+
         let availableFacts = [...funFacts];
 
         // --- CORE FUNCTIONS ---
@@ -1091,138 +1751,358 @@
             
             // Wait for DOM update before accessing elements
             setTimeout(updateBookmarkCounter, 0);
+            initSidebarGestures();
         }
         function renderChannels() {
             const container = document.getElementById('channels-container');
             container.innerHTML = `
-                <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Informace</div><div onclick="switchChannel('welcome')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-door-open text-gray-500"></i> uvítání</div><div onclick="switchChannel('timeline')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-history text-gray-500"></i> timeline</div><div onclick="switchChannel('dateplanner')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-map-marked-alt text-[var(--pink)]"></i> plánovač-rande</div></div>
+                <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Informace</div><div onclick="switchChannel('welcome')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-door-open text-gray-500"></i> uvítání</div><div onclick="triggerHaptic('light'); switchChannel('timeline')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-history text-gray-500"></i> timeline</div><div onclick="switchChannel('dateplanner')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-map-marked-alt text-[var(--pink)]"></i> plánovač</div></div>
                 <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Knihovna</div><div onclick="switchChannel('manual')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-book text-[var(--green)]"></i> návod</div><div onclick="switchChannel('movies')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-film text-[var(--yellow)]"></i> filmy</div><div onclick="switchChannel('series')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-tv text-[#5865F2]"></i> seriály</div><div onclick="switchChannel('games')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-gamepad text-[var(--green)]"></i> hry</div><div onclick="switchChannel('music')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-gray-300 hover:bg-[#393c43] flex items-center gap-2 cursor-pointer"><i class="fas fa-music text-[#1DB954]"></i> music-bot</div><div onclick="showWatchlist()" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-[var(--pink)] hover:bg-[#393c43] flex items-center gap-2 cursor-pointer relative"><i class="fas fa-bookmark text-[var(--pink)]"></i> tvůj-watchlist<div id="bookmark-counter" class="absolute right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full hidden items-center justify-center h-4 min-w-[16px]"><span id="bookmark-count">0</span></div></div></div>
                 <div class="px-2 mb-4"><div class="flex justify-between px-2 text-xs font-bold text-[var(--interactive-normal)] uppercase mb-1">Důležité</div><div onclick="switchChannel('upgrade')" class="channel-item px-2 py-1.5 rounded mx-2 mb-1 text-[var(--yellow)] hover:bg-[#faa61a] hover:text-black flex items-center gap-2 cursor-pointer pulse-glow"><i class="fas fa-file-alt text-[var(--yellow)]"></i> README.md</div></div>
             `;
         }
+        
         function switchChannel(channel) {
-            // --- NOVÉ: Zavřít mobilní menu po kliknutí ---
+            // --- MOBILNÍ FIX: Zavřít menu ---
             const sidebar = document.getElementById('sidebar-wrapper');
             const overlay = document.getElementById('mobile-overlay');
-            // Pokud jsme na mobilu (šířka < 768) a menu je otevřené
             if (window.innerWidth < 768 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
                 sidebar.classList.add('-translate-x-full');
                 overlay.classList.add('hidden');
             }
-            // ---------------------------------------------
-            // CLEANUP MAP if leaving dateplanner
+
+            // --- CLEANUP MAP (Vylepšeno) ---
+            // Pokud odcházíme z plánovače, musíme mapu okamžitě zničit
             if (state.currentChannel === 'dateplanner' && channel !== 'dateplanner') {
                 if (state.mapInstance) {
-                    state.mapInstance.remove();
-                    state.mapInstance = null;
+                    state.mapInstance.off(); // Vypne listenery mapy
+                    state.mapInstance.remove(); // Zničí DOM elementy mapy
+                    state.mapInstance = null; // Vymaže referenci
                 }
             }
             
+            // --- FIX SCROLLOVÁNÍ (Reset kontejneru) ---
+            const container = document.getElementById('messages-container');
+            // Tady je ta oprava: Vždy resetujeme třídy na "scrollovatelné" nastavení (overflow-y-auto)
+            // Funkce renderWelcome() si to pak případně sama přepíše na hidden, pokud bude potřeba.
+            container.className = "flex-1 overflow-y-auto px-0 py-0 custom-scrollbar flex flex-col bg-[#36393f] relative";
+            container.innerHTML = '';
+            
+            // Podbarvení aktivního kanálu v menu
             document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('bg-[#393c43]', 'text-white'));
             const clicked = Array.from(document.querySelectorAll('.channel-item')).find(el => el.getAttribute('onclick').includes(channel));
             if(clicked) clicked.classList.add('bg-[#393c43]', 'text-white');
             state.currentChannel = channel;
             
-            const titles = {'welcome':'uvítání','manual':'návod','timeline':'timeline','movies':'filmy','series':'seriály','games':'hry','upgrade':'README.md', 'dateplanner':'plánovač-rande', 'music':'music-bot'};
+            // Nastavení hlavičky a ikon
+            const titles = {'welcome':'uvítání','manual':'návod','timeline':'timeline','movies':'filmy','series':'seriály','games':'hry','upgrade':'README.md', 'dateplanner':'plánovač', 'music':'music-bot'};
             const icons = {'welcome':'fa-door-open','manual':'fa-book','timeline':'fa-history','movies':'fa-film','series':'fa-tv','games':'fa-gamepad','upgrade':'fa-file-alt', 'dateplanner':'fa-map-marked-alt', 'music':'fa-music'};
-            document.getElementById('channel-name').textContent = titles[channel];
-            document.getElementById('channel-icon').className = `fas ${icons[channel]} text-gray-500 text-xl mr-2`;
+            
+            const titleText = titles[channel] || channel;
+            const iconClass = icons[channel] || 'fa-hashtag';
+
+            document.getElementById('channel-name').textContent = titleText;
+            document.getElementById('channel-icon').className = `fas ${iconClass} text-gray-500 text-xl mr-2`;
             document.getElementById('user-status').textContent = channel === 'upgrade' ? 'Přemýšlí o upgradu' : 'Online';
             
-            const container = document.getElementById('messages-container');
-            container.innerHTML = '';
-            
-            if(channel === 'welcome') renderWelcome();
+            // Vykreslení obsahu
+            if(channel === 'welcome') renderWelcome(); 
             else if (channel === 'manual') renderManual();
             else if (channel === 'timeline') renderTimeline();
             else if (channel === 'dateplanner') renderDatePlanner();
             else if (['movies','series','games'].includes(channel)) renderLibrary(channel);
             else if (channel === 'music') renderMusic();
-            else if (channel === 'upgrade') {
-                container.innerHTML = `<div class="flex gap-4 items-start"><img src="discord_profilovka.jpg" 
-                 alt="Jožka" 
-                 class="w-10 h-10 rounded-full object-cover mt-1 shadow-md"><div class="flex-1"><div class="flex items-baseline gap-2"><span class="font-bold text-[var(--text-header)]">Jožka</span></div><div onclick="startConfession()" class="mt-4 bg-[#2f3136] border border-[#292b2f] rounded p-3 flex items-center gap-3 w-full max-w-sm cursor-pointer hover:bg-[#36393f] transition group"><div class="file-icon-wrapper w-10 h-10 flex items-center justify-center text-4xl text-[#5865F2]"><i class="fas fa-file-code"></i></div><div class="flex-1 min-w-0"><div class="text-[#5865F2] font-medium truncate group-hover:underline text-sm">system_patch_v2.0.exe</div><div class="text-xs text-[#b9bbbe]">1.2 MB • Executable</div></div><div class="text-[#b9bbbe] hover:text-white transition text-lg"><i class="fas fa-download"></i></div></div></div></div>`;
-            }
-            // Add scroll to top logic for timeline as well
+            else if (channel === 'upgrade') renderUpgrade();
+            
+            // Scroll to top pro scrollovací stránky (aby uživatel nezačínal dole)
             if (['movies', 'series', 'games', 'manual', 'timeline', 'dateplanner', 'music'].includes(channel)) {
                 container.scrollTop = 0;
-            } else {
-                container.scrollTop = container.scrollHeight;
             }
         }
 
         function renderWelcome() {
             const container = document.getElementById('messages-container');
-            container.innerHTML = `
-                <div class="message-group animate-fade-in">
-                    <div class="message-actions">
-                        <i class="fas fa-smile text-gray-400 hover:text-yellow-400 cursor-pointer p-1" data-tooltip="Přidat reakci"></i>
-                        <i class="fas fa-reply text-gray-400 hover:text-white cursor-pointer p-1" data-tooltip="Odpovědět"></i>
-                    </div>
-                    <div class="flex gap-4 items-start">
-                        <div class="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center text-white text-sm font-bold mt-1 shadow-lg cursor-pointer hover:opacity-80 transition">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-baseline gap-2">
-                                <span class="font-bold text-[var(--text-header)] cursor-pointer hover:underline">System Bot</span>
-                                <span class="text-[10px] bg-[#5865F2] text-white px-1 rounded uppercase font-bold">BOT</span>
-                                <span class="text-xs text-[var(--interactive-normal)]">Dnes v 22:15</span>
-                            </div>
-                            
-                            <div class="text-[var(--text-normal)] bg-[#2f3136] p-4 rounded-lg mt-2 shadow-sm border border-[#202225]">
-                                <p class="font-bold text-[var(--text-header)] mb-2">Vítej na serveru Kiscord, Klárko! 🎄</p>
-                                <p class="mb-2">Tvůj status Vrchního Fact-Checkera byl úspěšně ověřen. Systém pro tebe připravil:</p>
-                                <ul class="list-none pl-0 mt-3 space-y-2 text-sm">
-                                    <li><i class="fas fa-folder-open text-[var(--yellow)] mr-2"></i> <strong>#knihovna</strong> – Filmy a hry ke stažení.</li>
-                                    <li><i class="fas fa-hourglass-half text-[var(--blurple)] mr-2"></i> <strong>#timeline</strong> – Naše společná historie.</li>
-                                    <li><i class="fas fa-map-marked-alt text-[var(--pink)] mr-2"></i> <strong>#plánovač</strong> – Kam vyrazíme příště?</li>
-                                </ul>
-                            </div>
+            
+            // Nastavíme kontejneru flex, aby se input držel dole
+            container.className = "flex-1 flex flex-col bg-[#36393f] relative overflow-hidden";
 
-                            <div class="mt-4 bg-gradient-to-r from-[#2f3136] to-[#202225] p-1 rounded-lg shadow-md border border-[#5865F2]/30">
-                                <div class="bg-[#2f3136] p-4 rounded text-center relative overflow-hidden">
-                                    <div class="absolute top-0 right-0 p-2 opacity-10 text-6xl pointer-events-none">🦉</div>
-                                    <div class="absolute bottom-0 left-0 p-2 opacity-10 text-6xl pointer-events-none">🐙</div>
-                                    
-                                    <h3 class="text-[var(--text-header)] font-bold text-sm uppercase tracking-widest mb-4 text-[#5865F2]">
-                                        <i class="fas fa-lightbulb text-[var(--yellow)] mr-2"></i> Denní dávka moudrosti
+            container.innerHTML = `
+                <div class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-6" id="chat-scroller">
+                    
+                    <div class="message-group animate-fade-in group hover:bg-black/5 -mx-4 px-4 py-1">
+                        <div class="flex gap-4 items-start">
+                            <div class="w-10 h-10 rounded-full bg-[#5865F2] flex items-center justify-center text-white text-sm font-bold mt-1 shadow-lg cursor-pointer hover:opacity-80 transition flex-shrink-0">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-bold text-[var(--text-header)] cursor-pointer hover:underline">System Bot</span>
+                                    <span class="text-[10px] bg-[#5865F2] text-white px-1 rounded uppercase font-bold flex-shrink-0">BOT</span>
+                                    <span class="text-xs text-[var(--interactive-normal)]">Dnes v ${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2, '0')}</span>
+                                </div>
+                                
+                                <div class="text-[var(--text-normal)] mt-1">
+                                    <p class="font-bold text-white text-lg">Vítej zpět, Klárko! 👋</p>
+                                    <p class="text-gray-300 text-sm">Server byl úspěšně aktualizován na verzi <code class="bg-[#202225] p-1 rounded text-xs">v2.5 - The Love Update</code>.</p>
+                                </div>
+
+                                <div class="mt-3 border-l-4 border-[#faa61a] bg-[#2f3136] rounded p-4 max-w-2xl shadow-sm">
+                                    <h3 class="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                                        <i class="fas fa-sparkles text-[#faa61a]"></i> Co je nového?
                                     </h3>
                                     
-                                    <div id="fact-display" class="min-h-[60px] flex items-center justify-center text-[var(--text-normal)] text-sm italic mb-4 px-4 transition-all duration-300">
-                                        "Klikni na tlačítko a dozvíš se tajemství..."
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="flex gap-3">
+                                            <div class="text-2xl">🌦️</div>
+                                            <div>
+                                                <div class="font-bold text-gray-200 text-xs uppercase">Live Počasí</div>
+                                                <p class="text-xs text-gray-400">Plánovač rande nyní ukazuje aktuální počasí v reálném čase. Už žádné zmoknutí!</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-3">
+                                            <div class="text-2xl">📸</div>
+                                            <div>
+                                                <div class="font-bold text-gray-200 text-xs uppercase">Vzpomínky v Timeline</div>
+                                                <p class="text-xs text-gray-400">U našich zážitků v Timeline nyní najdeš tlačítko "Zobrazit vzpomínky".</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-3">
+                                            <div class="text-2xl">🧠</div>
+                                            <div>
+                                                <div class="font-bold text-gray-200 text-xs uppercase">Smart Search</div>
+                                                <p class="text-xs text-gray-400">Nahoře v liště můžeš hledat cokoliv. Zkus napsat "hlad", "les" nebo "film".</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-3">
+                                            <div class="text-2xl">⭐</div>
+                                            <div>
+                                                <div class="font-bold text-gray-200 text-xs uppercase">Hodnocení & Deníček</div>
+                                                <p class="text-xs text-gray-400">Můžeš hodnotit rande i filmy a vést si deníček, co jsme už viděli.</p>
+                                            </div>
+                                        </div>
                                     </div>
                                     
-                                    <button onclick="showNextFact()" class="bg-[#5865F2] hover:bg-[#4752c4] text-white px-6 py-2 rounded-full font-bold text-xs transition transform hover:scale-105 shadow-lg flex items-center gap-2 mx-auto">
-                                        <i class="fas fa-random"></i> Další zajímavost
+                                    <div class="mt-4 pt-3 border-t border-[#3f4147] flex justify-between items-center">
+                                        <div class="text-[10px] text-gray-400">Patch ID: #ILOVEYOU-3000</div>
+                                        <button onclick="switchChannel('dateplanner')" class="bg-[#5865F2] hover:bg-[#4752c4] text-white px-3 py-1 rounded text-xs font-bold transition">
+                                            Vyzkoušet hned
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="message-group animate-fade-in group hover:bg-black/5 -mx-4 px-4 py-1" style="animation-delay: 0.1s">
+                         <div class="flex gap-4 items-start">
+                            <div class="w-10 h-10 rounded-full bg-[#faa61a] flex items-center justify-center text-white text-lg font-bold mt-1 shadow-lg cursor-pointer hover:opacity-80 transition flex-shrink-0">
+                                🦉
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-bold text-[var(--text-header)] cursor-pointer hover:underline">Owl of Wisdom</span>
+                                    <span class="text-[10px] bg-[#5865F2] text-white px-1 rounded uppercase font-bold flex-shrink-0">BOT</span>
+                                    <span class="text-xs text-[var(--interactive-normal)]">Právě teď</span>
+                                </div>
+                                <div class="text-[var(--text-normal)] mt-1">
+                                    <p class="text-sm">Klikni níže a získej náhodný fakt pro dnešní den. 👇</p>
+                                    
+                                    <div id="fact-display" class="mt-2 text-gray-300 italic transition-all duration-300 min-h-[20px]"></div>
+                                    
+                                    <button onclick="showNextFact()" class="mt-2 border border-[#4f545c] text-xs text-gray-300 hover:bg-[#4f545c] hover:text-white px-3 py-1 rounded transition flex items-center gap-2">
+                                        <i class="fas fa-dice"></i> Náhodná zajímavost
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-                </div>
-                
-                <div class="message-group animate-fade-in" style="animation-delay: 0.2s">
-                    <div class="message-actions">
-                        <i class="fas fa-smile text-gray-400 hover:text-yellow-400 cursor-pointer p-1" data-tooltip="Přidat reakci"></i>
-                        <i class="fas fa-reply text-gray-400 hover:text-white cursor-pointer p-1" data-tooltip="Odpovědět"></i>
-                        <i class="fas fa-ellipsis-h text-gray-400 hover:text-white cursor-pointer p-1" data-tooltip="Více"></i>
+
+                    <div class="message-group animate-fade-in group hover:bg-black/5 -mx-4 px-4 py-1" style="animation-delay: 0.2s">
+                        <div class="flex gap-4 items-start">
+                            <img src="discord_profilovka.jpg" alt="Jožka" class="w-10 h-10 rounded-full object-cover mt-1 shadow-md cursor-pointer hover:opacity-80 transition flex-shrink-0" loading="lazy">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-bold text-[var(--text-header)] hover:underline cursor-pointer">Jožka</span>
+                                    <span class="text-xs text-[var(--interactive-normal)]">Právě teď</span>
+                                </div>
+                                <div class="text-[var(--text-normal)] mt-1">
+                                    <p>Další verze Kiscordu. Přidal jsem pár secret commandů. Zkus napsat dolů do chatu třeba <code>/miluju</code> nebo <code>/sova</code>. 😉</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex gap-4 items-start">
-                        <img src="discord_profilovka.jpg" alt="Jožka" class="w-10 h-10 rounded-full object-cover mt-1 shadow-md cursor-pointer hover:opacity-80 transition">
-                        <div class="flex-1">
-                            <div class="flex items-baseline gap-2">
-                                <span class="font-bold text-[var(--text-header)] hover:underline cursor-pointer">Jožka</span>
-                                <span class="text-xs text-[var(--interactive-normal)]">Právě teď</span>
-                            </div>
-                            <div class="text-[var(--text-normal)] mt-1">
-                                <p>Čus! Snad se ti tento způsob předání dárku líbí 🎅. Nezapomeň zkontrolovat <strong>#README.md</strong> až nakonec!</p>
-                            </div>
+                    
+                    <div id="new-messages-area"></div>
+                    <div class="h-4"></div> </div>
+
+                <div class="px-4 pb-6 pt-2 bg-[#36393f] flex-shrink-0 z-10">
+                    <div class="bg-[#40444b] rounded-lg flex items-center p-2.5 px-4 shadow-sm relative">
+                        <div class="flex items-center gap-3 mr-4 text-[#b9bbbe]">
+                            <button class="hover:text-gray-200 transition bg-gray-600 rounded-full w-5 h-5 flex items-center justify-center text-[10px]"><i class="fas fa-plus"></i></button>
+                        </div>
+                        
+                        <input type="text" id="welcome-chat-input" autocomplete="off" placeholder="Poslat zprávu do #uvítání" 
+                            class="bg-transparent text-gray-200 placeholder-[#72767d] w-full outline-none font-light text-sm">
+                        
+                        <div class="flex items-center gap-3 ml-4 text-[#b9bbbe]">
+                            <button class="hover:text-yellow-400 transition" title="Dárek"><i class="fas fa-gift"></i></button>
+                            <button class="hover:text-gray-200 transition font-bold text-[10px] bg-[#b9bbbe] text-[#40444b] px-1 rounded-sm">GIF</button>
+                            <button class="hover:text-yellow-400 transition"><i class="far fa-smile"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div id="typing-indicator" class="absolute bottom-1 left-4 text-[10px] text-gray-400 font-bold hidden flex items-center gap-1">
+                        <span class="animate-bounce">●</span><span class="animate-bounce" style="animation-delay:0.1s">●</span><span class="animate-bounce" style="animation-delay:0.2s">●</span> System Bot píše...
+                    </div>
+                </div>
+            `;
+            
+            // Připojení logiky k inputu
+            setTimeout(() => {
+                const input = document.getElementById('welcome-chat-input');
+                if(input) {
+                    input.addEventListener('keypress', handleWelcomeChat);
+                    input.focus();
+                }
+            }, 100);
+        }
+
+        // --- FUNKCE PRO ZPRACOVÁNÍ CHATU ---
+        function handleWelcomeChat(e) {
+            if (e.key === 'Enter') {
+                const text = e.target.value.trim();
+                if (!text) return;
+                
+                // 1. Přidat zprávu uživatele (Klárky)
+                addMessageToChat('Klárka', 'klarka_profilovka.webp', text);
+                e.target.value = ''; // Vyčistit input
+
+                // 2. Zpracovat příkazy (Easter Eggs)
+                processCommand(text);
+            }
+        }
+
+        function addMessageToChat(name, avatar, text, isBot = false) {
+            const container = document.getElementById('new-messages-area');
+            const scroller = document.getElementById('chat-scroller');
+            
+            const div = document.createElement('div');
+            div.className = "message-group animate-fade-in group hover:bg-black/5 -mx-4 px-4 py-1 mt-1";
+            
+            const badge = isBot ? `<span class="text-[10px] bg-[#5865F2] text-white px-1 rounded uppercase font-bold flex-shrink-0 ml-1">BOT</span>` : '';
+            const colorClass = isBot ? "text-[#5865F2]" : "text-white";
+
+            div.innerHTML = `
+                <div class="flex gap-4 items-start">
+                    <img src="${avatar}" class="w-10 h-10 rounded-full object-cover mt-1 shadow-md flex-shrink-0" loading="lazy">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-bold text-[var(--text-header)] hover:underline cursor-pointer">${name}</span>
+                            ${badge}
+                            <span class="text-xs text-[var(--interactive-normal)]">Právě teď</span>
+                        </div>
+                        <div class="text-[var(--text-normal)] mt-1 ${colorClass}">
+                            <p>${text}</p>
                         </div>
                     </div>
                 </div>
             `;
+            
+            container.appendChild(div);
+            // Automaticky skrolovat dolů
+            scroller.scrollTop = scroller.scrollHeight;
+        }
+
+        function processCommand(text) {
+            const lower = text.toLowerCase();
+            const indicator = document.getElementById('typing-indicator');
+            
+            // Funkce pro simulaci psaní bota
+            const botReply = (msg, delay = 1000) => {
+                if(indicator) indicator.style.display = 'flex'; // Zobrazit "System Bot píše..."
+                setTimeout(() => {
+                    if(indicator) indicator.style.display = 'none';
+                    addMessageToChat('System Bot', 'czippel2_kytka-modified.png', msg, true); // Použijeme tvé logo nebo random
+                }, delay);
+            };
+
+            // --- LOGIKA PŘÍKAZŮ (UPDATED) ---
+            
+            // 1. LÁSKA & ROMANTIKA
+            if (lower.startsWith('/miluju') || lower.includes('laska') || lower.includes('láska')) {
+                botReply("❤️ Alert: Hladina lásky překročila kritickou mez! Systém se roztéká... ❤️", 1000);
+                if (typeof triggerConfetti === "function") triggerConfetti();
+            } 
+            
+            // 2. ZVÍŘATA (Sovy & Chobotnice)
+            else if (lower.includes('sova') || lower.includes('sovy') || lower.includes('hou')) {
+                // Náhodná odpověď pro sovu
+                const owlFacts = [
+                    "🦉 Húúú! Věděla jsi, že sovy nemají oční bulvy, ale oční válce?",
+                    "🦉 Sova otočí hlavu o 270°. Já se otočím jen za tebou.",
+                    "🦉 Spirit animal detected: Ponocování aktivováno."
+                ];
+                botReply(owlFacts[Math.floor(Math.random() * owlFacts.length)], 1000);
+            }
+            else if (lower.includes('chobotnice') || lower.includes('octopus')) {
+                botReply("🐙 Chobotnice má 3 srdce a modrou krev! (Přesně tolik srdcí potřebuju, abych pojal všechnu tu lásku k tobě.)", 1000);
+            }
+
+            // 3. GAMING (Tetris, Clash, Geoguessr)
+            else if (lower.includes('tetris')) {
+                botReply("🧩 Padá to tam! Jsi připravena na další 1v1? (Jsem ve formě!)", 1000);
+            }
+            else if (lower.includes('clash') || lower.includes('royale')) {
+                botReply("⚔️ Ten deck si fakt už změň... ale stejně si dáme 1v1? 👑", 1000);
+            }
+            else if (lower.includes('geo') || lower.includes('guessr') || lower.includes('mapa')) {
+                botReply("🌍 To je na 100% Brazílie. Nebo Rusko. Nebo to křoví za barákem. Jsem ztracen bez tvé navigace!", 1500);
+            }
+
+            // 4. INSIDE JOKES (Podolí, Casio, Nero)
+            else if (lower.includes('podolí') || lower.includes('podoli')) {
+                botReply("📍 Error 404: Location 'Podolí' not found. Did you mean: 'Kunovice - Předměstí'?", 1000);
+            }
+            else if (lower.includes('casio') || lower.includes('kalkulačka')) {
+                botReply("🧮 Nejlepší investice života! Plyšová kalkulačka > Bitcoin.", 1000);
+            }
+            else if (lower.includes('nero') || lower.includes('požár') || lower.includes('oheň')) {
+                botReply("🔥 Já vím, já vím... Nero v Římě nebyl a na lyru nehrál. Díky za fact-check, paní učitelko! 🤓", 1200);
+            }
+            
+            // 5. JÍDLO (Vafle, Popcorn)
+            else if (lower.includes('hlad') || lower.includes('jídlo') || lower.includes('jidlo')) {
+                botReply("🍔 Co takhle Kafec u Komína? Nebo pizzu v Mařaticích? Mrkni do Plánovače!", 1000);
+                setTimeout(() => switchChannel('dateplanner'), 2500); // Přepne ji to tam
+            }
+            else if (lower.includes('popcorn') || lower.includes('zuby')) {
+                botReply("🍿 Popcorn je nástroj ďábla na ničení zubů! Gumídci jsou superior snack. 🐻", 1000);
+            }
+
+            // 6. SYSTÉMOVÉ VĚCI
+            else if (lower.includes('heslo') || lower.includes('password')) {
+                botReply("🔐 Tajné heslo je: 'Podolí neexistuje'. (Ale pššt!)", 1000);
+            }
+            else if (lower.startsWith('/help') || lower.includes('pomoc') || lower.includes('příkazy')) {
+                botReply("🤖 **Dostupné příkazy:**\n`/miluju` - Vyznání lásky\n`/sova` - Moudrost\n`/chobotnice` - Biology fact\n`podolí` - Reality check\n`tetris` - Výzva\n`nero` - Historické okénko\n`hlad` - Pomoc s výběrem", 500);
+            }
+            
+            // 7. DEFAULT
+            else if (lower.startsWith('/')) {
+                botReply("❌ Neznámý příkaz. Zkus napsat `/help` pro seznam tajných kódů.", 800);
+            }
+            else {
+                // Pokud napíše jen běžný text, občas může bot zareagovat obecně (volitelné)
+                // botReply("👀 Zapisuji do deníku...", 2000);
+            }
+        }
+        
+        // Jednoduchá funkce pro konfety (pokud ji nemáš, přidej si ji nebo ji ignoruj)
+        function triggerConfetti() {
+             showNotification("🎉 LÁSKA DETEKOVÁNA! 🎉", "success");
         }
 
         function showNextFact() {
@@ -1256,9 +2136,163 @@
                  alt="Jožka" 
                  class="w-10 h-10 rounded-full object-cover mt-1 shadow-md"><div class="flex-1"><div class="flex items-baseline gap-2"><span class="font-bold text-[var(--text-header)]">Jožka</span><span class="text-xs text-[var(--interactive-normal)]">Pinned</span></div><div class="bg-gradient-to-br from-[#2f3136] to-[#202225] border-l-4 border-[#faa61a] p-4 rounded-r-lg mt-3"><h3 class="font-bold text-white text-lg mb-3 flex items-center gap-2"><i class="fas fa-graduation-cap text-[#faa61a]"></i> Návod na stahování</h3><div class="space-y-4"><div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white flex-shrink-0">1</div><div><p class="font-bold text-white">Instalace qBittorrent</p><p class="text-[var(--text-normal)] text-sm">Stáhni si z <a href="https://www.qbittorrent.org/download.php" target="_blank" class="text-[#5865F2] hover:underline font-bold">qbittorrent.org/download</a>. Neboj, není to virus.</p></div></div><div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white flex-shrink-0">2</div><div><p class="font-bold text-white">Magnet Link 🧲</p><p class="text-[var(--text-normal)] text-sm">V knihovně klikni na ikonu stahování u položky. Otevře se ti to přímo v klientovi.</p></div></div><div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white flex-shrink-0">3</div><div><p class="font-bold text-white">HDMI kabel (ten 5m)</p><p class="text-[var(--text-normal)] text-sm">Připoj notebook k TV, zmáčkni <code class="bg-black px-1 rounded text-white">Win + P</code> a vyber "Duplicate" nebo "Extend".</p></div></div></div></div></div></div>`;
         }
+        
+        // --- TIMELINE DATA & GALLERY LOGIC ---
+        
+        // --- GALERIE STATE ---
+        let currentGalleryImages = [];
+        let currentImageIndex = 0;
+        let currentGalleryTitle = "";
+
+        function openGallery(eventIndex) {
+            const event = timelineEvents[eventIndex];
+            if (!event.images || event.images.length === 0) return;
+
+            currentGalleryImages = event.images;
+            currentImageIndex = 0;
+            currentGalleryTitle = event.title;
+
+            updateGalleryUI();
+            document.getElementById('gallery-modal').style.display = 'flex';
+            
+            // Klávesové zkratky
+            document.addEventListener('keydown', handleGalleryKeys);
+
+            // --- NOVÉ: Aktivace swipe gest ---
+            initGalleryGestures();
+        }
+
+        function closeGallery() {
+            document.getElementById('gallery-modal').style.display = 'none';
+            document.removeEventListener('keydown', handleGalleryKeys);
+        }
+
+        function changeGalleryImage(direction) {
+            currentImageIndex += direction;
+            // Cyklování (když dojde na konec, skočí na začátek)
+            if (currentImageIndex >= currentGalleryImages.length) currentImageIndex = 0;
+            if (currentImageIndex < 0) currentImageIndex = currentGalleryImages.length - 1;
+            
+            updateGalleryUI();
+        }
+
+        function updateGalleryUI() {
+            const img = document.getElementById('gallery-image');
+            const title = document.getElementById('gallery-title');
+            const counter = document.getElementById('gallery-counter');
+
+            // Reset animace pro efekt přechodu
+            img.classList.remove('animate-fade-in');
+            void img.offsetWidth; // Trigger reflow
+            img.classList.add('animate-fade-in');
+
+            img.src = currentGalleryImages[currentImageIndex];
+            title.textContent = currentGalleryTitle;
+            counter.textContent = `${currentImageIndex + 1} z ${currentGalleryImages.length}`;
+        }
+
+        function handleGalleryKeys(e) {
+            if (e.key === 'Escape') closeGallery();
+            if (e.key === 'ArrowRight') changeGalleryImage(1);
+            if (e.key === 'ArrowLeft') changeGalleryImage(-1);
+        }
+
+        // --- OPRAVA: SWIPE GESTA PRO GALERII (S ochranou proti vícenásobnému spuštění) ---
+        let galleryTouchStartX = 0;
+        let galleryTouchEndX = 0;
+        let isGalleryGesturesInit = false; // Nová pojistka
+
+        function initGalleryGestures() {
+            // Pokud už jsou gesta zapnutá, ukončíme funkci, abychom je nepřidali znovu
+            if (isGalleryGesturesInit) return;
+
+            const modal = document.getElementById('gallery-modal');
+            
+            // Zachytíme začátek dotyku
+            modal.addEventListener('touchstart', (e) => {
+                galleryTouchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            // Zachytíme konec dotyku a vyhodnotíme směr
+            modal.addEventListener('touchend', (e) => {
+                galleryTouchEndX = e.changedTouches[0].screenX;
+                handleGallerySwipe();
+            }, { passive: true });
+
+            // Nastavíme pojistku na TRUE -> příště už se tento kód neprovede
+            isGalleryGesturesInit = true;
+            console.log("Gallery gestures initialized.");
+        }
+
+        function handleGallerySwipe() {
+            const threshold = 50; // Minimální vzdálenost v px pro swipe
+            const diff = galleryTouchStartX - galleryTouchEndX;
+
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    // Swipe DOLEVA (prst jde doleva -> chceme DALŠÍ fotku)
+                    changeGalleryImage(1);
+                } else {
+                    // Swipe DOPRAVA (prst jde doprava -> chceme PŘEDCHOZÍ fotku)
+                    changeGalleryImage(-1);
+                }
+            }
+        }
+        
         function renderTimeline() {
             const container = document.getElementById('messages-container');
-            container.innerHTML = `<div class="p-4"><h3 class="text-white font-bold text-lg mb-6 pl-4 border-l-4 border-[#5865F2]">Naše Společná Cesta</h3><div class="relative pl-8 sm:pl-12"><div class="absolute left-[19px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#5865F2] to-[#eb459e]"></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-shield-alt text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Kde to všechno začalo – Clash Royale</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Zeptal jsem se tě, jestli nedáme 1v1 (samozřejmě jsem vyhrál). <br>(P.S. Ten deck si fakt už změň, ať máš aspoň teoretickou šanci.)</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#3ba55c] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-mobile-alt text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Nekonečný Scroll & Teorie</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Šest miliónů poslaných Reels a hodiny konverzací o životě. Jsi jediný člověk s dostatečným procesorovým výkonem na to, aby pobral moje teorie (dává to smysl?).</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#faa61a] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-graduation-cap text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Discord Maratony</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">271k+ hodin volání. Od tvé nekonečné trpělivosti a obětavosti při doučování mého autistického ADHD mozku až po naše bitvy ve Vyzyvateli, Tetrisu, Geoguessru, Fall Guys, Super Animal Royale a Minigolfu.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#eb459e] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-fire text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Ohýnek u Vlčnovských búd</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Já sehnal dřevo, ty jsi řídila. Pes nám sežral večeři, potkali jsme náhodného Holanďana a já nás hrdinně bránil sekerou proti dřevěné soše (která vypadala fakt podezřele!). Přežili jsme.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#ed4245] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-wine-glass text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Hody Mařatice</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Večer, kdy jsi mi zachránila prdel. Dotáhla jsi mě do auta, vyslechla si moje opilecké ujišťování, že fakt nejsem gej, a pak jsi jen sledovala můj akrobatický přeskok přes plot.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#5865F2] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-star text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Polešovice</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">První jako skvělý navigátor jsem vybral tu správnou odbočku/zkratku, abychom se mohli vyhnout hasičům (predicted/foreshadowing). Dál moje perfektní orientace ve tmě, ještě lepší schopnost poznávání hvězd (letadel) a výhled na požár pod námi. Tady jsi mě poprvé fact-checknula s Nerem a od té doby věřím mýtům.</p></div></div><div class="relative mb-10 max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-[#faa61a] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-basketball-ball text-white text-xs"></i></div><div class="bg-[#2f3136] p-4 rounded-lg ml-2 hover:bg-[#32353b] transition"><h4 class="font-bold text-white mb-1">Basketbal, Modrá a Velehrad</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Poprvé, co jsem já řídil a málem nás sejmul autobus. Basketbalový zápas, kde si borec zlomil nohu. Sidequest (ještě s Elen) na Modrou na rozhlednu ve velké mlze a zimě, potom dolů na Velehrad v bahně do altánku k rybníku. Po víc jak hodinovém yappování na parkovišti jsme zašli na kebab, ale nemohli jsme si ho vychutnat kvůli cajtům. Skvělý večer.</p></div></div><div class="relative max-w-2xl"><div class="absolute -left-[37px] top-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#5865F2] to-[#eb459e] flex items-center justify-center z-10 border-4 border-[#36393f]"><i class="fas fa-gift text-white text-xs"></i></div><div class="bg-gradient-to-r from-[#2f3136] to-[#202225] p-4 rounded-lg border border-[#5865F2] ml-2"><h4 class="font-bold text-white mb-1">Tento dárek</h4><p class="text-[var(--text-normal)] text-sm leading-relaxed">Všechny naše vzpomínky na jednom místě. Diddyblud kalkulator a 5 metrů HDMI kabelu (místo mašle), abys mohla nastudovat všechny moje filmové reference.</p></div></div></div></div>`;
+            
+            let html = `
+                <div class="p-4 md:p-8 max-w-4xl mx-auto">
+                    <h3 class="text-white font-bold text-2xl mb-8 pl-4 border-l-4 border-[#5865F2] animate-fade-in">
+                        Naše Společná Cesta
+                    </h3>
+                    <div class="relative pl-8 sm:pl-12 border-l-2 border-[#2f3136] ml-2 md:ml-0 space-y-12 pb-10">
+            `;
+
+            timelineEvents.forEach((event, index) => {
+                // Rozlišení stylů pro barvy vs gradient
+                const isGradient = event.color === 'gradient';
+                const circleBg = isGradient ? 'bg-gradient-to-r from-[#5865F2] to-[#eb459e]' : `bg-[${event.color}]`;
+                // Pro Tailwind musíme použít inline style pro dynamické barvy, pokud nejsou v safelistu, 
+                // ale zde použijeme raději inline style pro jistotu.
+                const circleStyle = isGradient ? '' : `background-color: ${event.color}`;
+                
+                // Tlačítko galerie (zobrazí se jen pokud jsou fotky)
+                let galleryBtn = '';
+                if (event.images && event.images.length > 0) {
+                    galleryBtn = `
+                        <button onclick="openGallery(${index})" class="mt-3 flex items-center gap-2 bg-[#202225] hover:bg-[#292b2f] text-gray-300 hover:text-white px-3 py-2 rounded transition border border-gray-700 hover:border-gray-500 group/btn">
+                            <i class="fas fa-images text-[#5865F2] group-hover/btn:scale-110 transition-transform"></i>
+                            <span class="text-xs font-bold uppercase tracking-wide">Zobrazit vzpomínky (${event.images.length})</span>
+                        </button>
+                    `;
+                }
+
+                html += `
+                    <div class="relative group animate-fade-in" style="animation-delay: ${index * 100}ms">
+                        <div class="absolute -left-[45px] sm:-left-[61px] top-0 w-10 h-10 rounded-full flex items-center justify-center z-10 border-4 border-[#36393f] shadow-lg transition transform group-hover:scale-110" style="${circleStyle}" class="${isGradient ? 'bg-gradient-to-r from-[#5865F2] to-[#eb459e]' : ''}">
+                            <i class="fas ${event.icon} text-white text-sm"></i>
+                        </div>
+
+                        <div class="bg-[#2f3136] p-5 rounded-lg border border-[#202225] hover:border-[#5865F2]/50 transition shadow-md hover:shadow-xl relative overflow-hidden">
+                            ${isGradient ? '<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5865F2] to-[#eb459e]"></div>' : ''}
+                            
+                            <h4 class="font-bold text-white text-lg mb-2 flex items-center gap-2">
+                                ${event.title}
+                            </h4>
+                            <p class="text-gray-300 text-sm leading-relaxed opacity-90">
+                                ${event.desc}
+                            </p>
+                            
+                            ${galleryBtn}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
         }
 
         function renderLibrary(type) {
@@ -1268,11 +2302,24 @@
             
             let items = library[type].filter(item => item.title.toLowerCase().includes(searchTerm));
             
-            // Řazení: Nejdřív ty ve watchlistu
+            // ŘAZENÍ:
+            // 1. Watchlist
+            // 2. Rozkoukané (watching)
+            // 3. Hodnocení / Viděno
             items.sort((a, b) => {
-                const aB = state.watchlist.some(w => w.id === a.id);
-                const bB = state.watchlist.some(w => w.id === b.id);
-                return bB - aB;
+                const aWatch = state.watchlist.some(w => w.id === a.id) ? 1 : 0;
+                const bWatch = state.watchlist.some(w => w.id === b.id) ? 1 : 0;
+                if (aWatch !== bWatch) return bWatch - aWatch;
+
+                // Priorita pro "Rozkoukáno"
+                const aHist = state.watchHistory[a.id] || { status: 'unseen' };
+                const bHist = state.watchHistory[b.id] || { status: 'unseen' };
+                if (aHist.status === 'watching' && bHist.status !== 'watching') return -1;
+                if (bHist.status === 'watching' && aHist.status !== 'watching') return 1;
+
+                const aRate = state.ratings[a.id] || 0;
+                const bRate = state.ratings[b.id] || 0;
+                return bRate - aRate;
             });
 
             // Seskupení
@@ -1302,37 +2349,81 @@
                         grouped[cat].forEach(item => {
                             const isBookmarked = state.watchlist.some(w => w.id === item.id);
                             const userRating = state.ratings[item.id] || 0;
+                            const history = state.watchHistory[item.id] || { status: 'unseen' };
                             
+                            // --- Status Badge & Info ---
+                            let statusBadge = '';
+                            let historyInfo = '';
+                            let cardBorderClass = 'border-[#202225]'; // Default border
+
+                            if (history.status === 'seen') {
+                                statusBadge = `<div class="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-md z-10">✅ VIDĚNO</div>`;
+                                // Formátování data (jen den a měsíc pro úsporu místa)
+                                let dateStr = '';
+                                if(history.date) {
+                                    const d = new Date(history.date);
+                                    dateStr = `${d.getDate()}.${d.getMonth()+1}.`;
+                                }
+                                historyInfo = `<div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1"><i class="far fa-calendar-alt"></i> ${dateStr} <span class="text-white ml-1">${history.reaction || ''}</span></div>`;
+                            } else if (history.status === 'watching') {
+                                statusBadge = `<div class="absolute top-2 left-2 bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-md z-10 animate-pulse">👀 ROZKOUKÁNO</div>`;
+                                cardBorderClass = 'border-blue-500'; // Zvýraznění karty
+                            }
+
                             // --- Hvězdičky ---
-                            let starsHtml = `<div class="star-rating-group justify-start">`; // Zarovnání vlevo
+                            let starsHtml = `<div class="star-rating-group justify-start">`; 
                             for (let i = 5; i >= 1; i--) {
                                 const activeClass = i <= userRating ? 'active' : '';
                                 starsHtml += `<button onclick="rateItem(${item.id}, ${i})" class="star-btn ${activeClass} text-sm">★</button>`;
                             }
                             starsHtml += `</div>`;
-                            // ----------------
+                            
+                            // --- Klárka Rating Badge ---
+                            let ratingBadge = '';
+                            if (userRating > 0) {
+                                const starsStr = '⭐'.repeat(userRating);
+                                ratingBadge = `
+                                    <div class="text-[10px] text-[#eb459e] font-bold mt-1 mb-1 flex items-center gap-1 bg-[#202225] w-fit px-2 py-0.5 rounded-full border border-[#eb459e]/30">
+                                        <img src="klarka_profilovka.webp" class="w-3 h-3 rounded-full object-cover" loading="lazy">
+                                        <span>${starsStr}</span>
+                                    </div>
+                                `;
+                            } else {
+                                ratingBadge = `<div class="h-[22px] mt-1 mb-1"></div>`; 
+                            }
 
                             html += `
-                                <div class="library-card group">
+                                <div class="library-card group ${cardBorderClass}">
                                     <div class="poster-area relative">
                                         ${item.icon}
+                                        ${statusBadge}
                                         ${isBookmarked ? `<div class="absolute top-2 right-2 text-[#eb459e] drop-shadow-md text-lg"><i class="fas fa-bookmark"></i></div>` : ''}
+                                        ${userRating === 5 ? `<div class="absolute bottom-2 right-2 text-[#faa61a] drop-shadow-md text-lg animate-bounce" title="Masterpiece">🏆</div>` : ''}
                                     </div>
                                     
                                     <div class="content-area">
                                         <div class="font-bold text-[var(--text-header)] text-sm truncate" title="${item.title}">${item.title}</div>
                                         
+                                        ${historyInfo}
+                                        ${ratingBadge}
+
                                         <div class="flex items-center h-5">
                                             ${starsHtml}
                                         </div>
 
                                         <div class="card-actions">
+                                            <button onclick="openHistoryModal(${item.id})" class="${history.status !== 'unseen' ? 'text-[#3ba55c]' : ''}" data-tooltip="Stav sledování">
+                                                <i class="fas ${history.status === 'seen' ? 'fa-check-circle' : (history.status === 'watching' ? 'fa-eye' : 'fa-history')}"></i>
+                                            </button>
+
                                             <button onclick="playTrailer('${item.title}')" data-tooltip="Trailer">
                                                 <i class="fas fa-play"></i>
                                             </button>
+                                            
                                             <button onclick="toggleBookmark(${item.id}, '${type}')" class="${isBookmarked ? 'text-[#eb459e]' : ''}" data-tooltip="${isBookmarked ? 'Odebrat' : 'Watchlist'}">
                                                 <i class="${isBookmarked ? 'fas' : 'far'} fa-bookmark"></i>
                                             </button>
+                                            
                                             <button onclick="initiateDownload(${item.id})" class="hover:text-[var(--green)]" data-tooltip="Stáhnout">
                                                 <i class="fas fa-download"></i>
                                             </button>
@@ -1345,7 +2436,6 @@
                     }
                 });
             }
-            
             html += `</div>`;
             container.innerHTML = html;
         }
@@ -1354,6 +2444,7 @@
 
         function rateItem(id, rating) {
             // Pokud klikne znovu na stejné hodnocení, zruší ho (na 0)
+            triggerHaptic('medium');
             if (state.ratings[id] === rating) {
                 delete state.ratings[id];
             } else {
@@ -1365,6 +2456,111 @@
             
             // Překreslit, aby se změna hned projevila
             renderLibrary(state.currentChannel);
+        }
+
+        // --- WATCH HISTORY LOGIC ---
+        let currentHistoryStatus = 'unseen';
+
+        function openHistoryModal(id) {
+            const item = state.watchHistory[id] || { status: 'unseen', date: '', reaction: '' };
+            
+            document.getElementById('history-item-id').value = id;
+            document.getElementById('history-modal').style.display = 'flex';
+            
+            // Nastavit uložené hodnoty
+            if(item.date) document.getElementById('history-date').value = item.date;
+            else document.getElementById('history-date').valueAsDate = new Date(); // Default dnešek
+            
+            document.getElementById('history-reaction').value = item.reaction || '';
+            
+            setHistoryStatus(item.status);
+        }
+
+        function setHistoryStatus(status) {
+            currentHistoryStatus = status;
+            
+            // Visual update tlačítek
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.classList.add('opacity-50', 'border-gray-600');
+                btn.classList.remove('opacity-100', 'border-[#eb459e]', 'bg-[#2f3136]');
+            });
+            
+            const activeBtn = document.getElementById(`status-${status}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('opacity-50', 'border-gray-600');
+                activeBtn.classList.add('opacity-100', 'border-[#eb459e]', 'bg-[#2f3136]');
+            }
+
+            // Show/Hide inputs based on status
+            const dateWrapper = document.getElementById('history-date-wrapper');
+            const reactionWrapper = document.getElementById('history-reaction-wrapper');
+
+            if (status === 'unseen') {
+                dateWrapper.classList.add('hidden');
+                reactionWrapper.classList.add('hidden');
+            } else if (status === 'watching') {
+                dateWrapper.classList.remove('hidden');
+                reactionWrapper.classList.add('hidden');
+            } else if (status === 'seen') {
+                dateWrapper.classList.remove('hidden');
+                reactionWrapper.classList.remove('hidden');
+            }
+        }
+
+        function setReactionInput(emoji) {
+            const input = document.getElementById('history-reaction');
+            input.value = emoji;
+        }
+
+        function saveHistory() {
+            const id = document.getElementById('history-item-id').value;
+            const date = document.getElementById('history-date').value;
+            const reaction = document.getElementById('history-reaction').value;
+
+            // Pokud je unseen, smažeme data, jinak uložíme
+            if (currentHistoryStatus === 'unseen') {
+                delete state.watchHistory[id];
+            } else {
+                state.watchHistory[id] = {
+                    status: currentHistoryStatus,
+                    date: date,
+                    reaction: reaction
+                };
+            }
+
+            localStorage.setItem('klarka_watch_history', JSON.stringify(state.watchHistory));
+            closeModal('history-modal');
+            showNotification('Deníček aktualizován! 📝', 'success');
+            
+            // Překreslit knihovnu
+            renderLibrary(state.currentChannel);
+        }
+
+        function rateDate(id, rating) {
+            triggerHaptic('medium');
+            // Logika: Kliknutí na stejné číslo hodnocení zruší
+            if (state.dateRatings[id] === rating) {
+                delete state.dateRatings[id];
+                showNotification("Hodnocení rande zrušeno", "info");
+            } else {
+                state.dateRatings[id] = rating;
+                showNotification("Rande ohodnoceno! ❤️", "success");
+            }
+            
+            // Uložit do localStorage
+            localStorage.setItem('klarka_date_ratings', JSON.stringify(state.dateRatings));
+            
+            // Překreslit seznam i markery, aby se hvězdy hned ukázaly
+            // Zjistíme aktuální filtr, abychom ho udrželi
+            const currentFilter = document.querySelector('.filter-btn.bg-\\[\\#5865F2\\]')?.dataset.filter || 'all';
+            
+            // Re-render seznamu
+            const searchVal = document.getElementById('planner-search-desktop')?.value || '';
+            if(searchVal) searchLocations(searchVal);
+            else filterMap(currentFilter);
+
+            // Re-render detailu (aby se aktualizovaly barvy hvězd v panelu)
+            selectLocation(id);
         }
 
         function playTrailer(title) {
@@ -1417,6 +2613,11 @@
                             <i class="fas fa-search text-gray-400 mr-2"></i>
                             <input type="text" id="planner-search-mobile" oninput="searchLocations(this.value)" placeholder="Kam vyrazíme?" class="bg-transparent text-white text-sm w-full outline-none placeholder-gray-500">
                         </div>
+                        
+                        <button onclick="pickRandomLocation()" class="bg-[#eb459e] text-white w-10 h-10 rounded-lg shadow-lg flex items-center justify-center flex-shrink-0 active:scale-95 transition" title="Zkusit štěstí">
+                            <i class="fas fa-dice"></i>
+                        </button>
+
                         <button onclick="toggleMobileList()" class="bg-[#5865F2] text-white w-10 h-10 rounded-lg shadow-lg flex items-center justify-center flex-shrink-0 active:scale-95 transition">
                             <i class="fas fa-list"></i>
                         </button>
@@ -1425,7 +2626,7 @@
                     <div class="md:hidden absolute top-16 left-0 right-0 z-[1000] px-1 overflow-x-auto hide-scrollbar flex gap-1 pb-2 justify-center">
                          <button onclick="filterMap('all')" data-filter="all" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200">Vše</button>
                          <button onclick="filterMap('walk')" data-filter="walk" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-tree mr-1"></i> Procházky</button>
-                         <button onclick="filterMap('view')" data-filter="view" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-binoculars mr-1"></i> Výhledy</button>
+                         <button onclick="triggerHaptic('light');filterMap('view')" data-filter="view" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-binoculars mr-1"></i> Výhledy</button>
                          <button onclick="filterMap('fun')" data-filter="fun" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-bolt mr-1"></i> Zábava</button>
                          <button onclick="filterMap('food')" data-filter="food" class="filter-btn px-2.5 py-1.5 bg-[#202225]/90 backdrop-blur text-gray-300 rounded-full text-xs shadow-md border border-gray-700 whitespace-nowrap transition-all duration-200"><i class="fas fa-utensils mr-1"></i> Jídlo</button>
                     </div>
@@ -1433,13 +2634,18 @@
                     <div id="planner-sidebar" class="w-full md:w-80 bg-[#2f3136] border-r border-[#202225] flex-col flex-shrink-0 z-30 shadow-lg mobile-list-overlay md:flex md:relative pt-[120px] md:pt-0">
                         
                         <div class="hidden md:block p-4 border-b border-[#202225] bg-[#2f3136]">
-                            <h2 class="text-white font-bold flex items-center gap-2 mb-3">
-                                <i class="fas fa-map-marked-alt text-[#eb459e]"></i> Kam vyrazíme?
+                            <h2 class="text-white font-bold flex items-center gap-2 mb-3 w-full">
+                                <span class="flex items-center gap-2"><i class="fas fa-map-marked-alt text-[#eb459e]"></i> Kam vyrazíme?</span>
+                                
+                                <button onclick="pickRandomLocation()" class="ml-auto text-xs bg-[#202225] hover:bg-[#eb459e] border border-gray-600 hover:border-[#eb459e] text-gray-300 hover:text-white px-2 py-1 rounded transition flex items-center gap-1 group">
+                                    <i class="fas fa-dice group-hover:rotate-180 transition-transform duration-500"></i>
+                                    <span>Zkusit štěstí</span>
+                                </button>
                             </h2>
                             <div class="flex gap-1 overflow-x-auto custom-scrollbar pb-2 mb-2">
                                 <button onclick="filterMap('all')" data-filter="all" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Vše</button>
                                 <button onclick="filterMap('walk')" data-filter="walk" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Procházky</button>
-                                <button onclick="filterMap('view')" data-filter="view" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Výhledy</button>
+                                <button onclick="triggerHaptic('light');filterMap('view')" data-filter="view" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Výhledy</button>
                                 <button onclick="filterMap('fun')" data-filter="fun" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Zábava</button>
                                 <button onclick="filterMap('food')" data-filter="food" class="filter-btn px-3 py-1 bg-[#202225] text-gray-300 rounded text-xs whitespace-nowrap hover:bg-[#40444b] transition-colors">Jídlo</button>
                             </div>
@@ -1467,46 +2673,48 @@
                             <div id="leaflet-map"></div>
                         </div>
 
-                        <div id="detail-panel" class="absolute bottom-0 left-0 right-0 bg-[#2f3136] border-t border-[#202225] p-4 transition-transform duration-300 z-[500] transform translate-y-full mobile-map-overlay max-h-[50vh] overflow-y-auto">                            
-                            <div class="md:hidden w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-4 opacity-50"></div>
+                        <div id="detail-panel" class="absolute bottom-0 left-0 right-0 p-0 transition-transform duration-300 z-[500] transform translate-y-full mobile-map-overlay">                            
+                            
+                            <div id="sheet-handle" class="sheet-handle-area touch-none bg-[#2f3136] rounded-t-2xl border-b border-[#202225] flex-shrink-0 cursor-grab active:cursor-grabbing py-3">
+                                <div class="sheet-handle-bar bg-gray-600 w-12 h-1.5 rounded-full mx-auto"></div>
+                            </div>
 
-                            <button onclick="closeDetailPanel()" class="absolute top-4 right-4 text-gray-400 p-2 hover:text-white"><i class="fas fa-times"></i></button>
+                            <button onclick="closeDetailPanel()" class="absolute top-3 right-4 text-gray-400 p-2 hover:text-white z-50 bg-[#2f3136]/50 rounded-full"><i class="fas fa-times"></i></button>
 
-                            <div id="detail-content">
-                                <div class="flex justify-between items-start mb-4 pr-6 md:pr-0">
+                            <div id="detail-content" class="flex-1 overflow-y-auto p-4 pt-2 bg-[#2f3136]">
                                     <div>
                                         <h3 class="text-xl font-bold text-white flex items-center gap-2 flex-wrap">
                                             <span id="detail-title">Název</span>
                                             <span id="detail-cat" class="text-[10px] px-2 py-0.5 rounded bg-[#5865F2] text-white uppercase tracking-wider">KAT</span>
-                                        </h3>
+                                            <span id="detail-weather-badge"></span> </h3>
                                         <p id="detail-desc" class="text-gray-400 text-sm mt-1">Popis...</p>
+                                        <div id="detail-rating-container"></div> 
                                     </div>
-                                </div>
-                                
-                                <div class="flex gap-2 mb-4">
-                                     <button id="add-to-route-btn" onclick="addToRoute()" class="flex-1 text-xs bg-[#5865F2] hover:bg-[#4752c4] text-white px-3 py-3 rounded transition font-bold shadow-md">
-                                        <i class="fas fa-plus"></i> Přidat
-                                    </button>
-                                    <a id="detail-google" href="#" target="_blank" class="flex-1 text-center text-xs bg-[#202225] hover:bg-[#eb459e] text-gray-300 hover:text-white px-3 py-3 rounded transition font-bold border border-gray-600">
-                                        <i class="fas fa-external-link-alt"></i> Mapa
-                                    </a>
-                                </div>
+                                    
+                                    <div class="flex gap-2 mb-4 mt-4">
+                                        <button id="add-to-route-btn" onclick="triggerHaptic('success'); addToRoute()" class="flex-1 text-xs bg-[#5865F2] hover:bg-[#4752c4] text-white px-3 py-3 rounded transition font-bold shadow-md">
+                                            <i class="fas fa-plus"></i> Přidat
+                                        </button>
+                                        <a id="detail-google" href="#" target="_blank" class="flex-1 text-center text-xs bg-[#202225] hover:bg-[#eb459e] text-gray-300 hover:text-white px-3 py-3 rounded transition font-bold border border-gray-600">
+                                            <i class="fas fa-external-link-alt"></i> Mapa
+                                        </a>
+                                    </div>
 
-                                <div class="grid grid-cols-1 gap-3 bg-[#202225] p-3 rounded-lg border border-[#202225]">
-                                    <div>
-                                        <label class="block text-[#b9bbbe] text-[10px] font-bold uppercase mb-1">Kdy to vidíš?</label>
-                                        <input type="datetime-local" id="date-input" class="w-full bg-[#2f3136] text-white p-2 rounded border border-[#40444b] outline-none text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[#b9bbbe] text-[10px] font-bold uppercase mb-1">Poznámka</label>
-                                        <div class="flex gap-2">
-                                            <input type="text" id="note-input" placeholder="Dáme pak kafe?" class="flex-1 bg-[#2f3136] text-white p-2 rounded border border-[#40444b] outline-none text-sm">
-                                            <button onclick="copyDateInvite()" class="bg-[#3ba55c] hover:bg-[#2d7d46] text-white px-3 rounded font-bold transition flex items-center gap-2 text-sm">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
+                                    <div class="grid grid-cols-1 gap-3 bg-[#202225] p-3 rounded-lg border border-[#202225]">
+                                        <div>
+                                            <label class="block text-[#b9bbbe] text-[10px] font-bold uppercase mb-1">Kdy to vidíš?</label>
+                                            <input type="datetime-local" id="date-input" class="w-full bg-[#2f3136] text-white p-2 rounded border border-[#40444b] outline-none text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[#b9bbbe] text-[10px] font-bold uppercase mb-1">Poznámka</label>
+                                            <div class="flex gap-2">
+                                                <input type="text" id="note-input" placeholder="Dáme pak kafe?" class="flex-1 bg-[#2f3136] text-white p-2 rounded border border-[#40444b] outline-none text-sm">
+                                                <button onclick="copyDateInvite()" class="bg-[#3ba55c] hover:bg-[#2d7d46] text-white px-3 rounded font-bold transition flex items-center gap-2 text-sm">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -1518,8 +2726,73 @@
             
             setTimeout(() => {
                 initMap();
+                // Inicializace gest panelu
+                setTimeout(() => {
+                    initBottomSheetGestures();
+                }, 500); // Malá prodleva, aby se DOM stihl vykreslit
                 if(state.mapInstance) state.mapInstance.invalidateSize();
             }, 100);
+        }
+
+        // --- WEATHER UTILS ---
+        function getWeatherInfo(code) {
+            // WMO Weather interpretation codes (WW)
+            const map = {
+                0: { icon: '☀️', text: 'Jasno' },
+                1: { icon: '🌤️', text: 'Skoro jasno' },
+                2: { icon: '⛅', text: 'Polojasno' },
+                3: { icon: '☁️', text: 'Zataženo' },
+                45: { icon: '🌫️', text: 'Mlha' },
+                48: { icon: '🌫️', text: 'Mlha' },
+                51: { icon: '🌦️', text: 'Mrholení' },
+                53: { icon: '🌦️', text: 'Mrholení' },
+                55: { icon: '🌧️', text: 'Husté mrholení' },
+                61: { icon: '🌧️', text: 'Slabý déšť' },
+                63: { icon: '🌧️', text: 'Déšť' },
+                65: { icon: '🌧️', text: 'Silný déšť' },
+                71: { icon: '❄️', text: 'Slabý sníh' },
+                73: { icon: '❄️', text: 'Sníh' },
+                75: { icon: '❄️', text: 'Silný sníh' },
+                77: { icon: '❄️', text: 'Sněhové zrna' },
+                80: { icon: '🌧️', text: 'Přeháňky' },
+                81: { icon: '🌧️', text: 'Silné přeháňky' },
+                82: { icon: '⛈️', text: 'Průtrž mračen' },
+                95: { icon: '⛈️', text: 'Bouřka' },
+                96: { icon: '⛈️', text: 'Bouřka s kroupami' },
+                99: { icon: '⛈️', text: 'Silná bouřka' }
+            };
+            return map[code] || { icon: '🌡️', text: 'Neznámé' };
+        }
+
+        async function fetchLocationWeather(lat, lng) {
+            const weatherContainer = document.getElementById('detail-weather-badge');
+            
+            // Loading stav
+            if(weatherContainer) {
+                weatherContainer.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Načítám počasí...`;
+                weatherContainer.className = "text-[10px] px-2 py-0.5 rounded bg-[#202225] text-gray-400 border border-gray-700 flex items-center gap-1";
+            }
+
+            try {
+                // Volání Open-Meteo API
+                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+                const data = await response.json();
+                
+                const weather = data.current_weather;
+                const info = getWeatherInfo(weather.weathercode);
+                
+                // Update UI
+                if(weatherContainer) {
+                    weatherContainer.innerHTML = `${info.icon} ${Math.round(weather.temperature)}°C • ${info.text}`;
+                    // Změníme barvu podle teploty (pro efekt)
+                    if(weather.temperature < 5) weatherContainer.className = "text-[10px] px-2 py-0.5 rounded bg-[#2f3136] text-blue-300 border border-blue-900/50 font-bold animate-fade-in";
+                    else if(weather.temperature > 25) weatherContainer.className = "text-[10px] px-2 py-0.5 rounded bg-[#2f3136] text-orange-400 border border-orange-900/50 font-bold animate-fade-in";
+                    else weatherContainer.className = "text-[10px] px-2 py-0.5 rounded bg-[#2f3136] text-white border border-gray-600 font-bold animate-fade-in";
+                }
+            } catch (error) {
+                console.error("Weather error:", error);
+                if(weatherContainer) weatherContainer.innerHTML = "⚠️ Počasí nedostupné";
+            }
         }
 
         // --- MOBILE PLANNER LOGIC ---
@@ -1539,47 +2812,6 @@
             
             // Zrušíme výběr
             selectedDateLocation = null;
-        }
-
-        // Upravíme selectLocation, aby na mobilu vysunul panel
-        const originalSelectLocation = selectLocation; // Uložíme si původní (pokud tam je nějaká logika)
-        
-        // PŘEPIS funkce selectLocation (uprav existující funkci v kódu, nebo ji nahraď tímto):
-        function selectLocation(id) {
-            const loc = dateLocations.find(l => l.id === id);
-            if (!loc) return;
-            
-            selectedDateLocation = loc;
-
-            // 1. Zavřít seznam míst (pokud byl otevřený na mobilu)
-            const sidebar = document.getElementById('planner-sidebar');
-            if (sidebar) sidebar.classList.remove('active');
-
-            // 2. Vyplnění dat
-            document.getElementById('detail-title').innerText = loc.name;
-            document.getElementById('detail-desc').innerText = loc.desc;
-            document.getElementById('detail-cat').innerText = loc.cat.toUpperCase();
-            
-            // Odkaz na mapy
-            let mapsUrl = loc.url ? loc.url : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(loc.name + " Česká republika");
-            const googleLink = document.getElementById('detail-google');
-            if(googleLink) googleLink.href = mapsUrl;
-
-            // 3. MAPA: Přeletět na místo
-            if (state.mapInstance) {
-                state.mapInstance.flyTo([loc.lat, loc.lng], 16, { animate: true, duration: 1.0 });
-                state.mapInstance.eachLayer(layer => {
-                    if (layer instanceof L.Marker && layer.getLatLng().lat === loc.lat) {
-                        layer.openPopup();
-                    }
-                });
-            }
-
-            // 4. Vysunout panel nahoru
-            const panel = document.getElementById('detail-panel');
-            if (panel) {
-                panel.style.transform = 'translateY(0)';
-            }
         }
 
         // --- ROUTE PLANNER LOGIC ---
@@ -1697,7 +2929,7 @@
                     
                     <div class="flex-1 w-full bg-[#202225] rounded-xl overflow-hidden relative shadow-2xl border border-[#202225]">
                         <iframe style="border-radius:12px" 
-                            src="https://open.spotify.com/embed/playlist/2RiSRayx6ulRPZlnvqB82I?utm_source=generator" 
+                            src="https://open.spotify.com/embed/playlist/2zUVrUmI3NHhIPtiboRE9O?utm_source=generator" 
                             width="100%" height="100%" frameBorder="0" allowfullscreen="" 
                             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
                             loading="lazy" class="absolute inset-0">
@@ -2091,30 +3323,54 @@
             div.innerHTML = msg; document.body.appendChild(div); setTimeout(()=>div.remove(), 3000);
         }
 
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && e.target.value.startsWith('/')) {
-                const cmd = e.target.value.trim();
-                if(cmd === '/sova') showNotification('🦉 Sovy otočí hlavu o 270°!', 'info');
-                else if(cmd === '/chobotnice') showNotification('🐙 Chobotnice mají modrou krev.', 'info');
-                e.target.value = '';
-            }
-        });
-
-
-        // --- MAP LOGIC FUNCTIONS ---
+        // --- SEARCH INPUT LISTENER (Global Smart Search) ---
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                
+                // Pokud je prázdno, obnovíme aktuální kanál
+                if (!val) {
+                    switchChannel(state.currentChannel);
+                } else {
+                    // Jinak spustíme globální vyhledávání
+                    renderGlobalSearch(val);
+                }
+            });
+            
+            // Easter egg příkazy
+            searchInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter' && e.target.value.startsWith('/')) {
+                    const cmd = e.target.value.trim();
+                    if(cmd === '/sova') showNotification('🦉 Sovy otočí hlavu o 270°!', 'info');
+                    else if(cmd === '/chobotnice') showNotification('🐙 Chobotnice mají modrou krev.', 'info');
+                    else if(cmd === '/miluju') showNotification('❤️ Taky tě miluju!', 'success');
+                    e.target.value = '';
+                    switchChannel(state.currentChannel); // Reset
+                }
+            });
+        }
 
         // --- MAP LOGIC FUNCTIONS ---
 
         function initMap() {
+            // 1. Bezpečnostní kontrola: Existuje kontejner?
+            // Pokud uživatel rychle přepnul jinam, 'leaflet-map' už v DOMu není.
+            if (!document.getElementById('leaflet-map')) {
+                console.warn("Map container not found, skipping init.");
+                return;
+            }
+
+            // 2. Úklid staré mapy (pro jistotu)
             if (state.mapInstance) {
                 state.mapInstance.remove();
                 state.mapInstance = null;
             }
 
+            // 3. Vytvoření nové mapy
             const map = L.map('leaflet-map').setView([49.069, 17.464], 13);
             state.mapInstance = map;
 
-            // Použijeme světlou mapu (Voyager)
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '© OpenStreetMap © CARTO',
                 subdomains: 'abcd',
@@ -2127,7 +3383,6 @@
         function renderMarkers(locations) {
             if (!state.mapInstance) return;
 
-            // Smažeme staré markery
             state.mapInstance.eachLayer((layer) => {
                 if (layer instanceof L.Marker) {
                     state.mapInstance.removeLayer(layer);
@@ -2135,18 +3390,19 @@
             });
 
             locations.forEach(loc => {
-                // 1. Barva a ikona
                 let color = '#5865F2'; 
                 let iconClass = 'fa-map-marker-alt';
-
                 if (loc.cat === 'food') { color = '#faa61a'; iconClass = 'fa-utensils'; }
                 if (loc.cat === 'view') { color = '#eb459e'; iconClass = 'fa-binoculars'; }
                 if (loc.cat === 'walk') { color = '#3ba55c'; iconClass = 'fa-tree'; }
-                
-                // ZMĚNA: Tady je teď blesk
                 if (loc.cat === 'fun') { color = '#ed4245'; iconClass = 'fa-bolt'; }
 
-                // 2. Vytvoření Pinu
+                // Zjistit hodnocení
+                const rating = state.dateRatings[loc.id] || 0;
+                
+                // Pokud je to "Top Tier" (5 hvězd), dáme mu speciální zlatý marker
+                if (rating === 5) { color = '#ffd700'; iconClass = 'fa-heart'; }
+
                 const customIcon = L.divIcon({
                     className: 'custom-div-icon',
                     html: `
@@ -2160,9 +3416,12 @@
 
                 const marker = L.marker([loc.lat, loc.lng], { icon: customIcon }).addTo(state.mapInstance);
                 
+                const starStr = rating > 0 ? `<br><span style="color:#faa61a; font-size:14px; letter-spacing:2px;">${'★'.repeat(rating)}</span>` : '';
+
                 marker.bindPopup(`
                     <div style="text-align:center">
-                        <b style="color:#fff;font-size:14px">${loc.name}</b><br>
+                        <b style="color:#fff;font-size:14px">${loc.name}</b>
+                        ${starStr}<br>
                         <span style="font-size:11px;color:#b9bbbe">${loc.desc}</span>
                     </div>
                 `);
@@ -2178,22 +3437,40 @@
             const listContainer = document.getElementById('location-list');
             listContainer.innerHTML = '';
 
-            if (locations.length === 0) {
+            // Seřadíme: Nejdřív ta ohodnocená (proběhlá rande), pak zbytek
+            const sortedLocs = [...locations].sort((a, b) => {
+                const rateA = state.dateRatings[a.id] || 0;
+                const rateB = state.dateRatings[b.id] || 0;
+                return rateB - rateA; // Vyšší hodnocení nahoře
+            });
+
+            if (sortedLocs.length === 0) {
                 listContainer.innerHTML = '<div class="text-gray-500 text-xs text-center p-4">Nic nenalezeno... 🔍</div>';
                 return;
             }
 
-            locations.forEach(loc => {
-                // ZMĚNA: fun: '⚡' místo horské dráhy
+            sortedLocs.forEach(loc => {
                 const icons = { view: '⛰️', food: '🍔', fun: '⚡', walk: '🌲' };
                 let icon = icons[loc.cat] || '📍';
                 
+                // Zjistit hodnocení
+                const rating = state.dateRatings[loc.id] || 0;
+                let ratingHtml = '';
+                if(rating > 0) {
+                    ratingHtml = `<div class="text-[#faa61a] text-[10px] mt-0.5">${'★'.repeat(rating)}</div>`;
+                }
+
+                // Pokud je ohodnoceno, dáme mu zlatý okraj
+                const borderClass = rating > 0 ? 'border-[#faa61a]/50' : 'border-[#202225]';
+
                 listContainer.innerHTML += `
-                    <div onclick="selectLocation(${loc.id})" class="p-3 bg-[#36393f] hover:bg-[#40444b] rounded cursor-pointer transition flex items-center gap-3 border border-[#202225] group mb-1">
+                    <div onclick="selectLocation(${loc.id})" class="p-3 bg-[#36393f] hover:bg-[#40444b] rounded cursor-pointer transition flex items-center gap-3 border ${borderClass} group mb-1 relative overflow-hidden">
+                        ${rating > 0 ? '<div class="absolute top-0 right-0 w-3 h-3 bg-[#faa61a] rounded-bl-lg"></div>' : ''}
                         <div class="text-lg group-hover:scale-110 transition">${icon}</div>
                         <div class="min-w-0">
                             <div class="font-bold text-gray-200 text-sm truncate">${loc.name}</div>
                             <div class="text-[10px] text-gray-500 truncate">${loc.desc}</div>
+                            ${ratingHtml}
                         </div>
                     </div>
                 `;
@@ -2256,6 +3533,42 @@
             });
         }
 
+        // --- NOVÁ FUNKCE: JÁ MÁM ŠTĚSTÍ (Random Picker) ---
+        function pickRandomLocation() {
+            // 1. Zjistíme, jaký je aktivní filtr (uložený v state.dateFilter, nebo 'all')
+            // Pokud state.dateFilter nemáš nastavený přesně, vezmeme to z DOMu tlačítka
+            const activeBtn = document.querySelector('.filter-btn.bg-\\[\\#5865F2\\]') 
+                              || document.querySelector('.filter-btn.bg-\\[\\#eb459e\\]') // Výhledy
+                              || document.querySelector('.filter-btn.bg-\\[\\#ed4245\\]') // Zábava
+                              || document.querySelector('.filter-btn.bg-\\[\\#faa61a\\]') // Jídlo
+                              || document.querySelector('.filter-btn.bg-\\[\\#3ba55c\\]'); // Procházky
+            
+            const currentFilter = activeBtn ? activeBtn.dataset.filter : 'all';
+
+            // 2. Vyfiltrujeme dostupná místa
+            const candidates = currentFilter === 'all' 
+                ? dateLocations 
+                : dateLocations.filter(loc => loc.cat === currentFilter);
+
+            if (candidates.length === 0) {
+                showNotification("Žádná místa k výběru!", "info");
+                return;
+            }
+
+            // 3. Efekt "míchání" (dobrovolné - jen vizuální sranda)
+            triggerHaptic('medium');
+            
+            // 4. Vybereme náhodné místo
+            const randomIndex = Math.floor(Math.random() * candidates.length);
+            const winner = candidates[randomIndex];
+
+            // 5. Otevřeme ho
+            selectLocation(winner.id);
+            
+            // 6. Oznámení
+            showNotification(`🎲 Kostka vybrala: ${winner.name}`, "success");
+        }
+
         // 3. NOVÁ FUNKCE: Vyhledávání
         function searchLocations(query) {
             const term = query.toLowerCase();
@@ -2274,42 +3587,139 @@
             
             selectedDateLocation = loc;
 
-            // 1. MOBILNÍ LOGIKA: Zavřít seznam míst (pokud byl otevřený)
+            // 1. Zavřít seznam míst (pro mobilní zobrazení)
             const sidebar = document.getElementById('planner-sidebar');
             if (sidebar) sidebar.classList.remove('active');
 
-            // 2. UI UPDATE: Přepnout z "prázdného stavu" na "obsah"
-            const emptyState = document.getElementById('detail-empty');
+            // 2. UI UPDATE - Zobrazení obsahu
+            const emptyState = document.getElementById('detail-empty'); 
             const contentState = document.getElementById('detail-content');
-            
             if(emptyState) emptyState.classList.add('hidden');
             if(contentState) contentState.classList.remove('hidden');
             
-            // 3. VYPLNĚNÍ DAT
+            // 3. VYPLNĚNÍ ZÁKLADNÍCH DAT
             document.getElementById('detail-title').innerText = loc.name;
             document.getElementById('detail-desc').innerText = loc.desc;
-            document.getElementById('detail-cat').innerText = loc.cat.toUpperCase();
             
-            // Odkaz na mapy (pokud není url, vygeneruje se Google Maps search)
-            let mapsUrl = loc.url ? loc.url : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(loc.name + " Česká republika");            const googleLink = document.getElementById('detail-google');
-            if(googleLink) googleLink.href = mapsUrl;
+            // Kategorie
+            const catEl = document.getElementById('detail-cat');
+            catEl.innerText = loc.cat.toUpperCase();
+            
+            // --- OPRAVA: POČASÍ (Weather Badge) ---
+            // Zkontrolujeme, jestli element pro počasí existuje, pokud ne, vytvoříme ho hned za kategorií
+            let weatherBadge = document.getElementById('detail-weather-badge');
+            // Pokud tam badge není, nebo jsme přepli na jiné místo (pro jistotu ho resetujeme/vytvoříme znovu v DOMu)
+            if (!weatherBadge) {
+                weatherBadge = document.createElement('span');
+                weatherBadge.id = 'detail-weather-badge';
+                // Výchozí styl
+                weatherBadge.className = "ml-2 text-[10px] px-2 py-0.5 rounded bg-[#202225] text-gray-400";
+                // Vložíme ho za kategorii
+                catEl.parentNode.insertBefore(weatherBadge, catEl.nextSibling);
+            }
+            // Zavoláme API pro získání aktuálního počasí
+            // Ujisti se, že máš v kódu i funkci fetchLocationWeather!
+            if (typeof fetchLocationWeather === "function") {
+                fetchLocationWeather(loc.lat, loc.lng);
+            } else {
+                console.error("Chybí funkce fetchLocationWeather!");
+            }
+            // -------------------------------------
 
-            // 4. MAPA: Přeletět na místo
-            if (state.mapInstance) {
-                state.mapInstance.flyTo([loc.lat, loc.lng], 16, { animate: true, duration: 1.0 });
-                // Otevřít bublinu (popup) na mapě
-                state.mapInstance.eachLayer(layer => {
-                    if (layer instanceof L.Marker && layer.getLatLng().lat === loc.lat) {
-                        layer.openPopup();
-                    }
-                });
+            // 4. HODNOCENÍ (Hvězdičky)
+            let ratingContainer = document.getElementById('detail-rating-container');
+            if (!ratingContainer) {
+                ratingContainer = document.createElement('div');
+                ratingContainer.id = 'detail-rating-container';
+                ratingContainer.className = "mt-3 mb-4 p-3 bg-[#202225] rounded border border-[#2f3136]";
+                const descEl = document.getElementById('detail-desc');
+                descEl.parentNode.insertBefore(ratingContainer, descEl.nextSibling);
             }
 
-            // 5. MOBILNÍ ANIMACE: Vysunout panel nahoru
-            // Tohle je ta klíčová část, která chyběla v druhé definici!
-            const panel = document.getElementById('detail-panel');
-            if (panel) {
-                panel.style.transform = 'translateY(0)';
+            // --- OPRAVA: Vše na jeden řádek, aby panel neskákal ---
+            const currentRating = state.dateRatings[loc.id] || 0;
+            const notes = ["Nic moc 😕", "Ušlo to 🙂", "Dobrý! 😃", "Super rande! 😍", "Best date ever! 💍"];
+            const noteText = currentRating > 0 ? notes[currentRating-1] : "";
+
+            // Obalovací kontejner s fixní výškou (h-6), items-center zarovná vše na střed řádku
+            let starsHtml = `<div class="flex items-center h-6 overflow-hidden whitespace-nowrap">`;
+            
+            // 1. TEXT "HODNOCENÍ RANDE"
+            starsHtml += `<span class="text-xs font-bold text-gray-400 uppercase mr-2">Hodnocení:</span>`;
+            
+            // 2. HVĚZDIČKY
+            starsHtml += `<div class="star-rating-group flex mr-3">`;
+            for (let i = 5; i >= 1; i--) {
+                const activeClass = i <= currentRating ? 'active' : '';
+                // Zmenšil jsem text-xl na text-lg, aby se to lépe vešlo
+                starsHtml += `<button onclick="rateDate(${loc.id}, ${i})" class="star-btn ${activeClass} text-lg px-0.5">★</button>`;
+            }
+            starsHtml += `</div>`;
+
+            // 3. TEXT HODNOCENÍ (Hned vedle hvězd)
+            if (noteText) {
+                starsHtml += `<span class="text-[10px] text-[#faa61a] font-bold italic animate-fade-in">${noteText}</span>`;
+            }
+
+            starsHtml += `</div>`;
+            
+            ratingContainer.innerHTML = starsHtml;
+
+            // 5. ODKAZ NA GOOGLE MAPS
+            let mapsUrl = loc.url ? loc.url : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(loc.name + " Česká republika");
+            const googleLink = document.getElementById('detail-google');
+            if(googleLink) googleLink.href = mapsUrl;
+
+            // 6. MAPA - PŘELET (FlyTo) S OFFSETEM
+            if (state.mapInstance) {
+                const targetZoom = 16;
+                
+                // A) Vypočítáme offset (posun)
+                // Chceme marker dostat do horní části obrazovky (cca v 25 % odshora)
+                // Proto musíme střed mapy posunout DOLŮ o 25 % výšky mapy.
+                
+                // Převedeme GPS markeru na pixely (v rámci mapy)
+                const targetPoint = state.mapInstance.project([loc.lat, loc.lng], targetZoom);
+                
+                // Získáme výšku mapy
+                const mapHeight = state.mapInstance.getSize().y;
+                
+                // Posuneme cílový bod o 1/4 výšky mapy dolů (pixely)
+                // Tím pádem, až se mapa vycentruje na tento "falešný střed", 
+                // náš marker bude vizuálně v horní čtvrtině.
+                const offsetY = mapHeight * 0.15; 
+                
+                const newCenterPoint = targetPoint.add([0, offsetY]);
+                
+                // Převedeme pixely zpět na GPS souřadnice pro Leaflet
+                const newCenterLatLng = state.mapInstance.unproject(newCenterPoint, targetZoom);
+
+                // Provedeme let na nové souřadnice
+                state.mapInstance.flyTo(newCenterLatLng, targetZoom, { animate: true, duration: 1.0 });
+                
+                // Otevření bubliny (Popup)
+                state.mapInstance.eachLayer(layer => {
+                    if (layer instanceof L.Marker && layer.getLatLng().lat === loc.lat) {
+                        const rating = state.dateRatings[loc.id] || 0;
+                        const starStr = rating > 0 ? `<br><span style="color:#faa61a">${'★'.repeat(rating)}</span>` : '';
+                        
+                        layer.bindPopup(`
+                            <div style="text-align:center">
+                                <b style="color:#fff;font-size:14px">${loc.name}</b>
+                                ${starStr}<br>
+                                <span style="font-size:11px;color:#b9bbbe">${loc.desc}</span>
+                            </div>
+                        `);
+                        // Otevřeme popup s malým zpožděním, až tam mapa doletí
+                        setTimeout(() => layer.openPopup(), 500);
+                    }
+                });
+
+                //7. OTEVŘENÍ PANELU (Half mode)
+                // Použijeme malý timeout, aby se stihl vykreslit obsah a spočítat výška
+                setTimeout(() => {
+                    setPanelPosition('half');
+                }, 50);
             }
         }
 
@@ -2334,16 +3744,6 @@
             });
         }
         
-        // // MISSING FUNCTIONS RESTORED
-        // function inviteFriend() {
-        //     const tempInput = document.createElement("input");
-        //     tempInput.value = "https://kiscord.gg/invite/podoli-is-fake";
-        //     document.body.appendChild(tempInput);
-        //     tempInput.select();
-        //     document.execCommand("copy");
-        //     document.body.removeChild(tempInput);
-        //     showNotification("Invite link zkopírován! (Je to jen vtip)", "success");
-        // }
 
         function changeTheme(theme) {
             const root = document.documentElement;
@@ -2393,6 +3793,34 @@
         if(state.quizAnswers.completed) { document.getElementById('login-screen').style.display = 'none'; showMainApp(); }
         const search = document.getElementById('search-input');
         if (search) search.addEventListener('input', () => { if (['movies', 'series', 'games'].includes(state.currentChannel)) renderLibrary(state.currentChannel); });
+
+        // --- PWA: OFFLINE MODE REGISTRATION ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => {
+                        console.log('Service Worker zaregistrován:', reg.scope);
+                    })
+                    .catch((err) => {
+                        console.log('Service Worker registrace selhala:', err);
+                    });
+            });
+        }
+
+        // --- DETEKCE OFFLINE STAVU (Notifikace pro Klárku) ---
+        window.addEventListener('offline', () => {
+            showNotification("📡 Ztráta spojení! Přepínám na offline režim.", "error");
+            document.body.style.filter = "grayscale(0.5)"; // Vizuální efekt
+        });
+
+        window.addEventListener('online', () => {
+            showNotification("🌐 Jsi zpět online!", "success");
+            document.body.style.filter = "none";
+            // Znovu načteme mapu, kdyby chyběly dlaždice
+            if(state.mapInstance) {
+                state.mapInstance.invalidateSize();
+            }
+        });
     </script>
 </body>
 </html>
