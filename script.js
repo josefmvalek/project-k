@@ -1,4 +1,4 @@
-﻿let hasUserInteracted = false;
+let hasUserInteracted = false;
 
 // Sledování interakce uživatele (nutné pro audio/haptiku)
 ['click', 'touchstart', 'keydown'].forEach(evt =>
@@ -6406,4 +6406,67 @@ function renderTetrisTracker() {
         </button>
     </div>
   `;
+}
+
+// --- EXPORT DAT ---
+
+function exportAllData() {
+  const keys = [
+    'klarka_health',
+    'klarka_sleep_session',
+    'klarka_plans',
+    'klarka_planned_dates',
+    'klarka_timeline',
+    'klarka_school',
+    'klarka_watchlist',
+    'klarka_watch_history',
+    'klarka_ratings',
+    'klarka_date_ratings',
+    'klarka_topic_progress',
+    'klarka_topic_bookmarks',
+    'klarka_quiz',
+    'klarka_tetris_score',
+  ];
+
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    version: '1.0',
+    app: 'Kiscord – Klárka Edition',
+    data: {},
+  };
+
+  let totalItems = 0;
+
+  keys.forEach(key => {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        exportData.data[key] = JSON.parse(raw);
+        const parsed = exportData.data[key];
+        if (Array.isArray(parsed)) totalItems += parsed.length;
+        else if (typeof parsed === 'object' && parsed !== null) totalItems += Object.keys(parsed).length;
+        else totalItems += 1;
+      } catch {
+        exportData.data[key] = raw;
+      }
+    } else {
+      exportData.data[key] = null;
+    }
+  });
+
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `kiscord-export-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  const popout = document.getElementById('user-popout');
+  if (popout) popout.classList.remove('active');
+
+  showNotification(`📦 Export hotový! Staženo ${totalItems} záznamů.`, 'success');
 }
